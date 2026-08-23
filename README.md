@@ -27,7 +27,7 @@ navigation, so leaving a screen and returning keeps its state.
 ## Structure
 
 ```
-digital-analyzer/
+.
   index.html                  page shell + script/style manifest
   styles/
     tokens.css                design tokens — the single source of truth
