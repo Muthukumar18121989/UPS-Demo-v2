@@ -25,10 +25,16 @@
     }, [DA.icons.help()]);
   };
 
-  /** A trailing asterisk in the label is the product's required marker. */
+  /**
+   * A trailing asterisk in the label is the product's required marker. Shared
+   * on `DA.components` so every control that takes a label applies one rule —
+   * ChipInput carries required fields too.
+   */
   function isRequired(label) {
     return typeof label === 'string' && /\*\s*$/.test(label.replace(/\(.*\)\s*$/, ''));
   }
+
+  DA.components.isRequiredLabel = isRequired;
 
   DA.components.Field = function Field(options) {
     options = options || {};

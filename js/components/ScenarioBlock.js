@@ -189,7 +189,7 @@
 
       if (!open) {
         hintButton = el('button', {
-          className: 'scenario__hint',
+          className: 'scenario__hint u-tap-target',
           attrs: {
             type: 'button',
             'aria-expanded': 'false',

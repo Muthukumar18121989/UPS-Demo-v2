@@ -19,7 +19,7 @@
       options.editable === false
         ? null
         : el('button', {
-            className: 'icon-action',
+            className: 'icon-action u-tap-target',
             attrs: { type: 'button', 'aria-label': 'Edit ' + value }
           }, [DA.icons.pencil(13)])
     ]);
@@ -143,7 +143,7 @@
         })).concat([
           el('td', {}, [
             el('button', {
-              className: 'icon-action icon-action--danger',
+              className: 'icon-action icon-action--danger u-tap-target',
               attrs: { type: 'button', 'aria-label': 'Remove weight break ' + band.from }
             }, [DA.icons.trash(14)])
           ])

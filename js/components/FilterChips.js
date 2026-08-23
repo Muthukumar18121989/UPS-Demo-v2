@@ -22,7 +22,7 @@
           el('span', { className: 'chip chip--filter' }, [
             el('span', { className: 'chip__label', text: value }),
             el('button', {
-              className: 'chip__remove',
+              className: 'chip__remove u-tap-target',
               attrs: { type: 'button', 'aria-label': 'Remove ' + value + ' filter' },
               on: {
                 click: function () {

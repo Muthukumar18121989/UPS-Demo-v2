@@ -149,16 +149,30 @@ two deliberate semantic changes noted below.
   component's own `outline: none`, leaving a 15–18% opacity glow as the only
   indicator. The global rule is declared at real specificity and each affected
   control has an explicit `:focus-visible` ring.
-- All text now clears WCAG AA (4.5:1) on the surface it actually sits on.
-  `--color-text-muted`, `--color-field-label` and teal type each failed against
-  the grey page background; each was darkened within its own hue.
+- Every **enabled** control and every piece of body text clears WCAG AA (4.5:1)
+  on the surface it actually sits on. `--color-text-muted`,
+  `--color-field-label` and teal type each failed against the grey page
+  background; each was darkened within its own hue. The one text colour that
+  does not reach 4.5:1 is the **disabled** label, at 4.04:1 — WCAG 1.4.3
+  exempts inactive controls, and darkening it further would stop a disabled
+  button reading as disabled. That is a deliberate limit, not an oversight.
 - `Expand To Find Bid Details` was a `<span>` with a click handler — the only
   way into a collapsed scenario, and unreachable by keyboard. It is a real
   button, and focus now follows the disclosure to whichever control replaces it.
 - Icon-only controls under 24px extend to the WCAG 2.2 minimum target through
   `.u-tap-target`, which puts the extra hit area on a pseudo-element so nothing
-  around it moves.
-- A field whose label ends in `*` carries `aria-required`.
+  around it moves. It covers the help button, the table row expander, the
+  scenario disclosure and status menu, the account tree expander, the chip
+  remove `x` (12px), the pricing-terms row actions (13px) and the
+  `Expand To Find Bid Details` disclosure (20px tall). The checkbox reaches the
+  same minimum a different way: its input is the hit target and is absolutely
+  positioned over an 18px box, so it cannot take a utility that sets
+  `position: relative` — it is centred and grown to 24px on its own, leaving
+  the visible box at 18px.
+- A field whose label ends in `*` carries `aria-required`. The rule lives on
+  `DA.components.isRequiredLabel` and is applied by `Field`, `SelectField` and
+  `ChipInput` alike, so a required chip field (`Enter Parent*`) announces
+  itself like every other required field.
 - Empty cells no longer carry an empty `title` tooltip.
 
 **Responsive**

@@ -1247,11 +1247,17 @@
   gap: var(--space-3);
 }
 
+/* The input is the hit target and sits invisibly over its 18px box. It cannot
+   use `.u-tap-target` -- that utility sets `position: relative` -- so it takes
+   the same centred minimum directly. The visible box is unchanged. */
 .checkbox__input {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   opacity: 0;
-  width: 18px;
-  height: 18px;
+  width: max(18px, var(--tap-target-min));
+  height: max(18px, var(--tap-target-min));
   margin: 0;
   cursor: pointer;
 }

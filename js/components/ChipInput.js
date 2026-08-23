@@ -29,6 +29,7 @@
         id: id,
         type: 'text',
         'aria-describedby': hintId || false,
+        'aria-required': DA.components.isRequiredLabel(options.label) ? 'true' : false,
         autocomplete: 'off'
       },
       on: {
@@ -110,7 +111,7 @@
           el('span', { className: 'chip' }, [
             el('span', { className: 'chip__label', text: value, attrs: { title: value } }),
             el('button', {
-              className: 'chip__remove',
+              className: 'chip__remove u-tap-target',
               attrs: { type: 'button', 'aria-label': 'Remove ' + value },
               on: { click: function () { remove(index); } }
             }, [DA.icons.closeCircle(16)])
