@@ -71,7 +71,7 @@
 }
 
 .icon-button:active {
-  background-color: var(--color-border-subtle);
+  background-color: var(--color-surface-muted);
 }
 
 /* --------------------------------------------------------------------------
@@ -110,7 +110,7 @@
   padding: 0 var(--space-5);
   background-color: transparent;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-control);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
@@ -148,6 +148,11 @@
   border-color: var(--color-text-muted);
 }
 
+.button--secondary:active {
+  background-color: var(--color-surface-muted);
+  border-color: var(--color-text-secondary);
+}
+
 .button--ghost {
   color: var(--color-text-link);
 }
@@ -156,11 +161,23 @@
   background-color: var(--color-surface-hover);
 }
 
+.button--ghost:active {
+  background-color: var(--color-info-subtle);
+}
+
 .button[disabled] {
   background-color: var(--color-disabled-bg);
   border-color: var(--color-disabled-border);
   color: var(--color-disabled-text);
   cursor: not-allowed;
+}
+
+/* Its own hover/active tones must not override the disabled treatment. */
+.button[disabled]:hover,
+.button[disabled]:active {
+  background-color: var(--color-disabled-bg);
+  border-color: var(--color-disabled-border);
+  color: var(--color-disabled-text);
 }
 
 /* --------------------------------------------------------------------------
@@ -234,7 +251,7 @@
   padding: 0 var(--space-3) 0 var(--space-8);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-control);
   color: var(--color-text-primary);
   font-size: var(--font-size-sm);
   transition: border-color var(--duration-fast) var(--easing-standard),
@@ -255,6 +272,16 @@
   box-shadow: 0 0 0 2px rgba(10, 97, 168, 0.18);
 }
 
+/*
+ * Keyboard focus gets the product's real ring. Without this the component's
+ * own `outline: none` outranks the global focus rule and a keyboard user is
+ * left with a 18%-opacity glow to navigate by.
+ */
+.search-field__input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
 .search-field__input::-webkit-search-cancel-button {
   cursor: pointer;
 }
@@ -268,7 +295,7 @@
   min-height: 0;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-surface);
   box-shadow: var(--shadow-xs);
   overflow: hidden;
 }
@@ -278,7 +305,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3) var(--space-4);
-  padding: var(--space-5) var(--space-5);
+  padding: var(--space-5);
 }
 
 .panel__toolbar-group {
@@ -313,7 +340,7 @@
   max-width: 100%;
   padding: 3px var(--space-3);
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-control);
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-snug);
@@ -394,9 +421,10 @@
   z-index: 1;
   height: var(--table-header-height);
   background-color: var(--color-surface-inverse);
+  background-clip: padding-box;
   color: var(--color-text-inverse);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-normal);
   white-space: nowrap;
 }
@@ -419,15 +447,36 @@
   transition: background-color var(--duration-fast) var(--easing-standard);
 }
 
-.data-table tbody tr:hover td {
-  background-color: var(--color-surface-hover);
-}
-
+.data-table tbody tr:hover td,
 .data-table tbody tr:focus-within td {
   background-color: var(--color-surface-hover);
 }
 
-.data-table .is-numeric {
+/*
+ * A marker on the row's leading edge, so a hovered row stays identifiable
+ * while reading the far right of a table that scrolls horizontally.
+ */
+.data-table tbody tr:not(.is-empty-row):hover td:first-child,
+.data-table tbody tr:not(.is-empty-row):focus-within td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.data-table tbody tr.is-empty-row:hover td {
+  background-color: transparent;
+}
+
+/*
+ * With no rows to line up there are no columns to preserve, so the table
+ * drops its minimum width and the empty state stays centred in what the
+ * reader can actually see instead of in 1180px of empty grid.
+ */
+.data-table--empty {
+  min-width: 0;
+  table-layout: auto;
+}
+
+.data-table .is-numeric,
+.data-table th.is-numeric {
   font-variant-numeric: tabular-nums;
 }
 
@@ -515,7 +564,7 @@
   padding: var(--space-6);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-surface);
   box-shadow: var(--shadow-xs);
 }
 
@@ -557,6 +606,17 @@
   min-width: 0;
 }
 
+/*
+ * Inside the workflow form every field reserves the help gutter, with or
+ * without a help button in it, so the inputs share one right edge and the
+ * question marks stack on one vertical axis.
+ */
+.form-grid .field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--field-help-size);
+  align-items: start;
+}
+
 .field__control {
   position: relative;
   flex: 1 1 auto;
@@ -569,7 +629,7 @@
   padding: var(--space-4) var(--field-padding-x) var(--space-1);
   background-color: var(--color-field-bg);
   border: 1px solid var(--color-field-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-control);
   color: var(--color-field-text);
   font-size: var(--font-size-md);
   line-height: 1.25;
@@ -600,6 +660,11 @@
   border-color: var(--color-field-border-filled);
   outline: none;
   box-shadow: 0 0 0 2px rgba(31, 51, 72, 0.15);
+}
+
+.field__input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 1px;
 }
 
 .field__label {
@@ -644,9 +709,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  margin-top: 11px;
+  width: var(--field-help-size);
+  height: var(--field-help-size);
+  /* Optically centred on the first line of the control beside it. */
+  margin-top: calc((var(--field-height) - var(--field-help-size)) / 2);
   padding: 0;
   background: none;
   border: 0;
@@ -656,6 +722,16 @@
 
 .help-button:hover {
   color: var(--color-text-link-hover);
+}
+
+.help-button:active {
+  color: var(--color-text-link-hover);
+}
+
+/* Inline beside a label rather than stacked beside a control. */
+.stat__label .help-button,
+.scenario__header-actions .help-button {
+  margin-top: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -692,7 +768,7 @@
   padding: var(--space-4) var(--space-2) var(--space-1);
   background-color: var(--color-field-bg);
   border: 1px solid var(--color-field-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-control);
   transition: border-color var(--duration-fast) var(--easing-standard),
               box-shadow var(--duration-fast) var(--easing-standard);
 }
@@ -765,8 +841,14 @@
   font-size: var(--font-size-md);
 }
 
+/* The chip box carries the focus treatment for the input inside it. */
 .chip-input__entry:focus {
   outline: none;
+}
+
+.chip-input:has(.chip-input__entry:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 1px;
 }
 
 .chip-input__entry::placeholder {
@@ -853,7 +935,7 @@
    -------------------------------------------------------------------------- */
 .accordion {
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
   background-color: var(--color-surface);
 }
 
@@ -903,7 +985,7 @@
   padding: var(--space-7) var(--space-5);
   background-color: var(--color-surface-sunken);
   border: 1px dashed var(--color-border-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-container);
   text-align: center;
   transition: border-color var(--duration-fast) var(--easing-standard),
               background-color var(--duration-fast) var(--easing-standard);
@@ -967,7 +1049,7 @@
   padding: 0 var(--space-3);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-control);
   font-size: var(--font-size-sm);
 }
 
@@ -1029,6 +1111,10 @@
   text-decoration: underline;
 }
 
+.button--link:active {
+  background-color: var(--color-info-subtle);
+}
+
 /* Grid item wrapper: control row plus any hint beneath it. */
 .form-field {
   display: flex;
@@ -1040,9 +1126,11 @@
    Workflow page title
    -------------------------------------------------------------------------- */
 .page-title {
-  margin-bottom: var(--space-4);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-5);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary);
   text-align: center;
 }
@@ -1053,7 +1141,7 @@
 .summary-panel {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
   box-shadow: var(--shadow-xs);
 }
 
@@ -1111,16 +1199,15 @@
 }
 
 .detail__label {
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .detail__value {
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
 }
 
-.detail--inline .detail__value {
-  color: var(--color-text-primary);
+.detail__label {
+  color: var(--color-text-secondary);
 }
 
 /* --------------------------------------------------------------------------
@@ -1134,7 +1221,7 @@
   background-color: var(--color-surface-sunken);
   border: 1px solid var(--color-border);
   border-left: 5px solid var(--color-surface-inverse);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 }
@@ -1177,7 +1264,7 @@
   height: 18px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-control);
   color: transparent;
   transition: background-color var(--duration-fast) var(--easing-standard),
               border-color var(--duration-fast) var(--easing-standard);
@@ -1225,7 +1312,7 @@
 
 .scenario__card {
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
 }
 
 .scenario__row {
@@ -1250,6 +1337,20 @@
 .scenario__cell--last,
 .scenario__cell:last-child {
   border-right: 0;
+}
+
+.scenario__cell--key {
+  min-width: 128px;
+}
+
+.scenario__cell--date {
+  min-width: 116px;
+}
+
+/* Truncates rather than collapsing to a single character once the row runs
+   out of width; the row scrolls instead. */
+.scenario__cell--name {
+  min-width: 140px;
 }
 
 .scenario__cell-label {
@@ -1323,7 +1424,7 @@
   max-height: calc(100vh - var(--space-8));
   overflow-y: auto;
   background-color: var(--color-surface);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-surface);
   box-shadow: var(--shadow-md);
 }
 
@@ -1387,18 +1488,27 @@
   color: var(--color-text-link-hover);
 }
 
+.button--outline:active {
+  background-color: var(--color-info-subtle);
+  border-color: var(--color-text-link-hover);
+}
+
 .button--quiet-link {
   min-height: var(--control-height-md);
   padding: 0 var(--space-2);
   background: none;
   border-color: transparent;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: var(--font-weight-medium);
 }
 
 .button--quiet-link:hover {
-  color: var(--color-primary-hover);
+  color: var(--color-primary-active);
   text-decoration: underline;
+}
+
+.button--quiet-link:active {
+  color: var(--color-primary-active);
 }
 
 /* Padded vertical stack inside a panel. */
@@ -1432,6 +1542,16 @@
 
 .page-back {
   margin-bottom: var(--space-2);
+}
+
+/*
+ * A link button carries its own horizontal padding, which pushed the leading
+ * "Back" 8px to the right of the breadcrumb and content beneath it. Pulling
+ * it flush puts the whole column on one left edge.
+ */
+.page-back > .button--link:first-child,
+.page-actions > .button--link:first-child {
+  margin-left: calc(var(--space-2) * -1);
 }
 
 /* --------------------------------------------------------------------------
@@ -1477,9 +1597,13 @@
   color: var(--color-text-primary);
 }
 
-/* Collapsed, the cells clear the space the chevron occupies when expanded. */
+/*
+ * Collapsed, the cells clear the space the chevron occupies when expanded.
+ * The reserved space must match the row's own gap, or the cells jump 4px
+ * sideways every time the scenario is opened.
+ */
 .scenario__row--indented {
-  padding-left: calc(var(--space-4) + 20px + var(--space-3));
+  padding-left: calc(var(--space-4) + 20px + var(--space-4));
 }
 
 .scenario__hint-row {
@@ -1490,12 +1614,26 @@
 }
 
 .scenario__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0;
+  background: none;
+  border: 0;
   color: var(--color-text-primary);
   font-size: var(--font-size-sm);
-  cursor: pointer;
+  text-align: left;
 }
 
-.scenario__hint:hover {
+/* Reproduces the 20px slot the disclosure chevron occupies when expanded, so
+   the label sits on the same axis in both states. */
+.scenario__hint > svg {
+  margin-inline: 2px;
+  color: var(--color-text-secondary);
+}
+
+.scenario__hint:hover,
+.scenario__hint:hover > svg {
   color: var(--color-text-link);
 }
 
@@ -1609,7 +1747,7 @@
   margin-top: var(--space-4);
   padding: var(--space-5);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
 }
 
 .link-with-icon {
@@ -1661,7 +1799,7 @@
 .card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
 }
 
 .card__body {
@@ -1769,7 +1907,7 @@
 }
 
 .tabs__tab[aria-selected="true"] {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: var(--font-weight-medium);
 }
 
@@ -1819,10 +1957,11 @@
 }
 
 .page-heading__subtitle {
-  margin-top: var(--space-4);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  margin-top: var(--space-3);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-snug);
+  color: var(--color-text-secondary);
 }
 
 .page-heading__chip {
@@ -1876,6 +2015,7 @@
   align-items: center;
   gap: var(--space-1);
   font-size: var(--font-size-xs);
+  line-height: var(--line-height-snug);
   color: var(--color-field-label);
 }
 
@@ -1922,7 +2062,7 @@
   padding: var(--space-3) var(--space-4);
   background-color: var(--color-surface-muted);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
 }
 
 .search-bar__actions {
@@ -1961,7 +2101,7 @@
   margin-top: var(--space-5);
   padding: var(--space-4);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
 }
 
 .tree__node + .tree__node {
@@ -1977,8 +2117,16 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
+  background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
+  transition: background-color var(--duration-fast) var(--easing-standard),
+              border-color var(--duration-fast) var(--easing-standard);
+}
+
+.tree__row:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border);
 }
 
 .tree__toggle {
@@ -2022,8 +2170,9 @@
 
 .section-title {
   margin-bottom: var(--space-3);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
   color: var(--color-text-primary);
 }
 
@@ -2061,6 +2210,7 @@
 
 .data-table--tinted tbody td {
   background-color: var(--color-surface-muted);
+  border-bottom-color: var(--color-border);
 }
 
 .data-table--tinted tbody tr:hover td {
@@ -2108,7 +2258,7 @@
 .record-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-3) var(--space-4);
 }
 
@@ -2151,6 +2301,12 @@
 
 .report-filters__actions {
   margin-left: auto;
+}
+
+/* Matches the fields it sits beside, so the filter row has one top and one
+   bottom edge. */
+.report-filters__actions .button {
+  min-height: var(--field-height);
 }
 
 .select-field--bare .field__input {
@@ -2203,7 +2359,7 @@
   padding: 0 var(--field-padding-x);
   background-color: var(--color-field-bg);
   border: 1px solid var(--color-field-border-filled);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-control);
   color: var(--color-field-text);
   font-size: var(--font-size-md);
   text-align: left;
@@ -2211,6 +2367,10 @@
 
 .dropdown__trigger:hover {
   border-color: var(--color-field-border-hover);
+}
+
+.dropdown__option:has(:focus-visible) {
+  background-color: var(--color-surface-hover);
 }
 
 .dropdown__chevron {
@@ -2232,7 +2392,7 @@
   padding: var(--space-3) 0;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-control);
   box-shadow: var(--shadow-md);
 }
 
@@ -2287,7 +2447,7 @@
 
 .accordion--filled > .accordion__trigger {
   background-color: var(--color-surface-muted);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-radius: var(--radius-container) var(--radius-container) 0 0;
   font-weight: var(--font-weight-medium);
 }
 
@@ -2298,8 +2458,9 @@
   color: var(--color-text-primary);
 }
 
-.data-table tbody tr:hover td.is-rowhead {
-  background-color: var(--color-surface-muted-strong);
+.data-table tbody tr:hover td.is-rowhead,
+.data-table tbody tr:focus-within td.is-rowhead {
+  background-color: var(--color-border-strong);
 }
 
 .tree-cell {
@@ -2335,7 +2496,7 @@
   gap: var(--space-6);
   padding: 0 var(--space-5);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
 }
 
 .tabs--boxed > .tabs > .tabs__panel {
@@ -2469,8 +2630,16 @@
   font-variant-numeric: tabular-nums;
 }
 
+.matrix tbody tr:hover td {
+  background-color: var(--color-surface-hover);
+}
+
 .matrix tbody tr:nth-child(even) td {
   background-color: var(--color-surface-sunken);
+}
+
+.matrix tbody tr:nth-child(even):hover td {
+  background-color: var(--color-surface-hover);
 }
 
 .matrix tbody tr:nth-child(even) .matrix__rowhead {
@@ -2582,7 +2751,8 @@
 }
 
 /* The tier being aimed at, held apart from the bands leading to it. */
-.matrix .is-target {
+.matrix .is-target,
+.matrix tbody tr:hover .is-target {
   background-color: #f6e3dd;
   color: var(--color-text-primary);
 }
@@ -2606,7 +2776,8 @@
 /* The difference between two compared scenarios, set apart from the figures
    it was derived from. */
 .data-table tr.is-difference td {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
+  font-weight: var(--font-weight-medium);
 }
 
 /* --------------------------------------------------------------------------

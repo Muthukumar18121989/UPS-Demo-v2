@@ -55,9 +55,22 @@
       className:
         'chip-input' +
         (options.multiline ? ' chip-input--multiline chip-input--labelled' : '') +
-        (values.length ? ' chip-input--filled' : '')
+        (values.length ? ' chip-input--filled' : ''),
+      on: {
+        // The entry line is 21px inside a 42px box; clicking anywhere in the
+        // box now lands in the field, as it does for every other input.
+        mousedown: function (event) {
+          if (event.target.closest('button') || event.target === entry) return;
+          event.preventDefault();
+          entry.focus();
+        }
+      }
     }, [
-      el('label', { className: 'chip-input__label', text: options.label, attrs: { for: id } }),
+      el('label', {
+        className: 'chip-input__label',
+        text: options.label,
+        attrs: { for: id }
+      }),
       area
     ]);
 

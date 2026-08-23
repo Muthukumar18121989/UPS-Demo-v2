@@ -76,11 +76,109 @@ repeated hard-coded values.
 
 - **Type scale**: 11 / 12 / 13 / 14 / 16 / 18 / 22 px, weights 400–700.
 - **Spacing**: 4 px base scale (`--space-1` … `--space-8`).
-- **Radius**: 2 / 4 / 6 / 8 / pill.
+- **Radius**: the 2 / 4 / 6 / 8 / pill scale, consumed through three *role*
+  tokens rather than picked per component — `--radius-surface` (outermost
+  surfaces: panel, form card, dialog), `--radius-container` (anything nested
+  inside one: card, accordion, tree, alert, search bar) and `--radius-control`
+  (inputs, buttons, badges, checkboxes). Pills opt out explicitly. Components
+  reference the role, so a radius decision is made once.
 - **Colour**: semantic tokens (`--color-text-primary`, `--color-info`,
   `--color-error`, …) over the product's existing character — UPS gold for the
   primary action, teal for the selected scope, charcoal table header,
-  blue record links.
+  blue record links. Teal reaches only 4.1:1 as *type* on the grey page, so
+  text uses `--color-primary-text` — the palette's own darker teal, not a new
+  hue. Fills, borders and states still use `--color-primary` itself.
+
+## UX/UI refinement pass
+
+A polish pass over the built screens: alignment, typography hierarchy, spacing,
+component consistency, interaction states and accessibility. **No layout, no
+information architecture and no brand colour changed** — the DOM structure of
+every screen was fingerprinted before and after and is identical, apart from
+two deliberate semantic changes noted below.
+
+**Alignment**
+
+- Every field in `.form-grid` reserves the help-button gutter, with or without
+  a `?` in it. Previously a field with help was 28px narrower than one without,
+  so the full-width stack had two different right edges and the icons never
+  shared an axis. All inputs now share one right edge; all `?` icons share one
+  vertical axis.
+- The help button's vertical offset was a hard-coded `11px` tied to a 42px
+  control; it is now derived from `--field-height`.
+- The Reset action in `.report-filters` was 34px in a row of 42px fields. It
+  matches the fields it sits beside, so the row has one top and one bottom edge.
+- `.record-header` aligns its title and metadata on a shared **baseline**. The
+  title's brand rule was dragging the metadata 11px below the title's own text.
+- A scenario row's cells shifted 4px sideways on every expand, because the
+  collapsed row reserved `--space-3` where the expanded row's gap is
+  `--space-4`.
+- The leading `Back` link is pulled flush by its own horizontal padding, so it
+  sits on the same left edge as the breadcrumb and content beneath it.
+- `--key` and `--date` scenario cells have a width floor, so the fixed-shape
+  columns line up between stacked scenario cards.
+
+**Typography**
+
+- `.page-title` was 13px bold — smaller than the section headings beneath it,
+  and a different size from the identical-level titles on the other two
+  screens. All three page titles now share one treatment.
+- `.page-heading__subtitle` was bold and outweighed the `.section-title` below
+  it. Supporting text now reads as supporting text; the section heading carries
+  the weight of its level.
+- `.detail__value` was lighter than its own bold label, so a record summary
+  read its labels first. Values are primary text, labels secondary.
+- Table column headers are semibold, holding them apart from the figures below.
+
+**Interaction and states**
+
+- Every button variant has a pressed state; only `--primary` had one.
+- Disabled controls are legible (`#757575` on `#f0f0f0`, up from `#9e9e9e`) and
+  keep their treatment on hover, and carry a visible border.
+- Table rows grow a leading marker on hover, so a hovered row stays findable
+  while reading the far right of a table that scrolls horizontally.
+- Tree rows and matrix rows gained hover feedback; the `is-rowhead` label
+  column now responds to its row's hover instead of sitting it out.
+- The whole `.chip-input` box is a click target; the entry line inside it is
+  21px of a 42px control.
+
+**Accessibility**
+
+- **Keyboard focus was invisible on every text input and select.** The global
+  focus rule lived in `:where()` at zero specificity and lost to each
+  component's own `outline: none`, leaving a 15–18% opacity glow as the only
+  indicator. The global rule is declared at real specificity and each affected
+  control has an explicit `:focus-visible` ring.
+- All text now clears WCAG AA (4.5:1) on the surface it actually sits on.
+  `--color-text-muted`, `--color-field-label` and teal type each failed against
+  the grey page background; each was darkened within its own hue.
+- `Expand To Find Bid Details` was a `<span>` with a click handler — the only
+  way into a collapsed scenario, and unreachable by keyboard. It is a real
+  button, and focus now follows the disclosure to whichever control replaces it.
+- Icon-only controls under 24px extend to the WCAG 2.2 minimum target through
+  `.u-tap-target`, which puts the extra hit area on a pseudo-element so nothing
+  around it moves.
+- A field whose label ends in `*` carries `aria-required`.
+- Empty cells no longer carry an empty `title` tooltip.
+
+**Responsive**
+
+- Below 720px `.form-grid` and the summary panel stack to one column; two 42px
+  fields sharing that width left ~150px each and clipped their labels. Desktop
+  is untouched.
+- An empty table drops its fixed column widths, so the empty state centres in
+  what the reader can see rather than in 1180px of empty grid. It was
+  previously pushed off to the right and clipped.
+
+**Deliberately not changed**
+
+- The description column between stacked scenario cards still sizes to its
+  content, so its dividers do not line up card to card. Forcing it would mean
+  truncating `13 WEEKS UPS SHIPPING PROFILE` on the baseline scenario, and
+  hiding content to win an alignment is the wrong trade.
+- The breadcrumb separator is `/` on the analyzer packet screen and `>` on
+  account association. Both come from their own reference screens, so unifying
+  them is a call for the design owner, not a defect to fix silently.
 
 ## Tables stay tables
 

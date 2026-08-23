@@ -20,10 +20,15 @@
 
   DA.components.HelpButton = function HelpButton(text) {
     return el('button', {
-      className: 'help-button',
+      className: 'help-button u-tap-target',
       attrs: { type: 'button', 'aria-label': text, title: text }
     }, [DA.icons.help()]);
   };
+
+  /** A trailing asterisk in the label is the product's required marker. */
+  function isRequired(label) {
+    return typeof label === 'string' && /\*\s*$/.test(label.replace(/\(.*\)\s*$/, ''));
+  }
 
   DA.components.Field = function Field(options) {
     options = options || {};
@@ -38,6 +43,7 @@
         rows: options.multiline ? (options.rows || 2) : false,
         placeholder: options.label,
         readonly: options.readOnly || false,
+        'aria-required': isRequired(options.label) ? 'true' : false,
         'aria-describedby': hintId || false
       },
       on: options.onInput ? { input: options.onInput } : {}
@@ -81,7 +87,10 @@
       'select',
       {
         className: 'field__input',
-        attrs: { id: id },
+        attrs: {
+          id: id,
+          'aria-required': isRequired(options.label) ? 'true' : false
+        },
         on: options.onChange ? { change: options.onChange } : {}
       },
       (options.options || []).map(function (option) {

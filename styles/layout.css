@@ -49,6 +49,31 @@
     --page-gutter: var(--space-3);
   }
 
+  /*
+   * Two 42px fields side by side leave about 150px each at this width, which
+   * clips their labels. The desktop composition is untouched; below 720px the
+   * same fields simply stack in the order they already appear.
+   */
+  .form-grid,
+  .summary-panel__header-items,
+  .summary-panel__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .form-card {
+    padding: var(--space-5);
+  }
+
+  .summary-panel__body {
+    padding-left: var(--space-5);
+  }
+
+  /* Stacked, the headline is several lines tall; the disclosure belongs on
+     the first of them rather than floating against the middle. */
+  .summary-panel__header {
+    align-items: flex-start;
+  }
+
   .app-header {
     padding: var(--space-3) var(--space-4);
     gap: var(--space-3);

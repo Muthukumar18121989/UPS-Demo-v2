@@ -108,7 +108,7 @@
       var open = true;
       var body = el('div', { className: 'tree__body' }, config.children);
       var toggle = el('button', {
-        className: 'tree__toggle',
+        className: 'tree__toggle u-tap-target',
         attrs: { type: 'button', 'aria-expanded': 'true', 'aria-label': 'Collapse ' + config.label },
         on: {
           click: function () {

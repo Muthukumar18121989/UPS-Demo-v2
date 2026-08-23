@@ -71,7 +71,7 @@
 
         if (children) {
           inner.push(el('button', {
-            className: 'row-toggle',
+            className: 'row-toggle u-tap-target',
             attrs: {
               type: 'button',
               'aria-expanded': expanded ? 'true' : 'false',
@@ -96,10 +96,13 @@
         }, [el('span', { className: 'expand-cell' }, inner)]);
       }
 
+      var plain = content == null ? '' : String(content);
       return el('td', {
         className: column.className || '',
         text: isNode ? null : content,
-        attrs: { title: isNode ? false : String(content == null ? '' : content) }
+        // Only a cell that actually holds text carries a tooltip; an empty
+        // one was producing an empty tooltip on hover.
+        attrs: { title: !isNode && plain ? plain : false }
       }, isNode ? [content] : null);
     }
 
@@ -117,8 +120,12 @@
     function render() {
       DA.dom.clear(body);
       if (rows.length === 0) {
+        // Fixed column widths would hold the table at its full scrolling
+        // width with nothing in it, pushing the empty state off to the side.
+        table.classList.add('data-table--empty');
+        if (colgroup.parentNode) table.removeChild(colgroup);
         body.appendChild(
-          el('tr', {}, [
+          el('tr', { className: 'is-empty-row' }, [
             el('td', { attrs: { colspan: columns.length }, style: { 'white-space': 'normal' } }, [
               options.emptyState || DA.components.EmptyState({ title: 'No records found' })
             ])
@@ -126,10 +133,11 @@
         );
         return;
       }
+      table.classList.remove('data-table--empty');
+      if (!colgroup.parentNode) table.insertBefore(colgroup, head);
       rows.forEach(function (row) { addRow(row, 0); });
     }
 
-    render();
 
     var table = el('table', {
       className: 'data-table' +
@@ -145,6 +153,8 @@
       head,
       body
     ]);
+
+    render();
 
     return el(
       'div',
@@ -172,7 +182,10 @@
           'aria-label': options.ariaLabel || false
         }
       },
-      [el('span', { className: 'record-link__label', text: options.label }), DA.icons.chevronRight()]
+      [
+        el('span', { className: 'record-link__label', text: options.label }),
+        DA.icons.chevronRight(14)
+      ]
     );
   };
 })(window.DA);

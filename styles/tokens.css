@@ -18,6 +18,11 @@
   --color-primary-active: #00615b;
   --color-primary-subtle: #e5f3f2;
   --color-on-primary: #ffffff;
+  /*
+   * Teal as *text* on a light surface. The fill tone only reaches 4.1:1 on the
+   * grey page background, so type uses the palette's own darker step.
+   */
+  --color-primary-text: var(--color-primary-hover);
 
   /* ---- Neutrals / surfaces --------------------------------------------- */
   --color-bg: #f4f4f4;
@@ -37,7 +42,7 @@
   /* ---- Text ------------------------------------------------------------- */
   --color-text-primary: #2b2b2b;
   --color-text-secondary: #565656;
-  --color-text-muted: #767676;
+  --color-text-muted: #6b6b6b;
   --color-text-inverse: #ffffff;
   --color-text-link: #0a61a8;
   --color-text-link-hover: #084b82;
@@ -60,14 +65,14 @@
   --color-field-border: #a9bccd;
   --color-field-border-hover: #7d97ae;
   --color-field-border-filled: #1f3348;
-  --color-field-label: #8a6d00;
+  --color-field-label: #806500;
   --color-field-placeholder: #6b7a89;
   --color-field-text: #1f3348;
 
   /* ---- Disabled --------------------------------------------------------- */
   --color-disabled-bg: #f0f0f0;
-  --color-disabled-border: #e0e0e0;
-  --color-disabled-text: #9e9e9e;
+  --color-disabled-border: var(--color-border);
+  --color-disabled-text: #757575;
 
   /* ---- Focus ------------------------------------------------------------ */
   --color-focus-ring: #0a61a8;
@@ -119,6 +124,15 @@
   --radius-lg: 8px;
   --radius-pill: 999px;
 
+  /*
+   * Radius by role, so the same kind of thing is rounded the same amount
+   * everywhere: outermost surfaces, containers nested inside them, and the
+   * controls that sit on top. Pills opt out explicitly.
+   */
+  --radius-surface: var(--radius-lg);
+  --radius-container: var(--radius-sm);
+  --radius-control: var(--radius-sm);
+
   /* ---- Elevation (restrained) -------------------------------------------- */
   --shadow-none: none;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -136,6 +150,15 @@
   --field-height: 42px;
   --field-padding-x: var(--space-3);
   --form-card-width: 700px;
+
+  /*
+   * The help affordance sits in a gutter every field reserves, whether or not
+   * it has one, so inputs share a right edge and the icons share an axis.
+   */
+  --field-help-size: 20px;
+
+  /* WCAG 2.2 target size: icon-only controls extend to this, visual size aside. */
+  --tap-target-min: 24px;
 
   --table-header-height: 42px;
   --table-row-height: 36px;

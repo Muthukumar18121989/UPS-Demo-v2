@@ -60,11 +60,22 @@ svg {
   flex-shrink: 0;
 }
 
-/* One consistent, always-visible focus treatment across the product. */
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+/*
+ * One consistent, always-visible focus treatment across the product.
+ *
+ * Declared at real specificity rather than inside :where(), because a
+ * zero-specificity rule loses to any component's own :focus styling — which
+ * is how the text inputs ended up with no keyboard ring at all.
+ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
   outline: var(--focus-ring-width) solid var(--color-focus-ring);
   outline-offset: var(--focus-ring-offset);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-control);
 }
 
 /* Utilities ---------------------------------------------------------------- */
@@ -88,6 +99,25 @@ svg {
   white-space: nowrap;
 }
 
+/*
+ * Extends an icon-only control to the WCAG 2.2 minimum target without
+ * changing what is drawn: the pseudo-element carries the extra hit area, so
+ * nothing around it shifts.
+ */
+.u-tap-target {
+  position: relative;
+}
+
+.u-tap-target::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, var(--tap-target-min));
+  height: max(100%, var(--tap-target-min));
+  transform: translate(-50%, -50%);
+}
+
 .skip-link {
   position: absolute;
   left: var(--space-4);
@@ -97,7 +127,7 @@ svg {
   padding: var(--space-2) var(--space-4);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-container);
   box-shadow: var(--shadow-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);

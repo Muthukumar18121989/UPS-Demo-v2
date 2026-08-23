@@ -21,14 +21,17 @@
     var panelId = 'scenario-panel-' + uid;
     var card = el('div', { className: 'scenario__card' });
 
+    var hintButton = null;
+
     var toggle = el('button', {
-      className: 'scenario__toggle',
+      className: 'scenario__toggle u-tap-target',
       attrs: { type: 'button', 'aria-controls': panelId },
       on: {
         click: function () {
           scenario.expanded = !scenario.expanded;
           renderCard();
-          toggle.focus();
+          var next = scenario.expanded ? toggle : hintButton;
+          if (next) next.focus();
         }
       }
     });
@@ -125,7 +128,7 @@
 
     function summaryCells() {
       return [
-        el('div', { className: 'scenario__cell' }, [
+        el('div', { className: 'scenario__cell scenario__cell--key' }, [
           el('span', { className: 'scenario__cell-label', text: scenario.name })
         ]),
         el('div', { className: 'scenario__cell scenario__cell--name' }, [
@@ -135,11 +138,11 @@
             attrs: { title: scenario.description }
           })
         ]),
-        el('div', { className: 'scenario__cell' }, [
+        el('div', { className: 'scenario__cell scenario__cell--date' }, [
           el('span', { className: 'scenario__cell-label', text: 'Created Date' }),
           el('span', { className: 'scenario__cell-value', text: scenario.createdDate })
         ]),
-        el('div', { className: 'scenario__cell scenario__cell--last' }, [
+        el('div', { className: 'scenario__cell scenario__cell--date scenario__cell--last' }, [
           el('span', { className: 'scenario__cell-label', text: 'Last Modified' }),
           el('span', { className: 'scenario__cell-value', text: scenario.lastModified })
         ]),
@@ -147,7 +150,7 @@
           C.StatusBadge(scenario.status, { pill: true }),
           scenario.editable
             ? el('button', {
-                className: 'scenario__status-menu',
+                className: 'scenario__status-menu u-tap-target',
                 attrs: { type: 'button', 'aria-label': 'Analysis status details' }
               }, [DA.icons.chevronDown(14)])
             : null
@@ -185,16 +188,20 @@
       card.appendChild(row);
 
       if (!open) {
-        card.appendChild(
-          el('div', { className: 'scenario__hint-row' }, [
-            toggle,
-            el('span', {
-              className: 'scenario__hint',
-              text: 'Expand To Find Bid Details',
-              on: { click: function () { toggle.click(); } }
-            })
-          ])
-        );
+        hintButton = el('button', {
+          className: 'scenario__hint',
+          attrs: {
+            type: 'button',
+            'aria-expanded': 'false',
+            'aria-controls': panelId
+          },
+          on: { click: function () { toggle.click(); } }
+        }, [
+          DA.icons.chevronDown(16),
+          el('span', { text: 'Expand To Find Bid Details' })
+        ]);
+
+        card.appendChild(el('div', { className: 'scenario__hint-row' }, [hintButton]));
         return;
       }
 
