@@ -131,13 +131,6 @@
         el('div', { className: 'scenario__cell scenario__cell--key' }, [
           el('span', { className: 'scenario__cell-label', text: scenario.name })
         ]),
-        el('div', { className: 'scenario__cell scenario__cell--name' }, [
-          el('span', {
-            className: 'scenario__cell-label',
-            text: scenario.description,
-            attrs: { title: scenario.description }
-          })
-        ]),
         el('div', { className: 'scenario__cell scenario__cell--date' }, [
           el('span', { className: 'scenario__cell-label', text: 'Created Date' }),
           el('span', { className: 'scenario__cell-value', text: scenario.createdDate })
@@ -186,6 +179,18 @@
 
       DA.dom.clear(card);
       card.appendChild(row);
+
+      // The shipping profile description runs long in practice, so it takes a
+      // line of its own beneath the cells instead of a fixed-width column that
+      // truncated it. It carries the row's bottom rule, since it is now the
+      // last thing in the header block.
+      card.appendChild(
+        el('div', {
+          className: 'scenario__description' + (open ? '' : ' scenario__description--indented')
+        }, [
+          el('span', { className: 'scenario__cell-label', text: scenario.description })
+        ])
+      );
 
       if (!open) {
         hintButton = el('button', {

@@ -86,7 +86,7 @@
         description: (weeks == null ? '' : weeks + ' WEEKS ') + 'UPS SHIPPING PROFILE',
         status: 'Current',
         editable: false,
-        expanded: false,
+        expanded: true,
         included: true,
         createdDate: format.formatDate(now),
         lastModified: format.formatDate(now),
