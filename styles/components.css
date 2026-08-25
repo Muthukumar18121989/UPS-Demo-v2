@@ -1156,10 +1156,9 @@
   text-align: left;
 }
 
+/* One identity line now, not three columns of it. */
 .summary-panel__header-items {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+  display: flex;
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -1174,9 +1173,9 @@
 }
 
 .summary-panel__body {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
   padding: 0 var(--space-5) var(--space-5) var(--space-8);
 }
 
@@ -1184,11 +1183,69 @@
   display: none;
 }
 
-.summary-panel__column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+/* The border is the grouping: same 1px token the panel and cards already use,
+   over the panel's own surface rather than a tint, so three segments stack
+   without reading as three heavy boxes. Height follows content -- the sections
+   are never stretched to match each other. */
+.summary-panel__section {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+}
+
+/* Reuses the uppercase micro-label already used by the tree and matrix labels,
+   so the sections read as part of the existing system rather than a new one. */
+.summary-panel__section-title {
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* Each section is its own grid, so a value that wraps grows only its own row
+   and cannot shift a field in another section. `align-items: start` keeps a
+   short field short instead of stretching it to the height of its row. */
+.summary-panel__fields {
+  display: grid;
+  gap: var(--space-4) var(--space-5);
+  align-items: start;
+}
+
+/* Even thirds: a field's column does not move when the viewport changes. */
+.summary-panel__fields--thirds {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* A name gets twice the width of the timestamp beside it. */
+.summary-panel__fields--audit {
+  grid-template-columns: 2fr 1fr 2fr 1fr;
+}
+
+/* A value long enough that sharing a row would leave it a narrow column. */
+.summary-field--wide {
+  grid-column: 1 / -1;
+}
+
+.summary-field {
   min-width: 0;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-snug);
+}
+
+.summary-field__label {
+  display: block;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.summary-field__value {
+  display: block;
+  color: var(--color-text-primary);
+  /* An unbroken token -- an ID carrying no spaces -- wraps rather than pushing
+     its column wide. Ordinary wrapping at spaces is unaffected. */
+  overflow-wrap: break-word;
 }
 
 /* Label/value pair — inline on the header row, stacked in the detail grid. */
