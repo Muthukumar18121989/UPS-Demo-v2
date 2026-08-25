@@ -2721,6 +2721,86 @@
   padding-top: var(--space-5);
 }
 
+/* Opt-in left alignment. The pricing term tabs keep the centred default, so
+   this sits on the strip that asked for it rather than on `.tabs--boxed`. */
+.tabs--boxed-start .tabs__list {
+  justify-content: flex-start;
+}
+
+/* --------------------------------------------------------------------------
+   Lane key  (movement / mode / core service, as one column)
+   -------------------------------------------------------------------------- */
+.lane-key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.lane-key__sep {
+  color: var(--color-text-muted);
+}
+
+.lane-key__service {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+/* Movement carries no hue: N, I and E are one character each and the letter
+   is the discriminator. Colour is spent on mode instead. */
+.lane-key__movement {
+  min-width: 26px;
+  justify-content: center;
+  padding-inline: var(--space-2);
+  background-color: var(--color-neutral-badge-subtle);
+  border-color: var(--color-border);
+  color: var(--color-neutral-badge);
+}
+
+.lane-key__mode {
+  padding-inline: var(--space-2);
+}
+
+/* Categorical, not evaluative -- neither mode is the better one, so neither
+   takes the success or error tone. */
+.lane-key__mode--air {
+  background-color: var(--color-info-subtle);
+  border-color: rgba(10, 97, 168, 0.18);
+  color: var(--color-info);
+}
+
+.lane-key__mode--ground {
+  background-color: var(--color-primary-subtle);
+  border-color: rgba(0, 133, 125, 0.2);
+  color: var(--color-primary-text);
+}
+
+/* The card carries no padding of its own -- the table is meant to sit flush to
+   its edges -- so the legend sets its own, evenly, rather than starting hard
+   against the top and left borders. */
+.table-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+  padding: var(--space-4);
+}
+
+.table-legend__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.table-legend__label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
 /* Label columns held on the header's own dark bar, as the accessorial
    breakdown draws them. */
 .data-table td.is-rowhead-dark {
