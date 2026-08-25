@@ -416,7 +416,7 @@
       return [
         {
           key: 'service',
-          label: 'Movement - Mode - Core Service',
+          label: 'Core Service',
           width: '300px',
           className: 'is-rowhead',
           render: laneKey
