@@ -110,61 +110,184 @@
       ]
     });
 
-    /**
-     * One row per chosen scenario, padded to two, then their difference.
-     * A recorded difference is used when there is one; otherwise it is derived
-     * from the figures shown, which can land a unit off where those are
-     * rounded for display.
-     */
-    function comparisonRows() {
-      var figures = DA.data.scenarioFigures;
-      var keys = DA.data.comparisonKeys;
-      var picked = scenarios.filter(function (scenario) {
+    /* ---- Scenario impact -------------------------------------------------- */
+
+    var METRIC_LABELS = {
+      adv: 'ADV',
+      baseFrtDisc: 'Base Frt Disc',
+      totalDisc: 'Total Disc',
+      rpp: 'RPP',
+      revenue: 'Revenue',
+      or: 'OR',
+      profit: 'Profit'
+    };
+
+    // Revenue and profit are the outcomes the comparison exists to answer;
+    // the rest describe how the scenario got there.
+    var OUTCOME_KEYS = ['revenue', 'profit'];
+    var OPERATIONAL_KEYS = ['adv', 'baseFrtDisc', 'totalDisc', 'rpp', 'or'];
+
+    /** The scenarios currently in the comparison, baseline first. */
+    function pickedScenarios() {
+      return scenarios.filter(function (scenario) {
         return chosen.indexOf(scenario.name) !== -1;
       });
+    }
 
-      var rows = picked.map(function (scenario) {
-        var values = figures[scenario.name] || {};
-        var row = { scenario: scenario.name };
-        keys.forEach(function (key) { row[key] = values[key]; });
-        return row;
+    /**
+     * The change in one metric between two scenarios. A recorded difference is
+     * used where there is one; otherwise it is derived from the figures shown,
+     * which can land a unit off where those are rounded for display.
+     */
+    function delta(baselineName, scenarioName, key) {
+      var figures = DA.data.scenarioFigures;
+      var from = (figures[baselineName] || {})[key];
+      var to = (figures[scenarioName] || {})[key];
+      var recorded = DA.data.scenarioDifferences[baselineName + '|' + scenarioName];
+      var text = recorded && recorded[key] != null
+        ? recorded[key]
+        : DA.figures.difference(from, to);
+      return { text: text, value: DA.figures.toNumber(text), shape: DA.figures.shapeOf(from) };
+    }
+
+    /**
+     * A signed change. A figure already carrying a percent is a change in
+     * percentage points, not a percentage of itself, so it is labelled `pp`.
+     */
+    function deltaLabel(change) {
+      if (change.value == null) return '-';
+      var body = String(change.text).replace(/^-/, '');
+      if (change.shape.percent) body = body.replace('%', ' pp');
+      return (change.value > 0 ? '+' : change.value < 0 ? '-' : '') + body;
+    }
+
+    /** Neutral by design: the business meaning of a fall is not ours to assert. */
+    function arrow(change) {
+      if (change.value == null || change.value === 0) return '';
+      return change.value > 0 ? '↑' : '↓';
+    }
+
+    /**
+     * Proportional bars, one per scenario, scaled to the largest figure in the
+     * metric. The stretch between a scenario and the baseline is drawn as its
+     * own segment, so a change worth a couple of percent still reads as a
+     * distinct tip rather than disappearing into an identical-looking bar.
+     * The bars restate figures printed beside them, so they are hidden from
+     * assistive technology rather than duplicated into it.
+     */
+    function outcomeBars(picked, key) {
+      var figures = DA.data.scenarioFigures;
+      var numbers = picked.map(function (s) {
+        return DA.figures.toNumber((figures[s.name] || {})[key]);
+      });
+      var largest = Math.max.apply(null, numbers.map(function (n) { return n == null ? 0 : n; }));
+      if (!largest) return null;
+
+      var basePct = (numbers[0] == null ? 0 : numbers[0]) / largest * 100;
+
+      return el('div', { className: 'impact__bars', attrs: { 'aria-hidden': 'true' } },
+        picked.map(function (scenario, index) {
+          var pct = (numbers[index] == null ? 0 : numbers[index]) / largest * 100;
+          var start = Math.min(pct, basePct);
+          var end = Math.max(pct, basePct);
+          return el('div', { className: 'impact__bar-row' }, [
+            el('span', { className: 'impact__bar-name', text: scenario.name }),
+            el('span', { className: 'impact__bar' }, [
+              el('span', { className: 'impact__bar-fill', style: { width: start + '%' } }),
+              index === 0 ? null : el('span', {
+                className: 'impact__bar-delta',
+                style: { left: start + '%', width: (end - start) + '%' }
+              })
+            ])
+          ]);
+        })
+      );
+    }
+
+    function outcomeCard(picked, key) {
+      var figures = DA.data.scenarioFigures;
+      var baseline = picked[0];
+      var others = picked.slice(1);
+
+      var values = [el('span', {
+        className: 'impact__value',
+        text: (figures[baseline.name] || {})[key] || '-'
+      })];
+      others.forEach(function (scenario) {
+        values.push(el('span', { className: 'impact__to', text: '→' }));
+        values.push(el('span', {
+          className: 'impact__value',
+          text: (figures[scenario.name] || {})[key] || '-'
+        }));
       });
 
-      while (rows.length < 2) rows.push({ scenario: '-' });
+      return el('div', { className: 'impact__outcome' }, [
+        el('h3', { className: 'impact__label', text: METRIC_LABELS[key] }),
+        el('p', { className: 'impact__values' }, values),
+        others.length
+          ? el('div', { className: 'impact__changes' }, others.map(function (scenario) {
+              var change = delta(baseline.name, scenario.name, key);
+              var from = DA.figures.toNumber((figures[baseline.name] || {})[key]);
+              var share = from && change.value != null
+                ? ' (' + (change.value > 0 ? '+' : '') + (change.value / from * 100).toFixed(1) + '%)'
+                : '';
+              return el('p', { className: 'impact__change' }, [
+                el('span', { className: 'impact__arrow', text: arrow(change) }),
+                el('span', { text: deltaLabel(change) }),
+                el('span', { className: 'impact__share', text: share })
+              ]);
+            }))
+          : null,
+        outcomeBars(picked, key)
+      ]);
+    }
 
-      var difference = { scenario: '', difference: true };
-      if (picked.length === 2) {
-        var a = figures[picked[0].name] || {};
-        var b = figures[picked[1].name] || {};
-        var recorded = DA.data.scenarioDifferences[picked[0].name + '|' + picked[1].name];
-        keys.forEach(function (key) {
-          difference[key] = recorded ? recorded[key] : DA.figures.difference(a[key], b[key]);
-        });
-      }
-      rows.push(difference);
-      return rows;
+    function metricCell(picked, key) {
+      var figures = DA.data.scenarioFigures;
+      var baseline = picked[0];
+
+      return el('div', { className: 'impact__metric' }, [
+        el('p', { className: 'impact__metric-label', text: METRIC_LABELS[key] }),
+        el('p', {
+          className: 'impact__metric-value',
+          text: (figures[baseline.name] || {})[key] || '-'
+        })
+      ].concat(picked.slice(1).map(function (scenario) {
+        var change = delta(baseline.name, scenario.name, key);
+        return el('p', { className: 'impact__metric-step' }, [
+          el('span', { className: 'impact__to', text: '→' }),
+          el('span', {
+            className: 'impact__metric-value',
+            text: (figures[scenario.name] || {})[key] || '-'
+          }),
+          el('span', { className: 'impact__arrow', text: arrow(change) }),
+          el('span', { className: 'impact__metric-change', text: deltaLabel(change) })
+        ]);
+      })));
     }
 
     function renderComparisonBand() {
-      DA.dom.clear(comparisonBand).appendChild(
-        C.DataTable({
-          caption: 'Scenario comparison',
-          embedded: true,
-          headerTone: 'plain',
-          dividers: true,
-          rowClassName: function (row) { return row.difference ? 'is-difference' : ''; },
-          columns: [
-            { key: 'scenario', label: 'Scenario', width: '150px' },
-            numeric('adv', 'ADV'),
-            numeric('baseFrtDisc', 'Base Frt Disc'),
-            numeric('totalDisc', 'Total Disc'),
-            numeric('rpp', 'RPP'),
-            numeric('revenue', 'Revenue', { width: '150px' }),
-            numeric('or', 'OR'),
-            numeric('profit', 'Profit', { width: '130px' })
-          ],
-          rows: comparisonRows()
-        })
+      var picked = pickedScenarios();
+      DA.dom.clear(comparisonBand);
+      comparisonBand.setAttribute('aria-label', 'Scenario comparison');
+
+      if (!picked.length) {
+        comparisonBand.appendChild(
+          C.EmptyState({
+            title: 'No scenario selected',
+            description: 'Choose a scenario from Comparison View to compare figures.'
+          })
+        );
+        return;
+      }
+
+      comparisonBand.appendChild(
+        el('div', { className: 'impact' }, [
+          el('div', { className: 'impact__outcomes' },
+            OUTCOME_KEYS.map(function (key) { return outcomeCard(picked, key); })),
+          el('div', { className: 'impact__metrics' },
+            OPERATIONAL_KEYS.map(function (key) { return metricCell(picked, key); }))
+        ])
       );
     }
 
