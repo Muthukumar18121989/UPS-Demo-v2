@@ -201,31 +201,93 @@
     ]);
   }
 
-  function planNode(node) {
-    var C = DA.components;
-    return C.Accordion({
-      title: node.label,
-      className: 'accordion--plan',
-      expanded: Boolean(node.expanded),
-      // Branches and plans are built the first time they are opened.
-      renderContent: node.children
-        ? function () { return node.children.map(planNode); }
-        : function () { return [servicePlan()]; }
+  /**
+   * Every service in the tree, flattened, each carrying the region and mode it
+   * sits under. The tree is three levels deep but only ever ends in a plan, so
+   * the levels above it are grouping rather than navigation.
+   */
+  function flattenServices(tree) {
+    var out = [];
+    tree.forEach(function (region) {
+      (region.children || []).forEach(function (mode) {
+        (mode.children || []).forEach(function (service) {
+          out.push({ region: region.label, mode: mode.label, label: service.label });
+        });
+      });
     });
+    return out;
   }
 
+  /**
+   * Services listed down the side, the selected plan beside them. Reaching a
+   * plan took two clicks through nested accordions, and every open one pushed
+   * the rest of the page further down; here any service is one click from any
+   * other and the page height does not move.
+   */
   function servicesView() {
-    var el2 = el;
-    return el2('div', {}, [
-      el2('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el2('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
+    var services = flattenServices(DA.data.pricingServiceTree);
+    var selected = 0;
+
+    var list = el('nav', {
+      className: 'plan-browser__list',
+      attrs: { 'aria-label': 'Service incentive plans' }
+    });
+    var detail = el('div', { className: 'plan-browser__detail' });
+
+    function renderDetail() {
+      var service = services[selected];
+      DA.dom.clear(detail);
+      if (!service) return;
+      detail.appendChild(el('h4', { className: 'plan-browser__title', text: service.label }));
+      detail.appendChild(servicePlan());
+    }
+
+    function renderList() {
+      DA.dom.clear(list);
+      var region = null;
+      var mode = null;
+      services.forEach(function (service, index) {
+        if (service.region !== region) {
+          region = service.region;
+          mode = null;
+          list.appendChild(el('p', { className: 'plan-browser__group', text: region }));
+        }
+        if (service.mode !== mode) {
+          mode = service.mode;
+          list.appendChild(el('p', {
+            className: 'plan-browser__group plan-browser__group--mode',
+            text: mode
+          }));
+        }
+        list.appendChild(el('button', {
+          className: 'plan-browser__item',
+          text: service.label,
+          attrs: {
+            type: 'button',
+            'aria-current': index === selected ? 'true' : false
+          },
+          on: {
+            click: function () {
+              selected = index;
+              renderList();
+              renderDetail();
+            }
+          }
+        }));
+      });
+    }
+
+    renderList();
+    renderDetail();
+
+    return el('div', {}, [
+      el('div', { className: 'plan-browser__actions' }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
           DA.icons.plusCircle(18),
-          el2('span', { text: 'Add Service Incentive Plan' })
+          el('span', { text: 'Add Service Incentive Plan' })
         ])
       ]),
-      el2('div', { className: 'plan-tree' }, DA.data.pricingServiceTree.map(function (region) {
-        return planNode({ label: region.label, children: region.children, expanded: true });
-      }))
+      el('div', { className: 'plan-browser' }, [list, detail])
     ]);
   }
 

@@ -1870,6 +1870,13 @@
   padding: var(--space-5);
 }
 
+/* A filter card sits above a content card on every profile and pricing view,
+   and the two met with no gap at all -- one border against the next reads as a
+   single mis-drawn box rather than two panels. */
+.card + .card {
+  margin-top: var(--space-4);
+}
+
 /* --------------------------------------------------------------------------
    Dialog header extras
    -------------------------------------------------------------------------- */
@@ -2710,7 +2717,7 @@
    Boxed tab bar  (centred section switch)
    -------------------------------------------------------------------------- */
 .tabs--boxed .tabs__list {
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space-6);
   padding: 0 var(--space-5);
   border: 1px solid var(--color-border);
@@ -2719,12 +2726,6 @@
 
 .tabs--boxed > .tabs > .tabs__panel {
   padding-top: var(--space-5);
-}
-
-/* Opt-in left alignment. The pricing term tabs keep the centred default, so
-   this sits on the strip that asked for it rather than on `.tabs--boxed`. */
-.tabs--boxed-start .tabs__list {
-  justify-content: flex-start;
 }
 
 /* --------------------------------------------------------------------------
@@ -2826,26 +2827,70 @@
 /* --------------------------------------------------------------------------
    Pricing terms
    -------------------------------------------------------------------------- */
-.plan-tree {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+/* Services down the side, the selected plan beside them. */
+.plan-browser {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--space-5);
   padding: var(--space-4);
 }
 
-/* Nested plan levels: each is a card, each level steps in. */
-.accordion--plan > .accordion__trigger {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: var(--letter-spacing-wide);
-  text-transform: uppercase;
+.plan-browser__actions {
+  padding: var(--space-4) var(--space-4) 0;
 }
 
-.accordion--plan > .accordion__panel {
+.plan-browser__list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: 0 var(--space-4) var(--space-4) var(--space-5);
+  gap: 2px;
+  padding-right: var(--space-4);
+  border-right: 1px solid var(--color-border);
+}
+
+/* Region and mode label the list rather than navigate it -- every branch ends
+   in a plan, so only the leaves are worth clicking. */
+.plan-browser__group {
+  padding: var(--space-3) var(--space-2) var(--space-1);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.plan-browser__group--mode {
+  padding-left: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.plan-browser__item {
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-control);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+}
+
+.plan-browser__item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.plan-browser__item[aria-current="true"] {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary-text);
+  font-weight: var(--font-weight-medium);
+}
+
+.plan-browser__detail {
+  min-width: 0;
+}
+
+.plan-browser__title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .plan-detail {

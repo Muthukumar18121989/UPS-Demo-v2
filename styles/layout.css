@@ -92,6 +92,19 @@
     grid-template-columns: 64px minmax(0, 1fr);
   }
 
+  /* No room for a side list at this width, so it becomes a header above the
+     plan rather than a column beside it. */
+  .plan-browser {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plan-browser__list {
+    padding-right: 0;
+    padding-bottom: var(--space-4);
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
   .form-card {
     padding: var(--space-5);
   }
