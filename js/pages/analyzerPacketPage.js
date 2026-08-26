@@ -501,6 +501,7 @@
           })
         ])
       ]),
+      C.FilterChips({ ariaLabel: 'Applied charge filters', values: DA.data.chargeFilters }),
       comparisonBand,
       el('div', { className: 'tabs--page' }, [
         C.Tabs({
