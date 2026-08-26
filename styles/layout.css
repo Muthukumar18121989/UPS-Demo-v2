@@ -44,12 +44,6 @@
   }
 }
 
-@media (min-width: 721px) and (max-width: 1024px) {
-  .summary-panel__fields--audit {
-    grid-template-columns: 2fr 1fr;
-  }
-}
-
 @media (max-width: 720px) {
   :root {
     --page-gutter: var(--space-3);
@@ -60,14 +54,9 @@
    * clips their labels. The desktop composition is untouched; below 720px the
    * same fields simply stack in the order they already appear.
    */
-  .form-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* Every section stacks to one column; nothing is wide enough here to carry
-     a name and a date side by side. */
-  .summary-panel__fields--thirds,
-  .summary-panel__fields--audit {
+  .form-grid,
+  .summary-panel__header-items,
+  .summary-panel__body {
     grid-template-columns: minmax(0, 1fr);
   }
 

@@ -23,58 +23,29 @@
 
     var summary = C.SummaryPanel({
       ariaLabel: 'Analyzer packet summary',
-      // Collapsed, the panel still has to say which packet this is. One
-      // identity line does that; the full four fields live in Packet
-      // Information below rather than being repeated three times up here.
       headline: [
-        {
-          label: 'Analyzer Packet ID',
-          value: packet.customerName
-            ? packet.packetId + ' — ' + packet.customerName
-            : packet.packetId
-        }
+        { label: 'Analyzer Packet ID', value: packet.packetId },
+        { label: 'Customer Name', value: packet.customerName },
+        { label: 'Reference Number', value: packet.referenceNumber }
       ],
-      // Grouped by meaning rather than by balancing the counts three ways.
-      // Packet ID, Customer Name and Reference Number are not repeated here --
-      // the headline above carries them whether the panel is open or closed.
-      sections: [
-        {
-          title: 'Packet Information',
-          layout: 'thirds',
-          fields: [
-            { label: 'Analyzer Packet ID', value: packet.packetId },
-            { label: 'Customer Name', value: packet.customerName },
-            { label: 'Reference Number', value: packet.referenceNumber },
-            // The longest value in the record, so it takes the full row.
-            { label: 'Analyzer Packet Description', value: packet.description, wide: true }
-          ]
-        },
-        {
-          // Six fields over two even rows of three, rather than a count that
-          // changes with the viewport and orphans the last field on its own.
-          title: 'Customer / Business Information',
-          layout: 'thirds',
-          fields: [
-            { label: 'Customer Hierarchy', value: packet.hierarchy },
-            { label: 'Shipping Profile From', value: packet.from },
-            { label: 'Shipping Profile To', value: packet.to },
-            { label: 'Industry', value: packet.industry },
-            { label: 'PQR', value: packet.pqr },
-            { label: 'OPPs', value: packet.opps }
-          ]
-        },
-        {
-          // Names take twice the width of the timestamps beside them; a date is
-          // a fixed 19 characters and does not need an equal share.
-          title: 'Ownership & Audit',
-          layout: 'audit',
-          fields: [
-            { label: 'Owner', value: owner },
-            { label: 'Created Date', value: packet.createdAt },
-            { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
-            { label: 'Last Modified Date', value: packet.lastModifiedAt }
-          ]
-        }
+      columns: [
+        [
+          { label: 'Analyzer Packet Description', value: packet.description },
+          { label: 'Shipping Profile From', value: packet.from },
+          { label: 'Shipping Profile To', value: packet.to }
+        ],
+        [
+          { label: 'Customer Hierarchy', value: packet.hierarchy },
+          { label: 'Industry', value: packet.industry },
+          { label: 'PQR', value: packet.pqr },
+          { label: 'OPPs', value: packet.opps }
+        ],
+        [
+          { label: 'Owner', value: owner },
+          { label: 'Created Date', value: packet.createdAt },
+          { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
+          { label: 'Last Modified Date', value: packet.lastModifiedAt }
+        ]
       ]
     });
 
