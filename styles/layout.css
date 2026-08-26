@@ -48,12 +48,6 @@
   .summary-panel__fields--audit {
     grid-template-columns: 2fr 1fr;
   }
-
-  /* Five operational metrics across leaves each too narrow to hold a figure
-     and its change on one line at this width. */
-  .impact__metrics {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 720px) {
@@ -75,21 +69,6 @@
   .summary-panel__fields--thirds,
   .summary-panel__fields--audit {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* The two outcomes stack, and the metrics pair up rather than sitting five
-     across at 43px each. The bar label narrows to leave the bar something to
-     draw in. */
-  .impact__outcomes {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .impact__metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .impact__bar-row {
-    grid-template-columns: 64px minmax(0, 1fr);
   }
 
   .form-card {
