@@ -132,11 +132,7 @@
     { movement: 'N', mode: 'AIR', service: '3DS', zone: '-', lane: '-' },
     { movement: 'N', mode: 'GROUND', service: 'GND', zone: '-', lane: '-' },
     { movement: 'N', mode: 'GROUND SAV', service: 'USG', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'GROUND SAV', service: 'USL', zone: '-', lane: '-' },
-    // Import and export lanes, so the movement coding has something to show.
-    // These two carry illustrative figures rather than sourced ones.
-    { movement: 'I', mode: 'AIR', service: 'WEX', zone: '-', lane: '-' },
-    { movement: 'E', mode: 'GROUND', service: 'STD', zone: '-', lane: '-' }
+    { movement: 'N', mode: 'GROUND SAV', service: 'USL', zone: '-', lane: '-' }
   ];
 
   function withKeys(figures) {
@@ -154,9 +150,7 @@
     { volume: '357.0', adv: '71.4', pps: '1.0', weightPiece: '12.38', avgCube: '1.15', avgCubeFactor: '1.05', puDens: '13.39', dlDens: '1.84', pu: '$ 1.53', ls: '$ 0.47', cs: '$ 2.09', ar: '$ 0.25', jf: '$ 1.08', gf: '$ 1.62', br: '$ 0.0', pd: '$ 1.51', dl: '$ 3.14', no: '$ 1.93', oth: '$ 0.01', totalFreightCost: '$ 13.62', costAdj: '-', newCost: '$ 13.62' },
     { volume: '20953.0', adv: '4190.6', pps: '1.0', weightPiece: '13.01', avgCube: '1.36', avgCubeFactor: '1.15', puDens: '117.72', dlDens: '1.3', pu: '$ 0.23', ls: '$ 0.51', cs: '$ 1.85', ar: '$ 0.0', jf: '$ 0.0', gf: '$ 2.78', br: '$ 0.0', pd: '$ 1.2', dl: '$ 4.0', no: '$ 1.37', oth: '$ 0.02', totalFreightCost: '$ 11.91', costAdj: '-', newCost: '$ 11.91' },
     { volume: '62796.0', adv: '12559.2', pps: '1.0', weightPiece: '3.59', avgCube: '0.52', avgCubeFactor: '1.09', puDens: '3031.44', dlDens: '1.16', pu: '$ 0.07', ls: '$ 0.41', cs: '$ 1.24', ar: '$ 0.0', jf: '$ 0.0', gf: '$ 0.94', br: '$ 0.0', pd: '$ 0.96', dl: '$ 5.53', no: '$ 1.04', oth: '$ 0.0', totalFreightCost: '$ 10.19', costAdj: '-', newCost: '$ 10.19' },
-    { volume: '1497.0', adv: '299.4', pps: '1.0', weightPiece: '12.12', avgCube: '0.29', avgCubeFactor: '1.11', puDens: '3335.35', dlDens: '1.21', pu: '$ 0.07', ls: '$ 0.25', cs: '$ 0.88', ar: '$ 0.0', jf: '$ 0.0', gf: '$ 0.57', br: '$ 0.0', pd: '$ 0.8', dl: '$ 5.25', no: '$ 0.89', oth: '$ 0.0', totalFreightCost: '$ 8.69', costAdj: '-', newCost: '$ 8.69' },
-    { volume: '124.0', adv: '24.8', pps: '1.0', weightPiece: '9.42', avgCube: '1.08', avgCubeFactor: '1.12', puDens: '6.15', dlDens: '2.31', pu: '$ 3.18', ls: '$ 0.52', cs: '$ 2.44', ar: '$ 4.10', jf: '$ 14.62', gf: '$ 2.35', br: '$ 0.0', pd: '$ 2.01', dl: '$ 6.88', no: '$ 3.44', oth: '$ 0.02', totalFreightCost: '$ 39.56', costAdj: '-', newCost: '$ 39.56' },
-    { volume: '86.0', adv: '17.2', pps: '1.0', weightPiece: '10.73', avgCube: '0.94', avgCubeFactor: '1.04', puDens: '5.27', dlDens: '3.12', pu: '$ 2.76', ls: '$ 0.38', cs: '$ 1.97', ar: '$ 1.15', jf: '$ 3.94', gf: '$ 1.44', br: '$ 0.0', pd: '$ 1.36', dl: '$ 3.71', no: '$ 2.08', oth: '$ 0.01', totalFreightCost: '$ 18.80', costAdj: '-', newCost: '$ 18.80' }
+    { volume: '1497.0', adv: '299.4', pps: '1.0', weightPiece: '12.12', avgCube: '0.29', avgCubeFactor: '1.11', puDens: '3335.35', dlDens: '1.21', pu: '$ 0.07', ls: '$ 0.25', cs: '$ 0.88', ar: '$ 0.0', jf: '$ 0.0', gf: '$ 0.57', br: '$ 0.0', pd: '$ 0.8', dl: '$ 5.25', no: '$ 0.89', oth: '$ 0.0', totalFreightCost: '$ 8.69', costAdj: '-', newCost: '$ 8.69' }
   ]);
 
   DA.data.shippingProfileZone = withKeys([
@@ -168,9 +162,7 @@
     { volume: '357', adv: '71.4', pps: '1', weightPiece: '12.38', freightGrossSpent: '$ 21,476.77', freightDiscount: '59.35%', freightRpp: '$ 24.46', freightNetSpent: '$ 8,730.82', freightProfit: '$ 3,870.04', freightOr: '0.56' },
     { volume: '20953', adv: '4190.6', pps: '1', weightPiece: '13.01', freightGrossSpent: '$ 444,324.98', freightDiscount: '58.02%', freightRpp: '$ 8.90', freightNetSpent: '$ 186,522.07', freightProfit: '$ -63,128.55', freightOr: '1.34' },
     { volume: '62796', adv: '12559.2', pps: '1', weightPiece: '3.59', freightGrossSpent: '$ 1,077,840.91', freightDiscount: '48.86%', freightRpp: '$ 8.78', freightNetSpent: '$ 551,247.59', freightProfit: '$ -88,456.19', freightOr: '1.16' },
-    { volume: '1497', adv: '299.4', pps: '1', weightPiece: '12.12', freightGrossSpent: '$ 21,525.93', freightDiscount: '37.83%', freightRpp: '$ 8.94', freightNetSpent: '$ 13,382.90', freightProfit: '$ 380.12', freightOr: '0.97' },
-    { volume: '124', adv: '24.8', pps: '1', weightPiece: '9.42', freightGrossSpent: '$ 18,942.60', freightDiscount: '42.15%', freightRpp: '$ 88.20', freightNetSpent: '$ 10,958.42', freightProfit: '$ 6,051.18', freightOr: '0.45' },
-    { volume: '86', adv: '17.2', pps: '1', weightPiece: '10.73', freightGrossSpent: '$ 4,318.75', freightDiscount: '35.40%', freightRpp: '$ 32.44', freightNetSpent: '$ 2,789.91', freightProfit: '$ 1,173.11', freightOr: '0.58' }
+    { volume: '1497', adv: '299.4', pps: '1', weightPiece: '12.12', freightGrossSpent: '$ 21,525.93', freightDiscount: '37.83%', freightRpp: '$ 8.94', freightNetSpent: '$ 13,382.90', freightProfit: '$ 380.12', freightOr: '0.97' }
   ]);
 
   /** Accessorial charges: a parent total over the services that incurred it. */

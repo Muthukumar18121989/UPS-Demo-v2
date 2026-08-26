@@ -367,60 +367,11 @@
     }
 
     /** The lane keys every shipping profile view opens with. */
-    /**
-     * Ground Saver is coded as ground: it is a ground movement, and giving it
-     * a third tone would spend colour on a distinction the reader does not
-     * need to make at a glance.
-     */
-    function modeTone(mode) {
-      return String(mode).indexOf('AIR') !== -1 ? 'air' : 'ground';
-    }
-
-    /**
-     * Movement, mode and core service read as one lane identifier. Movement
-     * stays neutral -- N, I and E are single characters and the letter itself
-     * separates them, so colour is spent only on mode, where a glance saves
-     * work.
-     */
-    function laneKey(row) {
-      return el('span', { className: 'lane-key' }, [
-        el('span', { className: 'badge lane-key__movement', text: row.movement }),
-        el('span', { className: 'lane-key__sep', text: '-' }),
-        el('span', {
-          className: 'badge lane-key__mode lane-key__mode--' + modeTone(row.mode),
-          text: row.mode
-        }),
-        el('span', { className: 'lane-key__sep', text: '-' }),
-        el('span', { className: 'lane-key__service', text: row.service })
-      ]);
-    }
-
-    /** The encoding, stated once above the table rather than guessed at. */
-    function laneLegend() {
-      return el('div', { className: 'table-legend' }, [
-        el('div', { className: 'table-legend__group' }, [
-          el('span', { className: 'table-legend__label', text: 'Movement' }),
-          el('span', { className: 'badge lane-key__movement', text: 'N' }),
-          el('span', { className: 'badge lane-key__movement', text: 'I' }),
-          el('span', { className: 'badge lane-key__movement', text: 'E' })
-        ]),
-        el('div', { className: 'table-legend__group' }, [
-          el('span', { className: 'table-legend__label', text: 'Mode' }),
-          el('span', { className: 'badge lane-key__mode lane-key__mode--air', text: 'AIR' }),
-          el('span', { className: 'badge lane-key__mode lane-key__mode--ground', text: 'GROUND' })
-        ])
-      ]);
-    }
-
     function profileKeyColumns() {
       return [
-        {
-          key: 'service',
-          label: 'Movement - Mode - Core Service',
-          width: '300px',
-          className: 'is-rowhead',
-          render: laneKey
-        },
+        { key: 'movement', label: 'Movement', width: '110px', className: 'is-rowhead' },
+        { key: 'mode', label: 'Mode', width: '115px', className: 'is-rowhead' },
+        { key: 'service', label: 'Core Service', width: '175px', className: 'is-rowhead' },
         numeric('zone', 'Zone', { width: '85px' }),
         numeric('lane', 'Lane', { width: '85px' })
       ];
@@ -430,7 +381,6 @@
       return el('div', {}, [
         profileFilters(),
         el('div', { className: 'card' }, [
-          laneLegend(),
           C.DataTable({
             caption: options.caption,
             embedded: true,
@@ -604,7 +554,7 @@
     }
 
     function shippingProfilesView() {
-      return el('div', { className: 'tabs--boxed tabs--boxed-start' }, [
+      return el('div', { className: 'tabs--boxed' }, [
         C.Tabs({
           ariaLabel: 'Shipping profile views',
           value: 'cost',
