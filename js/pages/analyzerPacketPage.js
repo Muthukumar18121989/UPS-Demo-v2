@@ -604,7 +604,7 @@
     }
 
     function shippingProfilesView() {
-      return el('div', { className: 'tabs--boxed' }, [
+      return el('div', { className: 'tabs--boxed tabs--boxed-start' }, [
         C.Tabs({
           ariaLabel: 'Shipping profile views',
           value: 'cost',
