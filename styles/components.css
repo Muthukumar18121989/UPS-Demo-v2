@@ -2586,16 +2586,37 @@
   padding: var(--space-5);
 }
 
+/*
+ * A compact variant of the standard switch, scoped to this one control --
+ * the full-size 44x24 switch in its own padded row read as heavier than a
+ * secondary, opt-in display preference should. Half the size, a third of
+ * the vertical padding.
+ */
 .comparison-sync-toggle {
   display: flex;
   justify-content: flex-end;
-  padding: var(--space-4) var(--space-5) 0;
+  padding: var(--space-1) var(--space-5) 0;
 }
 
 .comparison-sync-toggle .toggle-row {
   gap: var(--space-2);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-3xs);
   color: var(--color-text-secondary);
+}
+
+.comparison-sync-toggle .toggle {
+  width: 28px;
+  height: 16px;
+}
+
+.comparison-sync-toggle .toggle::after {
+  width: 12px;
+  height: 12px;
+  left: 2px;
+}
+
+.comparison-sync-toggle .toggle[aria-checked="true"]::after {
+  transform: translateX(12px);
 }
 
 /* The cell at the same row/column position in every other scenario panel,
@@ -2609,6 +2630,12 @@
   background-color: var(--color-surface-muted);
   border-radius: var(--radius-container) var(--radius-container) 0 0;
   font-weight: var(--font-weight-medium);
+}
+
+/* The base accordion panel has no top padding, so its dark table header
+   sat flush against the shaded trigger above it with no breathing room. */
+.accordion--filled > .accordion__panel {
+  padding-top: var(--space-4);
 }
 
 /* Row-label column, held visually apart from the figures beside it. */
