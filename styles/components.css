@@ -694,14 +694,16 @@
 }
 
 /*
- * The label is always visible now (below), so the placeholder no longer
- * needs to stand in for it while the field is empty -- kept only so
- * :placeholder-shown still tracks empty vs filled for the border-colour
- * rule beneath, but hidden from view to avoid duplicating the label text.
+ * The label is always visible now (above), so the placeholder no longer
+ * has to carry the field's name -- it still does (same text, set once in
+ * JS), but shown in this muted placeholder tone rather than the value's
+ * own dark text, it reads as secondary hint copy under the label instead
+ * of a second, equally-weighted copy of it. An empty field with nothing
+ * here at all read as broken, not calm.
  */
 .field__input::placeholder {
   color: var(--color-field-placeholder);
-  opacity: 0;
+  opacity: 1;
 }
 
 .field__input:hover {
@@ -884,7 +886,7 @@
 
 .chip-input__entry::placeholder {
   color: var(--color-field-placeholder);
-  opacity: 0;
+  opacity: 1;
 }
 
 .chip {
