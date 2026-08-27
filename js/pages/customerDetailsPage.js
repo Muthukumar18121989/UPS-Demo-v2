@@ -35,8 +35,8 @@
       label: 'Customer Hierarchy*',
       value: state.hierarchy,
       options: HIERARCHY_OPTIONS,
-      onChange: function (event) {
-        state.hierarchy = event.target.value;
+      onChange: function (value) {
+        state.hierarchy = value;
         renderCustomerLookup();
       }
     });

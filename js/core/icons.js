@@ -110,11 +110,11 @@
     );
   }
 
-  function check(size) {
+  function check(size, className) {
     return svg(
       '<path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" ' +
       'stroke-linejoin="round" d="m6 12.4 4 4 8-8.8"/>',
-      { size: size || 16 }
+      { size: size || 16, className: className || '' }
     );
   }
 

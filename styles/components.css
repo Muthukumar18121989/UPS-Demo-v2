@@ -793,24 +793,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Select field
-   -------------------------------------------------------------------------- */
-.select-field .field__input {
-  appearance: none;
-  padding-right: var(--space-7);
-  cursor: pointer;
-}
-
-.select-field__chevron {
-  position: absolute;
-  top: 50%;
-  right: var(--field-padding-x);
-  transform: translateY(-50%);
-  color: var(--color-field-text);
-  pointer-events: none;
-}
-
-/* --------------------------------------------------------------------------
    Chip input  (linked records / OPP entries)
    -------------------------------------------------------------------------- */
 .chip-input {
@@ -2367,11 +2349,6 @@
   min-height: var(--field-height);
 }
 
-.select-field--bare .field__input {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
-}
-
 .view-filters {
   display: flex;
   flex-wrap: wrap;
@@ -2496,6 +2473,52 @@
   display: flex;
   justify-content: center;
   padding: var(--space-3) var(--space-4) var(--space-1);
+}
+
+/*
+ * SelectField's single-select listbox, built on the exact same
+ * .dropdown__option row Comparison View's checkbox rows use -- same
+ * padding, same hover -- with a checkmark standing in for the checkbox.
+ */
+.dropdown__listbox {
+  max-height: 288px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  outline: none;
+}
+
+.dropdown__option--select {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Keyboard focus stays on the listbox itself (aria-activedescendant), so
+   the active option needs its own visual cue -- the same background hover
+   already gives a pointer user. */
+.dropdown__option.is-active {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdown__option-check {
+  flex: 0 0 auto;
+  color: var(--color-primary);
+  opacity: 0;
+}
+
+.dropdown__option--select.is-selected .dropdown__option-check {
+  opacity: 1;
+}
+
+.dropdown__option--select.is-selected .dropdown__option-label {
+  font-weight: var(--font-weight-medium);
+}
+
+.dropdown__option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* --------------------------------------------------------------------------

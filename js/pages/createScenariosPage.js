@@ -104,7 +104,7 @@
               shape: 'pill',
               onClick: function () {
                 var source = scenarios.filter(function (scenario) {
-                  return scenario.title === copyFrom.select.value;
+                  return scenario.title === copyFrom.getValue();
                 })[0] || scenarios[0];
 
                 // The new scenario opens; the others fold away behind it.
