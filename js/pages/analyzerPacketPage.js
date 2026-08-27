@@ -190,15 +190,16 @@
     }
 
     /**
-     * Side-by-side scenario summaries share the same column layout and (in
-     * the common case) the same row order, so a reader comparing them wants
-     * to track one figure across panels without losing their place. When the
-     * toggle is on, scrolling any panel's table scrolls the others with it,
-     * and hovering a cell highlights the cell at the same row/column
-     * position in every other panel. Position-based, so it only lines up
-     * cleanly while every panel has the same rows expanded -- expand a row
-     * in just one panel and the highlight will point at whatever row now
-     * shares that index there instead.
+     * Side-by-side scenario summaries share the same column layout, but not
+     * necessarily the same rows -- a scenario carrying non-incented revenue
+     * (Unincented PLD) adds a top-level row the others don't have, which
+     * shifted every row below it out of alignment when this matched by
+     * position. Matches by the row-header cell's own label text instead, so
+     * "1DA" finds "1DA" in every other panel regardless of what rows come
+     * before it or how deep the tree is expanded there. Assumes a label is
+     * unique within its own table, true for this single-account demo data;
+     * a second account sharing a service code's label would need a richer
+     * key than text.
      */
     function summaryComparisonSync() {
       var panels = []; // { viewport, table }
@@ -235,11 +236,16 @@
           var cell = event.target.closest('td');
           if (!cell || !table.tBodies[0]) return;
           var row = cell.parentElement;
-          var rowIndex = Array.prototype.indexOf.call(table.tBodies[0].rows, row);
           var cellIndex = Array.prototype.indexOf.call(row.cells, cell);
+          var rowHead = row.querySelector('.is-rowhead');
+          var rowKey = rowHead && rowHead.textContent.trim();
+          if (!rowKey) return;
           panels.forEach(function (p) {
             if (p === entry || !p.table.tBodies[0]) return;
-            var otherRow = p.table.tBodies[0].rows[rowIndex];
+            var otherRow = Array.prototype.find.call(p.table.tBodies[0].rows, function (candidate) {
+              var candidateHead = candidate.querySelector('.is-rowhead');
+              return candidateHead && candidateHead.textContent.trim() === rowKey;
+            });
             var otherCell = otherRow && otherRow.cells[cellIndex];
             if (otherCell) otherCell.classList.add('is-sync-highlight');
           });
