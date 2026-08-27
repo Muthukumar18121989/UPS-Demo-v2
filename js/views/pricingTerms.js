@@ -235,7 +235,7 @@
     var C = DA.components;
 
     function labelColumn(key, label, width) {
-      return { key: key, label: label, width: width || '190px', className: 'is-rowhead-dark' };
+      return { key: key, label: label, width: width || '190px', className: 'is-rowhead' };
     }
 
     return el('div', { className: 'card' }, [

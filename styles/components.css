@@ -457,8 +457,8 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-normal);
   white-space: nowrap;
-  /* Same light-on-dark divider already used on is-rowhead-dark cells,
-     so adjoining header labels read as distinct columns. */
+  /* Light-on-dark divider, so adjoining header labels read as distinct
+     columns. */
   border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -504,17 +504,13 @@
 }
 
 /* The plain white background above must not clobber a row-header column
-   that lands in first position (Zone's Movement, Accessorial's Type): both
-   already carry their own shaded/dark background, and this selector's extra
-   class + pseudo-class outweighs the rule above's extra element, so these
-   win without !important. Each still loses correctly to its own more
-   specific :hover rule further down. */
+   that lands in first position (Zone's Movement, Accessorial's Type): it
+   already carries its own shaded background, and this selector's extra
+   class + pseudo-class outweighs the rule above's extra element, so this
+   wins without !important. Still loses correctly to its own more specific
+   :hover rule further down. */
 .data-table--frozen tbody td.is-rowhead:first-child {
   background-color: var(--color-surface-muted-strong);
-}
-
-.data-table--frozen tbody td.is-rowhead-dark:first-child {
-  background-color: var(--color-surface-inverse-warm);
 }
 
 /* Hover still needs to win over the frozen cell's own solid background --
@@ -2595,27 +2591,13 @@
   padding-top: var(--space-5);
 }
 
-/* Label columns held on the header's own dark bar, as the accessorial
-   breakdown draws them. */
-.data-table td.is-rowhead-dark {
-  background-color: var(--color-surface-inverse-warm);
-  color: var(--color-text-inverse);
-  border-bottom-color: rgba(255, 255, 255, 0.12);
-}
-
-.data-table tbody tr:hover td.is-rowhead-dark {
-  background-color: var(--color-surface-inverse-warm);
-}
-
-.is-rowhead-dark .row-expander,
-.is-rowhead-dark .row-expander__icon,
-.is-rowhead-dark .tree-cell__toggle {
-  color: inherit;
-}
-
-.is-rowhead-dark .row-expander:hover {
-  color: var(--color-brand-gold);
-}
+/*
+ * Accessorial and Pricing terms' label columns used to sit on a dark bar of
+ * their own (is-rowhead-dark). Once the header-color unification made that
+ * bar identical to the table's own header row, the two visually fused into
+ * one heavy block. Retired in favour of the same is-rowhead treatment every
+ * other table's row-header columns already use.
+ */
 
 /* --------------------------------------------------------------------------
    Pricing terms
@@ -2911,19 +2893,6 @@
   color: var(--color-text-link);
 }
 
-/* Keep the toggle legible on the dark label columns. */
-.is-rowhead-dark .row-toggle {
-  color: inherit;
-}
-
-.is-rowhead-dark .row-toggle:hover {
-  color: var(--color-brand-gold);
-}
-
 .data-table tbody tr.is-child-row td {
   color: var(--color-text-secondary);
-}
-
-.data-table tbody tr.is-child-row .is-rowhead-dark {
-  color: var(--color-text-inverse);
 }

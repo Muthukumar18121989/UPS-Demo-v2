@@ -367,7 +367,7 @@
 
     function accessorialView() {
       function labelColumn(key, label, width) {
-        return { key: key, label: label, width: width || '135px', className: 'is-rowhead-dark' };
+        return { key: key, label: label, width: width || '135px', className: 'is-rowhead' };
       }
 
       return el('div', {}, [
