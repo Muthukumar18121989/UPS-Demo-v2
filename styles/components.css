@@ -2434,6 +2434,29 @@
   border-color: var(--color-field-border-hover);
 }
 
+/* Label above value, the same convention select-field's own always-on
+   label uses, so a dropdown trigger reads like every other field instead
+   of showing a single unlabelled line. */
+.dropdown__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dropdown__label {
+  color: var(--color-field-label);
+  font-size: var(--font-size-2xs);
+  line-height: 1.1;
+}
+
+.dropdown__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dropdown__option:has(:focus-visible) {
   background-color: var(--color-surface-hover);
 }

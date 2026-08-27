@@ -81,6 +81,7 @@
 
     var comparisonSelector = C.Dropdown({
       label: 'Comparison View',
+      value: chosen.join(', '),
       content: [
         el('div', {}, scenarios.map(function (scenario) {
           return el('div', { className: 'dropdown__option' }, [
@@ -103,6 +104,7 @@
             onClick: function () {
               chosen = pending.slice();
               renderComparisonBand();
+              comparisonSelector.setValue(chosen.join(', '));
               comparisonSelector.close();
             }
           })

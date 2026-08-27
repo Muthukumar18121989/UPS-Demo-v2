@@ -3,6 +3,14 @@
  *
  * Closes on Escape or a click outside, and returns focus to the trigger. The
  * caller owns the panel's contents, so this handles only the popover mechanics.
+ *
+ * `label` is a static field name shown small above the trigger's current
+ * value, the same convention `SelectField` uses (gold micro-label, dark
+ * value text), so a dropdown trigger reads consistently with every other
+ * field on the page rather than showing only one line of text. `value` is
+ * the initial value text; call the returned node's `setValue(text)` to
+ * update it after a selection changes (this dropdown's own selection is
+ * often applied, not committed live, so the caller controls when it updates).
  */
 (function (DA) {
   'use strict';
@@ -23,6 +31,8 @@
       attrs: { id: panelId, hidden: true }
     }, options.content || []);
 
+    var valueNode = el('span', { className: 'dropdown__value', text: options.value || '' });
+
     var trigger = el('button', {
       className: 'dropdown__trigger' + (options.triggerClassName ? ' ' + options.triggerClassName : ''),
       attrs: {
@@ -33,7 +43,10 @@
       },
       on: { click: function () { toggle(!open); } }
     }, [
-      el('span', { className: 'dropdown__label', text: options.label }),
+      el('span', { className: 'dropdown__text' }, [
+        options.label ? el('span', { className: 'dropdown__label', text: options.label }) : null,
+        valueNode
+      ]),
       DA.icons.chevronDown(18, 'dropdown__chevron')
     ]);
 
@@ -69,6 +82,9 @@
     root.close = function () {
       toggle(false);
       trigger.focus();
+    };
+    root.setValue = function (text) {
+      valueNode.textContent = text;
     };
     return root;
   };
