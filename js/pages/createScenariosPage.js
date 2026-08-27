@@ -21,6 +21,18 @@
 
     /* ---- Packet summary -------------------------------------------------- */
 
+    /** Both ends of the window on one line -- a range, not two fields. */
+    function shippingProfileRange() {
+      if (!packet.from && !packet.to) return null;
+      return (packet.from || '-') + '  –  ' + (packet.to || '-');
+    }
+
+    /** Two sparse, optional linked-record IDs -- paired rather than each
+        claiming a full row for what's usually just a dash. */
+    function linkedRecords() {
+      return 'PQR ' + (packet.pqr || '-') + '   ·   OPPs ' + (packet.opps || '-');
+    }
+
     var summary = C.SummaryPanel({
       ariaLabel: 'Analyzer packet summary',
       headline: [
@@ -30,15 +42,11 @@
       ],
       columns: [
         [
-          { label: 'Analyzer Packet Description', value: packet.description },
-          { label: 'Shipping Profile From', value: packet.from },
-          { label: 'Shipping Profile To', value: packet.to }
-        ],
-        [
-          { label: 'Customer Hierarchy', value: packet.hierarchy },
+          // A short categorical value -- the same chip treatment a status
+          // or tag gets elsewhere, rather than plain label/value text.
+          { label: 'Customer Hierarchy', value: packet.hierarchy, chip: true },
           { label: 'Industry', value: packet.industry },
-          { label: 'PQR', value: packet.pqr },
-          { label: 'OPPs', value: packet.opps }
+          { label: 'Linked Records', value: linkedRecords() }
         ],
         [
           { label: 'Owner', value: owner },
@@ -46,6 +54,12 @@
           { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
           { label: 'Last Modified Date', value: packet.lastModifiedAt }
         ]
+      ],
+      rows: [
+        // Long enough to wrap onto two or three lines -- its own full-width
+        // line rather than squeezed into one column.
+        { label: 'Analyzer Packet Description', value: packet.description, wide: true },
+        { label: 'Shipping Profile', value: shippingProfileRange(), wide: true }
       ]
     });
 

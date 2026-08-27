@@ -1206,7 +1206,7 @@
 
 .summary-panel__body {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4) var(--space-5);
   padding: 0 var(--space-5) var(--space-5) var(--space-8);
 }
@@ -1220,6 +1220,13 @@
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0;
+}
+
+/* A row appended after the columns (Detail's `wide`): spans both, for a
+   value long enough to wrap onto two or three lines rather than being
+   squeezed into one column's width. */
+.detail--wide {
+  grid-column: 1 / -1;
 }
 
 /* Label/value pair — inline on the header row, stacked in the detail grid. */
