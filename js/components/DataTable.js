@@ -170,32 +170,13 @@
       [table]
     );
 
-    // Freezing the row-header column is only meaningful with something to
-    // freeze *and* scroll past -- a single-column stand-in (the empty-state
-    // placeholder tables use exactly one) has neither.
-    var canFreeze = columns.length > 1;
-    if (!canFreeze) return viewport;
+    // The row-header column freezes alongside the already-always-sticky
+    // header row -- unconditionally, no toggle. Freezing a single-column
+    // stand-in (the empty-state placeholder tables use exactly one) would
+    // have nothing to freeze against, so it's skipped there.
+    if (columns.length > 1) table.classList.add('data-table--frozen');
 
-    // On by default -- a caller can still opt a specific table out with
-    // `defaultFrozen: false` if freezing ever doesn't make sense for it.
-    var startFrozen = options.defaultFrozen !== false;
-
-    var freezeToggle = DA.components.Toggle({
-      checked: startFrozen,
-      label: 'Freeze headers',
-      ariaLabel: 'Freeze column and row headers in ' + (options.caption || 'this table'),
-      onChange: function (checked) {
-        table.classList.toggle('data-table--frozen', checked);
-      }
-    });
-    if (startFrozen) table.classList.add('data-table--frozen');
-
-    return el('div', {
-      className: 'data-table__wrap' + (options.embedded ? ' data-table__wrap--auto' : '')
-    }, [
-      el('div', { className: 'data-table__freeze-toggle' }, [freezeToggle]),
-      viewport
-    ]);
+    return viewport;
   };
 
   /** Record link cell: identifier + chevron affordance, one hit target. */
