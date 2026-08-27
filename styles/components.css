@@ -483,6 +483,13 @@
   background-color: var(--color-surface-muted-strong);
 }
 
+/* Same specificity as the row-header override above (one class swapped for
+   another), so source order decides -- placed after it, the sync highlight
+   correctly wins on a frozen row-header cell too. */
+.data-table--frozen tbody td.is-sync-highlight:first-child {
+  background-color: var(--color-info-subtle);
+}
+
 /* Hover still needs to win over the frozen cell's own solid background --
    .data-table tbody tr:hover td already carries higher specificity (one more
    element in the chain) than the rule above, so no !important is needed. */
@@ -2501,6 +2508,25 @@
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: var(--space-5);
   padding: var(--space-5);
+}
+
+.comparison-sync-toggle {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-4) var(--space-5) 0;
+}
+
+.comparison-sync-toggle .toggle-row {
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* The cell at the same row/column position in every other scenario panel,
+   while comparison sync is on. */
+.data-table tbody td.is-sync-highlight {
+  background-color: var(--color-info-subtle);
+  box-shadow: inset 0 0 0 1px var(--color-info);
 }
 
 .accordion--filled > .accordion__trigger {

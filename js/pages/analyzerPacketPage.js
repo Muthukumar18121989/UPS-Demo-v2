@@ -181,38 +181,118 @@
           className: 'is-rowhead',
           render: function (row) { return withCustomer(row.label); }
         },
-        numeric('adv', 'ADV', { width: '110px' }),
-        numeric('baseFrt', 'Base Frt', { width: '105px' }),
-        numeric('totalDisc', 'Total Disc', { width: '110px' }),
-        numeric('rpp', 'RPP', { width: '110px' }),
-        numeric('annRev', 'Ann Rev', { width: '140px' })
+        numeric('adv', 'ADV', { link: true, width: '110px' }),
+        numeric('baseFrt', 'Base Frt', { link: true, width: '105px' }),
+        numeric('totalDisc', 'Total Disc', { link: true, width: '110px' }),
+        numeric('rpp', 'RPP', { link: true, width: '110px' }),
+        numeric('annRev', 'Ann Rev', { link: true, width: '140px' })
       ];
+    }
+
+    /**
+     * Side-by-side scenario summaries share the same column layout and (in
+     * the common case) the same row order, so a reader comparing them wants
+     * to track one figure across panels without losing their place. When the
+     * toggle is on, scrolling any panel's table scrolls the others with it,
+     * and hovering a cell highlights the cell at the same row/column
+     * position in every other panel. Position-based, so it only lines up
+     * cleanly while every panel has the same rows expanded -- expand a row
+     * in just one panel and the highlight will point at whatever row now
+     * shares that index there instead.
+     */
+    function summaryComparisonSync() {
+      var panels = []; // { viewport, table }
+      var enabled = false;
+      var suppressScroll = false;
+
+      function clearHighlights(exceptTable) {
+        panels.forEach(function (p) {
+          if (p.table === exceptTable) return;
+          Array.prototype.forEach.call(
+            p.table.querySelectorAll('.is-sync-highlight'),
+            function (cell) { cell.classList.remove('is-sync-highlight'); }
+          );
+        });
+      }
+
+      function register(viewport) {
+        var table = viewport.querySelector('table');
+        if (!table) return;
+        var entry = { viewport: viewport, table: table };
+        panels.push(entry);
+
+        viewport.addEventListener('scroll', function () {
+          if (!enabled || suppressScroll) return;
+          suppressScroll = true;
+          panels.forEach(function (p) {
+            if (p !== entry) p.viewport.scrollLeft = viewport.scrollLeft;
+          });
+          suppressScroll = false;
+        });
+
+        table.addEventListener('mouseover', function (event) {
+          if (!enabled) return;
+          var cell = event.target.closest('td');
+          if (!cell || !table.tBodies[0]) return;
+          var row = cell.parentElement;
+          var rowIndex = Array.prototype.indexOf.call(table.tBodies[0].rows, row);
+          var cellIndex = Array.prototype.indexOf.call(row.cells, cell);
+          panels.forEach(function (p) {
+            if (p === entry || !p.table.tBodies[0]) return;
+            var otherRow = p.table.tBodies[0].rows[rowIndex];
+            var otherCell = otherRow && otherRow.cells[cellIndex];
+            if (otherCell) otherCell.classList.add('is-sync-highlight');
+          });
+        });
+
+        table.addEventListener('mouseout', function (event) {
+          if (!enabled || !event.target.closest('td')) return;
+          clearHighlights(table);
+        });
+      }
+
+      var toggle = C.Toggle({
+        checked: enabled,
+        label: 'Sync scroll & highlight across scenarios',
+        onChange: function (checked) {
+          enabled = checked;
+          if (!checked) clearHighlights(null);
+        }
+      });
+
+      return { register: register, toggle: toggle };
     }
 
     function summaryView() {
       var trees = DA.data.packetSummaryTrees;
+      var sync = summaryComparisonSync();
 
-      return el('div', { className: 'comparison-grid' },
+      var grid = el('div', { className: 'comparison-grid' },
         scenarios.map(function (scenario) {
           var rows = trees[scenario.name] || trees.Current;
+          var table = C.DataTable({
+            caption: scenario.name + ' summary',
+            embedded: true,
+            headerTone: 'warm',
+            expandKey: 'label',
+            getChildren: function (row) { return row.children; },
+            columns: summaryColumns(),
+            rows: rows
+          });
+          sync.register(table);
           return C.Accordion({
             title: scenario.name,
             expanded: true,
             className: 'accordion--filled',
-            content: [
-              C.DataTable({
-                caption: scenario.name + ' summary',
-                embedded: true,
-                headerTone: 'warm',
-                expandKey: 'label',
-                getChildren: function (row) { return row.children; },
-                columns: summaryColumns(),
-                rows: rows
-              })
-            ]
+            content: [table]
           });
         })
       );
+
+      return el('div', {}, [
+        el('div', { className: 'comparison-sync-toggle' }, [sync.toggle]),
+        grid
+      ]);
     }
 
     /* ---- Shipping Profiles tab -------------------------------------------- */
