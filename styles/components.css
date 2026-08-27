@@ -503,6 +503,20 @@
   background-color: var(--color-surface);
 }
 
+/* The plain white background above must not clobber a row-header column
+   that lands in first position (Zone's Movement, Accessorial's Type): both
+   already carry their own shaded/dark background, and this selector's extra
+   class + pseudo-class outweighs the rule above's extra element, so these
+   win without !important. Each still loses correctly to its own more
+   specific :hover rule further down. */
+.data-table--frozen tbody td.is-rowhead:first-child {
+  background-color: var(--color-surface-muted-strong);
+}
+
+.data-table--frozen tbody td.is-rowhead-dark:first-child {
+  background-color: var(--color-surface-inverse-warm);
+}
+
 /* Hover still needs to win over the frozen cell's own solid background --
    .data-table tbody tr:hover td already carries higher specificity (one more
    element in the chain) than the rule above, so no !important is needed. */
