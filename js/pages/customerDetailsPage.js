@@ -63,16 +63,25 @@
         : 'Duration : ' + weeks + ' Week' + (weeks === 1 ? '' : 's');
     }
 
+    /*
+     * Native date input: gives the calendar icon and its click-to-open
+     * picker for free, rather than a hand-built widget. Its own value is
+     * always ISO (YYYY-MM-DD), so it's converted at the boundary -- state
+     * stays MM/DD/YYYY, the format weeksBetween and the built packet record
+     * already expect.
+     */
     var fromField = C.Field({
       label: 'Shipping Profile From*',
-      value: state.from,
-      onInput: function (event) { state.from = event.target.value; renderDuration(); }
+      type: 'date',
+      value: format.toIsoDate(state.from),
+      onInput: function (event) { state.from = format.fromIsoDate(event.target.value); renderDuration(); }
     });
 
     var toField = C.Field({
       label: 'Shipping Profile To*',
-      value: state.to,
-      onInput: function (event) { state.to = event.target.value; renderDuration(); }
+      type: 'date',
+      value: format.toIsoDate(state.to),
+      onInput: function (event) { state.to = format.fromIsoDate(event.target.value); renderDuration(); }
     });
 
     renderDuration();
