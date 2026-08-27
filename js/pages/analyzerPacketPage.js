@@ -517,18 +517,26 @@
       ]);
     }
 
-    function shippingProfilesView() {
+    /**
+     * The merged "Analyzer" tab: Comparisons (the former standalone Summary
+     * tab's content, unchanged) alongside the shipping-profile views, all as
+     * one set of sub-tabs rather than two separate top-level tabs. Every
+     * sub-tab's underlying content and data is exactly what it was before --
+     * only the menu structure and labels moved, matching the reference menu.
+     */
+    function analyzerView() {
       return el('div', { className: 'tabs--boxed' }, [
         C.Tabs({
-          ariaLabel: 'Shipping profile views',
-          value: 'cost',
+          ariaLabel: 'Analyzer views',
+          value: 'comparisons',
           items: [
-            { id: 'cost', label: 'Cost', render: costView },
-            { id: 'zone', label: 'Zone', render: zoneView },
-            { id: 'weight', label: 'Weight', render: emptyView('Weight') },
-            { id: 'account', label: 'Account', render: emptyView('Account') },
-            { id: 'accessorial', label: 'Accessorial', render: accessorialView },
-            { id: 'service', label: 'Service', render: serviceView }
+            { id: 'comparisons', label: 'Comparisons', render: summaryView },
+            { id: 'services', label: 'Services', render: serviceView },
+            { id: 'charges', label: 'Charges', render: accessorialView },
+            { id: 'accounts', label: 'Accounts', render: emptyView('Accounts') },
+            { id: 'cost-details', label: 'Cost Details', render: costView },
+            { id: 'zones', label: 'Zones', render: zoneView },
+            { id: 'weight-cube', label: 'Weight & Cube', render: emptyView('Weight & Cube') }
           ]
         })
       ]);
@@ -593,18 +601,14 @@
       el('div', { className: 'tabs--page' }, [
         C.Tabs({
           ariaLabel: 'Report sections',
-          value: 'summary',
+          value: 'analyzer',
           items: [
-            { id: 'summary', label: 'Summary', render: function () {
-              return el('section', { className: 'panel panel--auto' }, [summaryView()]);
-            } },
-            { id: 'rate-charts', label: 'Rate Charts', render: emptyView('Rate Chart') },
-            { id: 'shipping-profiles', label: 'Shipping Profiles', render: function () {
+            { id: 'analyzer', label: 'Analyzer', render: function () {
               return el('section', { className: 'panel panel--auto' }, [
-                el('div', { className: 'panel__content' }, [shippingProfilesView()])
+                el('div', { className: 'panel__content' }, [analyzerView()])
               ]);
             } },
-            { id: 'pricing-terms', label: 'Pricing terms', render: function () {
+            { id: 'pricing-terms', label: 'Pricing Terms', render: function () {
               return el('section', { className: 'panel panel--auto' }, [
                 el('div', { className: 'panel__content' }, [
                   DA.views.PricingTerms({
@@ -616,7 +620,10 @@
                 ])
               ]);
             } },
-            { id: 'other-terms', label: 'Other terms', render: emptyView('Other Term') }
+            { id: 'other-terms', label: 'Other Terms', render: emptyView('Other Term') },
+            // Not built yet -- placeholder tab, content to follow.
+            { id: 'adjustments', label: 'Adjustments', render: emptyView('Adjustment') },
+            { id: 'rate-charts', label: 'Rate Charts', render: emptyView('Rate Chart') }
           ]
         })
       ])
