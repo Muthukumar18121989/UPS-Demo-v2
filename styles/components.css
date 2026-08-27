@@ -2382,6 +2382,13 @@
    -------------------------------------------------------------------------- */
 .dropdown {
   position: relative;
+  /* Matches .field__control: when a dropdown sits inside .field's flex
+     row (as SelectField's does), it must grow to fill it the same way a
+     text input does, rather than shrinking to its trigger's content width.
+     A no-op outside a flex parent, so harmless for Comparison View and the
+     report-filter dropdowns, which aren't nested in .field. */
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .dropdown__trigger {
