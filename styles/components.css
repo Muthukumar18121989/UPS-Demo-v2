@@ -693,15 +693,15 @@
               box-shadow var(--duration-fast) var(--easing-standard);
 }
 
-/* Empty: no label is showing, so the placeholder sits optically centred. */
-.field__input:placeholder-shown {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
-}
-
+/*
+ * The label is always visible now (below), so the placeholder no longer
+ * needs to stand in for it while the field is empty -- kept only so
+ * :placeholder-shown still tracks empty vs filled for the border-colour
+ * rule beneath, but hidden from view to avoid duplicating the label text.
+ */
 .field__input::placeholder {
   color: var(--color-field-placeholder);
-  opacity: 1;
+  opacity: 0;
 }
 
 .field__input:hover {
@@ -723,6 +723,11 @@
   outline-offset: 1px;
 }
 
+/*
+ * Always visible -- the same convention select-field's own label already
+ * used, now the one rule every field control follows rather than only
+ * showing on focus or once filled.
+ */
 .field__label {
   position: absolute;
   top: 5px;
@@ -735,20 +740,17 @@
   font-size: var(--font-size-2xs);
   line-height: 1.1;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(3px);
-  transition: opacity var(--duration-fast) var(--easing-standard),
-              transform var(--duration-fast) var(--easing-standard);
 }
 
-.field__input:not(:placeholder-shown) ~ .field__label,
-.field__input:focus ~ .field__label,
-.field--static-label .field__label {
-  opacity: 1;
-  transform: none;
-}
-
+/*
+ * The row above reserves a help-button gutter (--field-help-size, plus the
+ * row's own gap) even when no help button is present, so the input box's
+ * own right edge sits that far left of .form-field's. The hint is a sibling
+ * of that row, not part of its grid, so without this it stretched to
+ * .form-field's full width and overflowed past the box it describes.
+ */
 .field__hint {
+  max-width: calc(100% - var(--field-help-size) - var(--space-2));
   margin-top: var(--space-1);
   color: var(--color-text-muted);
   font-size: var(--font-size-2xs);
@@ -799,11 +801,6 @@
   cursor: pointer;
 }
 
-.select-field .field__label {
-  opacity: 1;
-  transform: none;
-}
-
 .select-field__chevron {
   position: absolute;
   top: 50%;
@@ -842,10 +839,21 @@
   border-color: var(--color-field-border-filled);
 }
 
+/*
+ * The base padding-top (space-4, 16px) was sized for a single-line label
+ * that isn't part of layout flow either way. At 11px font / 1.1 line-height
+ * the label's own bottom edge lands past that, so the shaded area below it
+ * started overlapping the label by ~1px instead of clearing it -- padding
+ * the label doesn't visually own reads as "ditching" it. Widened just for
+ * the multiline variant, since only it has a solid-background area to
+ * visibly collide with the label above.
+ */
 .chip-input--multiline {
-  min-height: 62px;
+  min-height: 68px;
+  padding-top: var(--space-6);
 }
 
+/* Always visible, matching every other field control. */
 .chip-input__label {
   position: absolute;
   top: 5px;
@@ -854,21 +862,6 @@
   font-size: var(--font-size-2xs);
   line-height: 1.1;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(3px);
-  transition: opacity var(--duration-fast) var(--easing-standard),
-              transform var(--duration-fast) var(--easing-standard);
-}
-
-.chip-input--labelled .chip-input__label {
-  opacity: 1;
-  transform: none;
-}
-
-/* No label showing means no reserved room for it. */
-.chip-input:not(.chip-input--labelled) {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
 }
 
 .chip-input__area {
@@ -909,7 +902,7 @@
 
 .chip-input__entry::placeholder {
   color: var(--color-field-placeholder);
-  opacity: 1;
+  opacity: 0;
 }
 
 .chip {
