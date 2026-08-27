@@ -321,7 +321,6 @@
           el('div', { className: 'view-filters__field' }, [
             C.SelectField({
               label: 'Account',
-              hideLabel: true,
               value: customer + ' MAIN',
               options: accountOptions()
             })

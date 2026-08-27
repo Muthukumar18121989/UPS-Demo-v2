@@ -82,8 +82,7 @@
 
       var descriptionField = C.Field({
         label: 'Scenario Description',
-        multiline: true,
-        hideLabel: true
+        multiline: true
       });
 
       var drawer = C.Modal({
