@@ -456,46 +456,39 @@
 }
 
 /* --------------------------------------------------------------------------
-   Frozen headers -- applied unconditionally by DataTable to any table with
+   Frozen columns -- applied unconditionally by DataTable to any table with
    more than one column. The header row is already sticky unconditionally;
-   this adds the first (row-header) column, so both axes stay in view on a
-   table that scrolls in both directions.
+   this adds `freezeColumns` leading columns (the first by default, more
+   where several together identify a row -- Movement/Mode/Core Service),
+   each positioned by DataTable itself (position: sticky, its own `left`
+   offset, inline per cell -- computed from the columns before it, since
+   they can be different widths). This layers the rest on top: z-index so
+   a frozen cell sits above the columns scrolling past it (higher still for
+   the header row's own frozen cells, so the top-left corner outranks both
+   axes), a background so a plain frozen cell doesn't let scrolling content
+   show through it, and an edge shadow marking where the frozen group ends.
    -------------------------------------------------------------------------- */
-.data-table--frozen thead th:first-child {
-  left: 0;
+.data-table--frozen .is-frozen-col {
+  z-index: 1;
+}
+
+.data-table--frozen thead th.is-frozen-col {
   z-index: 2;
 }
 
-.data-table--frozen tbody td:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 1;
+/*
+ * :where() keeps this from outweighing a cell's own background -- is-rowhead
+ * (Zone's Movement, Accessorial's Type) already carries one at real
+ * specificity and needs to win; this is only a fallback for a plain cell
+ * that has none of its own. tr:hover and the sync-highlight rule already
+ * carry enough extra specificity (an extra element or class) to win over
+ * both without needing a frozen-specific override of their own.
+ */
+.data-table td:where(.is-frozen-col) {
   background-color: var(--color-surface);
 }
 
-/* The plain white background above must not clobber a row-header column
-   that lands in first position (Zone's Movement, Accessorial's Type): it
-   already carries its own shaded background, and this selector's extra
-   class + pseudo-class outweighs the rule above's extra element, so this
-   wins without !important. Still loses correctly to its own more specific
-   :hover rule further down. */
-.data-table--frozen tbody td.is-rowhead:first-child {
-  background-color: var(--color-surface-muted-strong);
-}
-
-/* Same specificity as the row-header override above (one class swapped for
-   another), so source order decides -- placed after it, the sync highlight
-   correctly wins on a frozen row-header cell too. */
-.data-table--frozen tbody td.is-sync-highlight:first-child {
-  background-color: var(--color-info-subtle);
-}
-
-/* Hover still needs to win over the frozen cell's own solid background --
-   .data-table tbody tr:hover td already carries higher specificity (one more
-   element in the chain) than the rule above, so no !important is needed. */
-
-.data-table--frozen thead th:first-child,
-.data-table--frozen tbody td:first-child {
+.data-table--frozen .is-frozen-edge {
   box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.15);
 }
 

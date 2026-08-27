@@ -351,6 +351,10 @@
             headerTone: 'warm',
             tinted: true,
             expandKey: 'service',
+            // Movement, Mode and Core Service together identify the lane --
+            // frozen as a group, so they stay in view alongside whichever
+            // figures the reader has scrolled to.
+            freezeColumns: 3,
             // A lane opens onto the zones it shipped in.
             getChildren: function (row) {
               if (row.zone !== '-') return null;
