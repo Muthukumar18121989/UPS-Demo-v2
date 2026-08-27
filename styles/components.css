@@ -1229,6 +1229,14 @@
   grid-column: 1 / -1;
 }
 
+.summary-panel__divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background-color: var(--color-border-subtle);
+}
+
 /* Label/value pair — inline on the header row, stacked in the detail grid. */
 .detail {
   min-width: 0;

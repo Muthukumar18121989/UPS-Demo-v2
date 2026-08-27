@@ -42,11 +42,10 @@
       ],
       columns: [
         [
-          // A short categorical value -- the same chip treatment a status
-          // or tag gets elsewhere, rather than plain label/value text.
-          { label: 'Customer Hierarchy', value: packet.hierarchy, chip: true },
+          { label: 'Customer Hierarchy', value: packet.hierarchy },
           { label: 'Industry', value: packet.industry },
-          { label: 'Linked Records', value: linkedRecords() }
+          { label: 'Linked Records', value: linkedRecords() },
+          { label: 'Shipping Profile', value: shippingProfileRange() }
         ],
         [
           { label: 'Owner', value: owner },
@@ -57,9 +56,10 @@
       ],
       rows: [
         // Long enough to wrap onto two or three lines -- its own full-width
-        // line rather than squeezed into one column.
-        { label: 'Analyzer Packet Description', value: packet.description, wide: true },
-        { label: 'Shipping Profile', value: shippingProfileRange(), wide: true }
+        // line rather than squeezed into one column, set off from the
+        // columns above with a rule since it reads as a different kind of
+        // field (free text, not a short value).
+        { label: 'Analyzer Packet Description', value: packet.description, wide: true }
       ]
     });
 

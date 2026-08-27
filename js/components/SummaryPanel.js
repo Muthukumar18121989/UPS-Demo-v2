@@ -45,16 +45,25 @@
     var bodyId = 'summary-panel-' + uid;
     var expanded = options.expanded !== false;
 
-    var body = el('div', {
-      className: 'summary-panel__body',
-      attrs: { id: bodyId, hidden: !expanded }
-    }, (options.columns || []).map(function (column) {
+    var columnNodes = (options.columns || []).map(function (column) {
       return el('div', { className: 'summary-panel__column' }, column.map(function (item) {
         return DA.components.Detail(item);
       }));
-    }).concat((options.rows || []).map(function (item) {
+    });
+    var rowNodes = (options.rows || []).map(function (item) {
       return DA.components.Detail(item);
-    })));
+    });
+    // Rows read as a different kind of field (free text, not a short
+    // value), so a rule sets them off from the columns above -- only drawn
+    // when there's something on both sides of it.
+    var divider = columnNodes.length && rowNodes.length
+      ? [el('hr', { className: 'summary-panel__divider' })]
+      : [];
+
+    var body = el('div', {
+      className: 'summary-panel__body',
+      attrs: { id: bodyId, hidden: !expanded }
+    }, columnNodes.concat(divider, rowNodes));
 
     var header = el('button', {
       className: 'summary-panel__header',
