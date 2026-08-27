@@ -1775,7 +1775,15 @@
 .field__input--multiline {
   height: auto;
   min-height: 68px;
-  padding-top: var(--space-2);
+  /*
+   * This 8px predates the label's move to always-visible: sized for a
+   * placeholder that only needed slight centring, not a fixed label
+   * ending ~17px down that it now has to clear -- the label and the
+   * placeholder's first line were overlapping. The same fix already
+   * applied to the multiline chip input (its shaded area was overlapping
+   * its own label by ~1px), scaled up for the larger gap here.
+   */
+  padding-top: var(--space-7);
   padding-bottom: var(--space-2);
   line-height: var(--line-height-normal);
   resize: vertical;
