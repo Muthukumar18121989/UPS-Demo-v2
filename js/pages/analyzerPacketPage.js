@@ -74,8 +74,9 @@
 
     /* ---- Comparison selector --------------------------------------------- */
 
-    // The baseline scenario is always part of a comparison; the rest are opt-in.
-    var chosen = scenarios.slice(0, 1).map(function (scenario) { return scenario.name; });
+    // The baseline scenario is always part of a comparison; the next one joins
+    // it by default so the report opens already showing a comparison.
+    var chosen = scenarios.slice(0, 2).map(function (scenario) { return scenario.name; });
     var pending = chosen.slice();
     var comparisonBand = el('section', { className: 'panel panel--auto' });
 
@@ -111,60 +112,37 @@
     });
 
     /**
-     * One row per chosen scenario, padded to two, then their difference.
-     * A recorded difference is used when there is one; otherwise it is derived
-     * from the figures shown, which can land a unit off where those are
-     * rounded for display.
+     * The baseline and (if chosen) a second scenario's figures, plus their
+     * difference. A recorded difference is used when there is one; otherwise
+     * it is derived from the figures shown, which can land a unit off where
+     * those are rounded for display.
      */
-    function comparisonRows() {
+    function renderComparisonBand() {
       var figures = DA.data.scenarioFigures;
       var keys = DA.data.comparisonKeys;
       var picked = scenarios.filter(function (scenario) {
         return chosen.indexOf(scenario.name) !== -1;
       });
 
-      var rows = picked.map(function (scenario) {
-        var values = figures[scenario.name] || {};
-        var row = { scenario: scenario.name };
-        keys.forEach(function (key) { row[key] = values[key]; });
-        return row;
-      });
+      var baseline = picked[0]
+        ? { name: picked[0].name, figures: figures[picked[0].name] || {} }
+        : null;
+      var compare = picked[1]
+        ? { name: picked[1].name, figures: figures[picked[1].name] || {} }
+        : null;
 
-      while (rows.length < 2) rows.push({ scenario: '-' });
-
-      var difference = { scenario: '', difference: true };
-      if (picked.length === 2) {
-        var a = figures[picked[0].name] || {};
-        var b = figures[picked[1].name] || {};
-        var recorded = DA.data.scenarioDifferences[picked[0].name + '|' + picked[1].name];
+      var difference = {};
+      if (baseline && compare) {
+        var recorded = DA.data.scenarioDifferences[baseline.name + '|' + compare.name];
         keys.forEach(function (key) {
-          difference[key] = recorded ? recorded[key] : DA.figures.difference(a[key], b[key]);
+          difference[key] = recorded
+            ? recorded[key]
+            : DA.figures.difference(baseline.figures[key], compare.figures[key]);
         });
       }
-      rows.push(difference);
-      return rows;
-    }
 
-    function renderComparisonBand() {
       DA.dom.clear(comparisonBand).appendChild(
-        C.DataTable({
-          caption: 'Scenario comparison',
-          embedded: true,
-          headerTone: 'plain',
-          dividers: true,
-          rowClassName: function (row) { return row.difference ? 'is-difference' : ''; },
-          columns: [
-            { key: 'scenario', label: 'Scenario', width: '150px' },
-            numeric('adv', 'ADV'),
-            numeric('baseFrtDisc', 'Base Frt Disc'),
-            numeric('totalDisc', 'Total Disc'),
-            numeric('rpp', 'RPP'),
-            numeric('revenue', 'Revenue', { width: '150px' }),
-            numeric('or', 'OR'),
-            numeric('profit', 'Profit', { width: '130px' })
-          ],
-          rows: comparisonRows()
-        })
+        C.ComparisonSummary({ baseline: baseline, compare: compare, difference: difference })
       );
     }
 

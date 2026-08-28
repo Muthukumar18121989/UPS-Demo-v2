@@ -2779,11 +2779,168 @@
   text-transform: uppercase;
 }
 
-/* The difference between two compared scenarios, set apart from the figures
-   it was derived from. */
-.data-table tr.is-difference td {
-  color: var(--color-primary-text);
+/* --------------------------------------------------------------------------
+   Comparison summary — Revenue/Profit hero cards plus the smaller figures
+   below them, replacing the plain scenario comparison table.
+   -------------------------------------------------------------------------- */
+.comparison-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.comparison-summary__heroes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+.comparison-summary__hero {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  padding: var(--space-5);
+}
+
+.comparison-summary__hero-label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-2);
+}
+
+.comparison-summary__hero-values {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.comparison-summary__hero-arrow {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.comparison-summary__hero-delta-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
+}
+
+.comparison-summary__hero-percent {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+.comparison-summary__hero-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.comparison-summary__bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.comparison-summary__bar-track {
+  position: relative;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted-strong);
+  overflow: hidden;
+}
+
+.comparison-summary__bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.comparison-summary__bar-fill--accent {
+  background-color: var(--color-primary);
+}
+
+.comparison-summary__tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  padding: var(--space-5);
+}
+
+.comparison-summary__tile-label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-1);
+}
+
+.comparison-summary__tile-value {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.comparison-summary__tile-delta-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.comparison-summary__tile-arrow {
+  color: var(--color-text-muted);
+}
+
+.comparison-summary__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Arrow tint follows direction; text tint follows what kind of figure moved.
+   Targeted separately so the two can combine in any of the four ways. */
+.comparison-summary__delta--up svg {
+  color: var(--color-warning);
+}
+
+.comparison-summary__delta--down svg {
+  color: var(--color-text-muted);
+}
+
+.comparison-summary__delta--accent span {
+  color: var(--color-text-link);
+}
+
+.comparison-summary__delta--muted span {
+  color: var(--color-text-secondary);
 }
 
 /* --------------------------------------------------------------------------
