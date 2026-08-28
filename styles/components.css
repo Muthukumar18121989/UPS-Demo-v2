@@ -2713,7 +2713,34 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: 0 var(--space-4) var(--space-4) var(--space-5);
+  padding: 0 var(--space-4) var(--space-4) var(--space-3);
+}
+
+/*
+ * Region > Mode > Service is three of these nested inside each other. Each
+ * was the same full-weight card, so the indent and the border both
+ * compounded three times over before reaching the actual content --
+ * heavy on the left, and three identical boxes stacked read as a mistake
+ * rather than a hierarchy. The border lightens a step per level instead
+ * (nothing left to lighten to at three, so it drops out entirely), and
+ * the deepest trigger gives back the padding its own box no longer needs.
+ */
+.accordion--plan .accordion--plan {
+  border-color: var(--color-border-subtle);
+}
+
+.accordion--plan .accordion--plan .accordion--plan {
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.accordion--plan .accordion--plan .accordion--plan > .accordion__trigger {
+  padding-left: 0;
+}
+
+.accordion--plan .accordion--plan .accordion--plan > .accordion__panel {
+  padding-left: var(--space-2);
 }
 
 .plan-detail {
