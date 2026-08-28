@@ -24,28 +24,44 @@
     });
   }
 
+  /** Right-aligned numeric column, matching the report tables' own convention. */
+  function numeric(key, label, width) {
+    return {
+      key: key,
+      label: label,
+      width: width,
+      className: 'is-numeric is-end',
+      headerClassName: 'is-end',
+      render: function (row) { return row[key] == null ? '-' : row[key]; }
+    };
+  }
+
   /**
-   * One tab's body: its filters over a table of matching source rows.
-   * Both tabs share a shape — the first column is named for the tab, and the
-   * Accessorial view adds an accessorial filter.
+   * One tab's body: its filters over a table of matching source rows. Each
+   * tab supplies its own columns -- the Services table is the fuller
+   * per-service averages set from the reference screen; a tab without
+   * `columns` falls back to the original generic name/ADU/% Volume shape.
    */
   function sourceView(options) {
     var C = DA.components;
+    var columns = options.columns || [
+      { key: 'name', label: options.label },
+      { key: 'adu', label: 'ADU', width: '30%' },
+      { key: 'volume', label: '% Total Volume', width: '30%' }
+    ];
 
     return el('div', {}, [
       el('div', { className: 'filter-grid' },
         ['Account', 'Service'].concat(options.extraFilter || []).map(filterSelect)
       ),
+      C.Alert({ tone: 'info', plain: true, message: 'Values represented as averages' }),
       el('div', { className: 'card' }, [
         C.DataTable({
           caption: options.label + ' source data',
           embedded: true,
           headerTone: 'warm',
-          columns: [
-            { key: 'name', label: options.label },
-            { key: 'adu', label: 'ADU', width: '30%' },
-            { key: 'volume', label: '% Total Volume', width: '30%' }
-          ],
+          tinted: true,
+          columns: columns,
           rows: options.rows || [],
           emptyState: el('p', { className: 'table-empty', text: 'No data available.' })
         })
@@ -91,13 +107,25 @@
           ]),
           C.Tabs({
             ariaLabel: 'Source data views',
-            value: 'accessorial',
+            value: 'services',
             items: [
               {
                 id: 'services',
                 label: 'Services',
                 render: function () {
-                  return sourceView({ label: 'Service', rows: bid.serviceSource });
+                  return sourceView({
+                    label: 'Service',
+                    rows: bid.serviceSource,
+                    columns: [
+                      { key: 'name', label: 'Service', width: '110px', className: 'is-rowhead' },
+                      numeric('adv', 'ADV'),
+                      numeric('actualWt', 'Actual Wt'),
+                      numeric('billableWt', 'Billable Wt'),
+                      numeric('zone', 'Zone'),
+                      numeric('dlDens', 'DL Dens'),
+                      numeric('cubeFactor', 'Cube Factor')
+                    ]
+                  });
                 }
               },
               {

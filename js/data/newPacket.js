@@ -49,7 +49,8 @@
           shippingProfile: bid.shippingProfile.replace(/^S\d+-/, 'S' + index + '-'),
           construct: bid.construct,
           selectable: bid.selectable,
-          selected: bid.selected
+          selected: bid.selected,
+          serviceSource: bid.serviceSource
         };
       })
     };
@@ -97,7 +98,8 @@
             shippingProfile: bid.shippingProfile,
             construct: bid.construct,
             selectable: bid.selectable,
-            selected: bid.selectable
+            selected: bid.selectable,
+            serviceSource: bid.serviceSource
           };
         })
       }]
