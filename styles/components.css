@@ -2672,7 +2672,7 @@
    Boxed tab bar  (centred section switch)
    -------------------------------------------------------------------------- */
 .tabs--boxed .tabs__list {
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space-6);
   padding: 0 var(--space-5);
   border: 1px solid var(--color-border);
