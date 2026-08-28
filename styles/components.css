@@ -427,20 +427,69 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-normal);
   white-space: nowrap;
+  /* Light-on-dark divider, so adjoining header labels read as distinct
+     columns. */
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .data-table thead th:first-child {
   border-top-left-radius: 0;
 }
 
+.data-table thead th:last-child {
+  border-right: 0;
+}
+
 .data-table tbody td {
   height: var(--table-row-height);
   border-bottom: 1px solid var(--color-border-subtle);
+  border-right: 1px solid var(--color-border-subtle);
   color: var(--color-text-primary);
 }
 
 .data-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.data-table tbody td:last-child {
+  border-right: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Frozen columns -- applied unconditionally by DataTable to any table with
+   more than one column. The header row is already sticky unconditionally;
+   this adds `freezeColumns` leading columns (the first by default, more
+   where several together identify a row -- Movement/Mode/Core Service),
+   each positioned by DataTable itself (position: sticky, its own `left`
+   offset, inline per cell -- computed from the columns before it, since
+   they can be different widths). This layers the rest on top: z-index so
+   a frozen cell sits above the columns scrolling past it (higher still for
+   the header row's own frozen cells, so the top-left corner outranks both
+   axes), a background so a plain frozen cell doesn't let scrolling content
+   show through it, and an edge shadow marking where the frozen group ends.
+   -------------------------------------------------------------------------- */
+.data-table--frozen .is-frozen-col {
+  z-index: 1;
+}
+
+.data-table--frozen thead th.is-frozen-col {
+  z-index: 2;
+}
+
+/*
+ * :where() keeps this from outweighing a cell's own background -- is-rowhead
+ * (Zone's Movement, Accessorial's Type) already carries one at real
+ * specificity and needs to win; this is only a fallback for a plain cell
+ * that has none of its own. tr:hover and the sync-highlight rule already
+ * carry enough extra specificity (an extra element or class) to win over
+ * both without needing a frozen-specific override of their own.
+ */
+.data-table td:where(.is-frozen-col) {
+  background-color: var(--color-surface);
+}
+
+.data-table--frozen .is-frozen-edge {
+  box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.15);
 }
 
 .data-table tbody tr {
@@ -637,12 +686,14 @@
               box-shadow var(--duration-fast) var(--easing-standard);
 }
 
-/* Empty: no label is showing, so the placeholder sits optically centred. */
-.field__input:placeholder-shown {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
-}
-
+/*
+ * The label is always visible now (above), so the placeholder no longer
+ * has to carry the field's name -- it still does (same text, set once in
+ * JS), but shown in this muted placeholder tone rather than the value's
+ * own dark text, it reads as secondary hint copy under the label instead
+ * of a second, equally-weighted copy of it. An empty field with nothing
+ * here at all read as broken, not calm.
+ */
 .field__input::placeholder {
   color: var(--color-field-placeholder);
   opacity: 1;
@@ -667,6 +718,11 @@
   outline-offset: 1px;
 }
 
+/*
+ * Always visible -- the same convention select-field's own label already
+ * used, now the one rule every field control follows rather than only
+ * showing on focus or once filled.
+ */
 .field__label {
   position: absolute;
   top: 5px;
@@ -679,20 +735,17 @@
   font-size: var(--font-size-2xs);
   line-height: 1.1;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(3px);
-  transition: opacity var(--duration-fast) var(--easing-standard),
-              transform var(--duration-fast) var(--easing-standard);
 }
 
-.field__input:not(:placeholder-shown) ~ .field__label,
-.field__input:focus ~ .field__label,
-.field--static-label .field__label {
-  opacity: 1;
-  transform: none;
-}
-
+/*
+ * The row above reserves a help-button gutter (--field-help-size, plus the
+ * row's own gap) even when no help button is present, so the input box's
+ * own right edge sits that far left of .form-field's. The hint is a sibling
+ * of that row, not part of its grid, so without this it stretched to
+ * .form-field's full width and overflowed past the box it describes.
+ */
 .field__hint {
+  max-width: calc(100% - var(--field-help-size) - var(--space-2));
   margin-top: var(--space-1);
   color: var(--color-text-muted);
   font-size: var(--font-size-2xs);
@@ -735,29 +788,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Select field
-   -------------------------------------------------------------------------- */
-.select-field .field__input {
-  appearance: none;
-  padding-right: var(--space-7);
-  cursor: pointer;
-}
-
-.select-field .field__label {
-  opacity: 1;
-  transform: none;
-}
-
-.select-field__chevron {
-  position: absolute;
-  top: 50%;
-  right: var(--field-padding-x);
-  transform: translateY(-50%);
-  color: var(--color-field-text);
-  pointer-events: none;
-}
-
-/* --------------------------------------------------------------------------
    Chip input  (linked records / OPP entries)
    -------------------------------------------------------------------------- */
 .chip-input {
@@ -786,10 +816,21 @@
   border-color: var(--color-field-border-filled);
 }
 
+/*
+ * The base padding-top (space-4, 16px) was sized for a single-line label
+ * that isn't part of layout flow either way. At 11px font / 1.1 line-height
+ * the label's own bottom edge lands past that, so the shaded area below it
+ * started overlapping the label by ~1px instead of clearing it -- padding
+ * the label doesn't visually own reads as "ditching" it. Widened just for
+ * the multiline variant, since only it has a solid-background area to
+ * visibly collide with the label above.
+ */
 .chip-input--multiline {
-  min-height: 62px;
+  min-height: 68px;
+  padding-top: var(--space-6);
 }
 
+/* Always visible, matching every other field control. */
 .chip-input__label {
   position: absolute;
   top: 5px;
@@ -798,21 +839,6 @@
   font-size: var(--font-size-2xs);
   line-height: 1.1;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(3px);
-  transition: opacity var(--duration-fast) var(--easing-standard),
-              transform var(--duration-fast) var(--easing-standard);
-}
-
-.chip-input--labelled .chip-input__label {
-  opacity: 1;
-  transform: none;
-}
-
-/* No label showing means no reserved room for it. */
-.chip-input:not(.chip-input--labelled) {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
 }
 
 .chip-input__area {
@@ -1175,9 +1201,14 @@
 
 .summary-panel__body {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4) var(--space-5);
-  padding: 0 var(--space-5) var(--space-5) var(--space-8);
+  /* Matches the header row's own left edge exactly: its padding-left
+     (--space-5) plus the disclosure icon (16px) plus its gap (--space-3),
+     so "Analyzer Packet ID" and the rows below it share one left edge
+     instead of the icon's width leaving them out of line. */
+  padding: var(--space-4) var(--space-5) var(--space-5) calc(var(--space-5) + 16px + var(--space-3));
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .summary-panel__body[hidden] {
@@ -1189,6 +1220,21 @@
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0;
+}
+
+/* A row appended after the columns (Detail's `wide`): spans both, for a
+   value long enough to wrap onto two or three lines rather than being
+   squeezed into one column's width. */
+.detail--wide {
+  grid-column: 1 / -1;
+}
+
+.summary-panel__divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background-color: var(--color-border-subtle);
 }
 
 /* Label/value pair — inline on the header row, stacked in the detail grid. */
@@ -1722,7 +1768,15 @@
 .field__input--multiline {
   height: auto;
   min-height: 68px;
-  padding-top: var(--space-2);
+  /*
+   * This 8px predates the label's move to always-visible: sized for a
+   * placeholder that only needed slight centring, not a fixed label
+   * ending ~17px down that it now has to clear -- the label and the
+   * placeholder's first line were overlapping. The same fix already
+   * applied to the multiline chip input (its shaded area was overlapping
+   * its own label by ~1px), scaled up for the larger gap here.
+   */
+  padding-top: var(--space-7);
   padding-bottom: var(--space-2);
   line-height: var(--line-height-normal);
   resize: vertical;
@@ -2207,6 +2261,9 @@
   color: var(--color-text-primary);
   font-weight: var(--font-weight-bold);
   border-bottom: 1px solid var(--color-border);
+  /* The light-on-dark divider above would be invisible here; same idea,
+     adapted for a light header. */
+  border-right-color: var(--color-border-subtle);
 }
 
 .data-table--dividers thead th + th,
@@ -2315,11 +2372,6 @@
   min-height: var(--field-height);
 }
 
-.select-field--bare .field__input {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
-}
-
 .view-filters {
   display: flex;
   flex-wrap: wrap;
@@ -2353,6 +2405,13 @@
    -------------------------------------------------------------------------- */
 .dropdown {
   position: relative;
+  /* Matches .field__control: when a dropdown sits inside .field's flex
+     row (as SelectField's does), it must grow to fill it the same way a
+     text input does, rather than shrinking to its trigger's content width.
+     A no-op outside a flex parent, so harmless for Comparison View and the
+     report-filter dropdowns, which aren't nested in .field. */
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .dropdown__trigger {
@@ -2373,6 +2432,29 @@
 
 .dropdown__trigger:hover {
   border-color: var(--color-field-border-hover);
+}
+
+/* Label above value, the same convention select-field's own always-on
+   label uses, so a dropdown trigger reads like every other field instead
+   of showing a single unlabelled line. */
+.dropdown__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dropdown__label {
+  color: var(--color-field-label);
+  font-size: var(--font-size-2xs);
+  line-height: 1.1;
+}
+
+.dropdown__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dropdown__option:has(:focus-visible) {
@@ -2423,6 +2505,52 @@
   padding: var(--space-3) var(--space-4) var(--space-1);
 }
 
+/*
+ * SelectField's single-select listbox, built on the exact same
+ * .dropdown__option row Comparison View's checkbox rows use -- same
+ * padding, same hover -- with a checkmark standing in for the checkbox.
+ */
+.dropdown__listbox {
+  max-height: 288px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  outline: none;
+}
+
+.dropdown__option--select {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Keyboard focus stays on the listbox itself (aria-activedescendant), so
+   the active option needs its own visual cue -- the same background hover
+   already gives a pointer user. */
+.dropdown__option.is-active {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdown__option-check {
+  flex: 0 0 auto;
+  color: var(--color-primary);
+  opacity: 0;
+}
+
+.dropdown__option--select.is-selected .dropdown__option-check {
+  opacity: 1;
+}
+
+.dropdown__option--select.is-selected .dropdown__option-label {
+  font-weight: var(--font-weight-medium);
+}
+
+.dropdown__option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* --------------------------------------------------------------------------
    Applied filter chips
    -------------------------------------------------------------------------- */
@@ -2451,10 +2579,56 @@
   padding: var(--space-5);
 }
 
+/*
+ * A compact variant of the standard switch, scoped to this one control --
+ * the full-size 44x24 switch in its own padded row read as heavier than a
+ * secondary, opt-in display preference should. Half the size, a third of
+ * the vertical padding.
+ */
+.comparison-sync-toggle {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-1) var(--space-5) 0;
+}
+
+.comparison-sync-toggle .toggle-row {
+  gap: var(--space-2);
+  font-size: var(--font-size-3xs);
+  color: var(--color-text-secondary);
+}
+
+.comparison-sync-toggle .toggle {
+  width: 28px;
+  height: 16px;
+}
+
+.comparison-sync-toggle .toggle::after {
+  width: 12px;
+  height: 12px;
+  left: 2px;
+}
+
+.comparison-sync-toggle .toggle[aria-checked="true"]::after {
+  transform: translateX(12px);
+}
+
+/* The cell at the same row/column position in every other scenario panel,
+   while comparison sync is on. */
+.data-table tbody td.is-sync-highlight {
+  background-color: var(--color-info-subtle);
+  box-shadow: inset 0 0 0 1px var(--color-info);
+}
+
 .accordion--filled > .accordion__trigger {
   background-color: var(--color-surface-muted);
   border-radius: var(--radius-container) var(--radius-container) 0 0;
   font-weight: var(--font-weight-medium);
+}
+
+/* The base accordion panel has no top padding, so its dark table header
+   sat flush against the shaded trigger above it with no breathing room. */
+.accordion--filled > .accordion__panel {
+  padding-top: var(--space-4);
 }
 
 /* Row-label column, held visually apart from the figures beside it. */
@@ -2498,7 +2672,7 @@
    Boxed tab bar  (centred section switch)
    -------------------------------------------------------------------------- */
 .tabs--boxed .tabs__list {
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space-6);
   padding: 0 var(--space-5);
   border: 1px solid var(--color-border);
@@ -2509,27 +2683,13 @@
   padding-top: var(--space-5);
 }
 
-/* Label columns held on the header's own dark bar, as the accessorial
-   breakdown draws them. */
-.data-table td.is-rowhead-dark {
-  background-color: var(--color-surface-inverse-warm);
-  color: var(--color-text-inverse);
-  border-bottom-color: rgba(255, 255, 255, 0.12);
-}
-
-.data-table tbody tr:hover td.is-rowhead-dark {
-  background-color: var(--color-surface-inverse-warm);
-}
-
-.is-rowhead-dark .row-expander,
-.is-rowhead-dark .row-expander__icon,
-.is-rowhead-dark .tree-cell__toggle {
-  color: inherit;
-}
-
-.is-rowhead-dark .row-expander:hover {
-  color: var(--color-brand-gold);
-}
+/*
+ * Accessorial and Pricing terms' label columns used to sit on a dark bar of
+ * their own (is-rowhead-dark). Once the header-color unification made that
+ * bar identical to the table's own header row, the two visually fused into
+ * one heavy block. Retired in favour of the same is-rowhead treatment every
+ * other table's row-header columns already use.
+ */
 
 /* --------------------------------------------------------------------------
    Pricing terms
@@ -2541,8 +2701,13 @@
   padding: var(--space-4);
 }
 
-/* Nested plan levels: each is a card, each level steps in. */
+/* Nested plan levels: each is a card, each level steps in. Padding is half
+   the usual accordion's (space-2 instead of space-4/space-5) -- Region >
+   Mode > Service nests three of these, and at the base size the reserved
+   space compounded three times over into a wide, mostly-empty margin
+   before reaching the actual content. */
 .accordion--plan > .accordion__trigger {
+  padding: var(--space-2);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   letter-spacing: var(--letter-spacing-wide);
@@ -2553,7 +2718,20 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: 0 var(--space-4) var(--space-4) var(--space-5);
+  padding: 0 var(--space-2) var(--space-2) var(--space-2);
+}
+
+/*
+ * .accordion__panel[hidden] { display: none } and the rule above share the
+ * same specificity, and this one comes later in the file, so it was
+ * winning the tie and overriding display: none -- collapsing a plan-tree
+ * level updated aria-expanded and the hidden attribute correctly, but the
+ * panel never actually disappeared. The extra [hidden] here outweighs the
+ * rule above regardless of source order, so collapse now genuinely
+ * collapses instead of only reporting that it did.
+ */
+.accordion--plan > .accordion__panel[hidden] {
+  display: none;
 }
 
 .plan-detail {
@@ -2622,6 +2800,11 @@
   color: var(--color-text-inverse);
   font-weight: var(--font-weight-medium);
   text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.matrix thead th:last-child {
+  border-right: 0;
 }
 
 .matrix__rowhead {
@@ -2820,19 +3003,6 @@
   color: var(--color-text-link);
 }
 
-/* Keep the toggle legible on the dark label columns. */
-.is-rowhead-dark .row-toggle {
-  color: inherit;
-}
-
-.is-rowhead-dark .row-toggle:hover {
-  color: var(--color-brand-gold);
-}
-
 .data-table tbody tr.is-child-row td {
   color: var(--color-text-secondary);
-}
-
-.data-table tbody tr.is-child-row .is-rowhead-dark {
-  color: var(--color-text-inverse);
 }
