@@ -2,11 +2,17 @@
  * Analyzer Packet — the report built from the packet's scenarios.
  *
  * Reached from "Proceed to Analyzer Packet". The comparison selector chooses
- * which scenarios the report covers; the tabs below split it into Summary,
- * Rate Charts, Shipping Profiles, Pricing terms and Other terms.
+ * which scenarios the report covers; the tabs below split it into Analyzer,
+ * Pricing Terms, Other Terms, Adjustments and Rate Charts. Analyzer holds its
+ * own sub-tabs: Comparisons, Services, Charges, Accounts, Cost Details,
+ * Zones and Weight & Cube.
  *
- * Summary and Shipping Profiles > Cost/Service are documented by reference
- * screens; the remaining tabs render the product's empty table state.
+ * Comparisons, Services, Charges, Cost Details and Zones are documented by
+ * reference screens. Accounts and Weight & Cube are built from the same
+ * conventions (is-rowhead label columns, a breakdown that always sums back
+ * to its parent) rather than a reference screenshot of this exact packet's
+ * data. Other Terms, Adjustments and Rate Charts still render the product's
+ * empty table state -- not built yet.
  */
 (function (DA) {
   'use strict';
@@ -521,6 +527,75 @@
       ]);
     }
 
+    function accountsView() {
+      function labelColumn(key, label, width, render) {
+        return { key: key, label: label, width: width || '160px', className: 'is-rowhead', render: render };
+      }
+
+      return el('div', {}, [
+        profileFilters(),
+        el('div', { className: 'card' }, [
+          C.DataTable({
+            caption: 'Accounts',
+            embedded: true,
+            headerTone: 'warm',
+            tinted: true,
+            expandKey: 'accountNumber',
+            // Parent, Sub Parent and Account Number together identify the
+            // record -- frozen as a group, the same treatment Movement/
+            // Mode/Core Service gets.
+            freezeColumns: 3,
+            getChildren: function (row) { return row.children; },
+            columns: [
+              labelColumn('parent', 'Parent', '170px', function (row) {
+                return row.parent ? withCustomer(row.parent) : '';
+              }),
+              labelColumn('subParent', 'Sub Parent', '150px'),
+              labelColumn('accountNumber', 'Account Number', '170px'),
+              numeric('volume', 'Volume', { link: true, width: '110px' }),
+              numeric('adv', 'ADV', { link: true, width: '100px' }),
+              numeric('zone', 'Zone', { link: true, width: '90px' })
+            ],
+            rows: DA.data.packetAccounts
+          })
+        ])
+      ]);
+    }
+
+    function weightCubeView() {
+      return el('div', {}, [
+        profileFilters(),
+        el('div', { className: 'card' }, [
+          C.DataTable({
+            caption: 'Weight and cube',
+            embedded: true,
+            headerTone: 'warm',
+            tinted: true,
+            expandKey: 'service',
+            // A service opens onto the billable weight tiers behind it.
+            getChildren: function (row) {
+              return DA.data.weightBreakdown(row, 'service', DA.data.additive.service);
+            },
+            columns: [
+              { key: 'service', label: 'Core Service', width: '220px', className: 'is-rowhead' },
+              { key: 'billable', label: 'Billable', width: '85px', className: 'is-numeric is-end' },
+              numeric('volume', 'Volume', { link: true, width: '95px' }),
+              numeric('adv', 'ADV', { link: true, width: '80px' }),
+              numeric('pps', 'PPS', { link: true, width: '80px' }),
+              numeric('weightPiece', 'Weight/Piece', { link: true, width: '120px' }),
+              numeric('baseGrossRev', 'Base Gross Rev', { link: true, width: '135px' }),
+              numeric('baseNetRev', 'Base Net Rev', { link: true, width: '125px' }),
+              numeric('baseDisc', 'Base Disc', { width: '100px' }),
+              numeric('baseRpp', 'Base RPP', { link: true, width: '105px' }),
+              numeric('baseProfit', 'Base Profit', { link: true, width: '110px' }),
+              numeric('baseOr', 'Base OR', { width: '95px' })
+            ],
+            rows: DA.data.packetWeightCube
+          })
+        ])
+      ]);
+    }
+
     /**
      * The merged "Analyzer" tab: Comparisons (the former standalone Summary
      * tab's content, unchanged) alongside the shipping-profile views, all as
@@ -537,10 +612,10 @@
             { id: 'comparisons', label: 'Comparisons', render: summaryView },
             { id: 'services', label: 'Services', render: serviceView },
             { id: 'charges', label: 'Charges', render: accessorialView },
-            { id: 'accounts', label: 'Accounts', render: emptyView('Accounts') },
+            { id: 'accounts', label: 'Accounts', render: accountsView },
             { id: 'cost-details', label: 'Cost Details', render: costView },
             { id: 'zones', label: 'Zones', render: zoneView },
-            { id: 'weight-cube', label: 'Weight & Cube', render: emptyView('Weight & Cube') }
+            { id: 'weight-cube', label: 'Weight & Cube', render: weightCubeView }
           ]
         })
       ]);
