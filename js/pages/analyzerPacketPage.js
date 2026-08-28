@@ -84,7 +84,7 @@
     // it by default so the report opens already showing a comparison.
     var chosen = scenarios.slice(0, 2).map(function (scenario) { return scenario.name; });
     var pending = chosen.slice();
-    var comparisonBand = el('section', { className: 'panel panel--auto' });
+    var comparisonBand = el('section', { className: 'panel--auto' });
 
     var comparisonSelector = C.Dropdown({
       label: 'Comparison View',
