@@ -23,29 +23,44 @@
 
     var summary = C.SummaryPanel({
       ariaLabel: 'Analyzer packet summary',
-      headline: [
-        { label: 'Analyzer Packet ID', value: packet.packetId },
-        { label: 'Customer Name', value: packet.customerName },
-        { label: 'Reference Number', value: packet.referenceNumber }
-      ],
-      columns: [
-        [
-          { label: 'Analyzer Packet Description', value: packet.description },
-          { label: 'Shipping Profile From', value: packet.from },
-          { label: 'Shipping Profile To', value: packet.to }
-        ],
-        [
-          { label: 'Customer Hierarchy', value: packet.hierarchy },
-          { label: 'Industry', value: packet.industry },
-          { label: 'PQR', value: packet.pqr },
-          { label: 'OPPs', value: packet.opps }
-        ],
-        [
-          { label: 'Owner', value: owner },
-          { label: 'Created Date', value: packet.createdAt },
-          { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
-          { label: 'Last Modified Date', value: packet.lastModifiedAt }
-        ]
+      headline: {
+        label: 'Analyzer Packet ID',
+        value: packet.packetId,
+        secondary: packet.customerName
+      },
+      sections: [
+        {
+          title: 'Packet Information',
+          columns: 3,
+          fields: [
+            { label: 'Analyzer Packet ID', value: packet.packetId },
+            { label: 'Customer Name', value: packet.customerName },
+            { label: 'Reference Number', value: packet.referenceNumber },
+            { label: 'Analyzer Packet Description', value: packet.description }
+          ]
+        },
+        {
+          title: 'Customer / Business Information',
+          columns: 3,
+          fields: [
+            { label: 'Customer Hierarchy', value: packet.hierarchy },
+            { label: 'Shipping Profile From', value: packet.from },
+            { label: 'Shipping Profile To', value: packet.to },
+            { label: 'Industry', value: packet.industry },
+            { label: 'PQR', value: packet.pqr },
+            { label: 'OPPs', value: packet.opps }
+          ]
+        },
+        {
+          title: 'Ownership & Audit',
+          columns: 4,
+          fields: [
+            { label: 'Owner', value: owner },
+            { label: 'Created Date', value: packet.createdAt },
+            { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
+            { label: 'Last Modified Date', value: packet.lastModifiedAt }
+          ]
+        }
       ]
     });
 

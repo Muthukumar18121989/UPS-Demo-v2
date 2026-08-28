@@ -1,9 +1,10 @@
 /**
  * SummaryPanel — collapsible record header.
  *
- * Collapsed it shows the identifying fields inline; expanded it adds the full
- * detail grid. Both use the same label/value pair so the record reads
- * consistently either way.
+ * Collapsed it shows a single identifying title line; expanded it adds the
+ * detail fields, grouped into titled sections (Packet Information, Ownership
+ * & Audit, and so on) so a long record reads as a few short groups rather
+ * than one flat list.
  */
 (function (DA) {
   'use strict';
@@ -24,20 +25,39 @@
     ]);
   };
 
+  function section(group) {
+    return el('div', { className: 'summary-panel__section' }, [
+      el('p', { className: 'summary-panel__section-title', text: group.title }),
+      el('div', {
+        className: 'summary-panel__section-grid',
+        style: { '--summary-panel-columns': String(group.columns || 3) }
+      }, (group.fields || []).map(function (field) {
+        return DA.components.Detail(field);
+      }))
+    ]);
+  }
+
   DA.components.SummaryPanel = function SummaryPanel(options) {
     options = options || {};
     uid += 1;
     var bodyId = 'summary-panel-' + uid;
     var expanded = options.expanded !== false;
+    var headline = options.headline || {};
 
     var body = el('div', {
       className: 'summary-panel__body',
       attrs: { id: bodyId, hidden: !expanded }
-    }, (options.columns || []).map(function (column) {
-      return el('div', { className: 'summary-panel__column' }, column.map(function (item) {
-        return DA.components.Detail(item);
-      }));
-    }));
+    }, (options.sections || []).map(section));
+
+    var titleParts = [
+      el('span', { className: 'detail__label', text: headline.label + ':' }),
+      ' ',
+      el('span', { className: 'summary-panel__title-value', text: headline.value })
+    ];
+    if (headline.secondary) {
+      titleParts.push(' — ');
+      titleParts.push(el('span', { className: 'summary-panel__title-value', text: headline.secondary }));
+    }
 
     var header = el('button', {
       className: 'summary-panel__header',
@@ -55,11 +75,7 @@
       }
     }, [
       DA.icons.chevronRight(16, 'summary-panel__icon'),
-      el('span', { className: 'summary-panel__header-items' },
-        (options.headline || []).map(function (item) {
-          return DA.components.Detail(item);
-        })
-      )
+      el('span', { className: 'summary-panel__title' }, titleParts)
     ]);
 
     return el('section', {
