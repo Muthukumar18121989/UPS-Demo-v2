@@ -14,14 +14,26 @@
 
   var uid = 0;
 
+  /**
+   * `chip: true` renders the value as a badge instead of plain text -- for a
+   * short categorical value (Customer Hierarchy's Parent/Child), the same
+   * treatment a status or tag gets elsewhere in the product. `wide: true`
+   * spans the value across the whole row rather than sitting in one column,
+   * for a value long enough to wrap onto two or three lines (the packet
+   * description) or one made of two related fields joined into one line
+   * (a date range, a pair of optional linked-record IDs).
+   */
   DA.components.Detail = function Detail(options) {
-    return el('p', { className: 'detail' }, [
+    options = options || {};
+    var hasValue = options.value != null && options.value !== '';
+    var text = hasValue ? String(options.value) : '-';
+
+    return el('p', { className: 'detail' + (options.wide ? ' detail--wide' : '') }, [
       el('span', { className: 'detail__label', text: options.label + ':' }),
       ' ',
-      el('span', {
-        className: 'detail__value',
-        text: options.value == null || options.value === '' ? '-' : String(options.value)
-      })
+      options.chip
+        ? el('span', { className: 'badge badge--neutral badge--pill', text: text })
+        : el('span', { className: 'detail__value', text: text })
     ]);
   };
 

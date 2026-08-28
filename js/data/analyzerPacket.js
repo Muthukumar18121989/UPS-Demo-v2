@@ -274,6 +274,56 @@
     }
   ];
 
+  /**
+   * Rows behind Analyzer > Accounts: the customer's parent account, grouped
+   * by subparent, over the individual UPS account numbers billing under it.
+   * Volume/ADV/Zone on the parent are the group's totals, not independent
+   * figures, so they're written down directly rather than summed from
+   * children the way an additive breakdown would -- there's no shared
+   * "share of the whole" to derive per account here, each is its own record.
+   */
+  DA.data.packetAccounts = [
+    {
+      parent: '{customer}',
+      subParent: 'No Sub Parent',
+      accountNumber: '-',
+      expanded: true,
+      volume: '172658.0', adv: '2656.3', zone: '19.4',
+      children: [
+        { parent: '', subParent: '', accountNumber: '0000AW0689', volume: '19307.0', adv: '297.0', zone: '65.8' },
+        { parent: '', subParent: '', accountNumber: '000082W208', volume: '153317.0', adv: '2358.7', zone: '13.6' },
+        { parent: '', subParent: '', accountNumber: '000083E306', volume: '34.0', adv: '0.5', zone: '3.6' }
+      ]
+    }
+  ];
+
+  /**
+   * Rows behind Analyzer > Weight & Cube: the same core services Services
+   * lists, opening onto the billable weight tiers behind each (derived via
+   * weightBreakdown, so a tier's figures always add back up to its
+   * service's).
+   */
+  DA.data.packetWeightCube = [
+    {
+      service: 'N-Next Day Air', billable: '-',
+      volume: '890', adv: '13.7', pps: '1.0', weightPiece: '8.8',
+      baseGrossRev: '$164,299', baseNetRev: '$29,249', baseDisc: '82.2%',
+      baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50'
+    },
+    {
+      service: 'N-Next Day Air Saver', billable: '-',
+      volume: '1', adv: '0', pps: '1.0', weightPiece: '-',
+      baseGrossRev: '$59', baseNetRev: '$12', baseDisc: '79.6%',
+      baseRpp: '$11.98', baseProfit: '$0', baseOr: '0.99'
+    },
+    {
+      service: 'N-2nd Day Air', billable: '-', expanded: true,
+      volume: '4203', adv: '64.7', pps: '1.0', weightPiece: '8.5',
+      baseGrossRev: '$407,142', baseNetRev: '$82,709', baseDisc: '79.7%',
+      baseRpp: '$19.68', baseProfit: '$ -341', baseOr: '0.52'
+    }
+  ];
+
   /** Rows behind Shipping Profiles > Service. */
   DA.data.packetServices = [
     { service: 'N-2nd Day Air', volume: '128', adv: '1.1', avgZone: '204.9', billableWt: '3.1', pps: '1.0', baseGrossRev: '$5,975', baseNetRev: '$5,975', disc: '0.0%', baseRpp: '$46.68', baseProfit: '$3,836', baseOr: '0.36' },
