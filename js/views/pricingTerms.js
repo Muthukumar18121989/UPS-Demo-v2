@@ -201,31 +201,59 @@
     ]);
   }
 
-  function planNode(node) {
-    var C = DA.components;
-    return C.Accordion({
-      title: node.label,
-      className: 'accordion--plan',
-      expanded: Boolean(node.expanded),
-      // Branches and plans are built the first time they are opened.
-      renderContent: node.children
-        ? function () { return node.children.map(planNode); }
-        : function () { return [servicePlan()]; }
-    });
+  /**
+   * The first leaf (a node with no `children`) under a tree, depth-first,
+   * shaped like TreeSelectField's own leaf records so the initial plan
+   * shown before any selection reads the same as one chosen from it.
+   */
+  function firstLeaf(nodes, ancestors) {
+    ancestors = ancestors || [];
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      if (!node.children) {
+        return { label: node.label, value: node.label, path: ancestors.concat(node.label) };
+      }
+      var found = firstLeaf(node.children, ancestors.concat(node.label));
+      if (found) return found;
+    }
+    return null;
   }
 
   function servicesView() {
-    var el2 = el;
-    return el2('div', {}, [
-      el2('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el2('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
+    var C = DA.components;
+    var tree = DA.data.pricingServiceTree;
+    var planSlot = el('div', {});
+
+    function showPlan(leaf) {
+      DA.dom.clear(planSlot).appendChild(
+        el('div', { className: 'plan-detail-panel' }, [
+          el('p', { className: 'plan-detail-panel__title', text: leaf.path.join(' / ') }),
+          servicePlan()
+        ])
+      );
+    }
+
+    var defaultLeaf = firstLeaf(tree);
+    var select = C.TreeSelectField({
+      label: 'Choose Service',
+      tree: tree,
+      value: defaultLeaf && defaultLeaf.value,
+      onChange: function (value, leaf) { showPlan(leaf); }
+    });
+
+    if (defaultLeaf) showPlan(defaultLeaf);
+
+    return el('div', {}, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
           DA.icons.plusCircle(18),
-          el2('span', { text: 'Add Service Incentive Plan' })
+          el('span', { text: 'Add Service Incentive Plan' })
         ])
       ]),
-      el2('div', { className: 'plan-tree' }, DA.data.pricingServiceTree.map(function (region) {
-        return planNode({ label: region.label, children: region.children, expanded: true });
-      }))
+      el('div', { className: 'view-filters' }, [
+        el('div', { className: 'view-filters__field' }, [select])
+      ]),
+      planSlot
     ]);
   }
 
