@@ -335,4 +335,45 @@
     { service: 'E-Worldwide Expedited', volume: '4', adv: '0.0', avgZone: '71.0', billableWt: '7.0', pps: '1.0', baseGrossRev: '$697', baseNetRev: '$334', disc: '52.1%', baseRpp: '$83.44', baseProfit: '$233', baseOr: '0.30' },
     { service: 'E-Worldwide Express Saver', volume: '4', adv: '0.0', avgZone: '481.0', billableWt: '10.0', pps: '1.0', baseGrossRev: '$787', baseNetRev: '$326', disc: '58.5%', baseRpp: '$81.61', baseProfit: '$213', baseOr: '0.35' }
   ];
+
+  /**
+   * Rows behind Rate Charts: one line per core service/zone combination, the
+   * rate this scenario landed on for it. Flat -- a zone doesn't open onto
+   * anything further -- so the same core-service label repeats down the
+   * rows it covers, same as the accessorial and pricing-term tables do for
+   * their own repeating group columns.
+   */
+  DA.data.packetRateCharts = [
+    { service: 'N-Next Day Air', zone: '102', volume: '2', grossRate: '$32.15', netRate: '$5.72', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '103', volume: '2', grossRate: '$34.90', netRate: '$6.21', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '104', volume: '48', grossRate: '$38.45', netRate: '$6.84', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '105', volume: '160', grossRate: '$41.20', netRate: '$7.33', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '106', volume: '317', grossRate: '$44.80', netRate: '$7.97', disc: '82.2%' },
+    { service: 'N-2nd Day Air', zone: '204', volume: '1,204', grossRate: '$21.35', netRate: '$4.33', disc: '79.7%' },
+    { service: 'N-3 Day Select', zone: '304', volume: '1', grossRate: '$17.90', netRate: '$4.19', disc: '76.6%' },
+    { service: 'N-Ground', zone: '5', volume: '14,926', grossRate: '$12.44', netRate: '$3.89', disc: '68.7%' },
+    { service: 'N-Ground Saver > 1 lbs', zone: '6', volume: '132,566', grossRate: '$9.85', netRate: '$3.78', disc: '61.6%' }
+  ];
+
+  /** Rows behind Adjustments: a manual dollar override per service, editable in place. */
+  DA.data.packetAdjustments = [
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air', basis: 'Per Package', amount: '$0.00' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Saver', basis: 'Per Package', amount: '$0.00' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air', basis: 'Per Package', amount: '$0.00' },
+    { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground', basis: 'Per Package', amount: '$0.00' },
+    { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground Saver > 1 lbs', basis: 'Per Package', amount: '$0.00' },
+    { movement: 'Export', mode: 'Air', serviceGroup: 'Worldwide', service: 'Worldwide Express Saver', basis: 'Per Package', amount: '$0.00' }
+  ];
+
+  /** Rows behind Other Terms > Dim Divisor. Minimums has no reference screen yet. */
+  DA.data.packetDimDivisor = [
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' }
+  ];
 })(window.DA);

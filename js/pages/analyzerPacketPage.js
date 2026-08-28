@@ -11,8 +11,10 @@
  * reference screens. Accounts and Weight & Cube are built from the same
  * conventions (is-rowhead label columns, a breakdown that always sums back
  * to its parent) rather than a reference screenshot of this exact packet's
- * data. Other Terms, Adjustments and Rate Charts still render the product's
- * empty table state -- not built yet.
+ * data. Rate Charts, Adjustments and Other Terms > Dim Divisor are now built
+ * from their own reference screens too, transcribed as flat (non-expanding)
+ * tables since none of them open onto a breakdown. Other Terms > Minimums
+ * still renders the product's empty table state -- not built yet.
  */
 (function (DA) {
   'use strict';
@@ -40,6 +42,17 @@
           }
         : function (row) { return row[key] == null ? '-' : row[key]; }
     };
+  }
+
+  /** A figure with an inline edit affordance -- the Adjustments dollar cell. */
+  function editableCell(value) {
+    return el('span', { className: 'cell-value' }, [
+      el('span', { text: value }),
+      el('button', {
+        className: 'icon-action u-tap-target',
+        attrs: { type: 'button', 'aria-label': 'Edit ' + value }
+      }, [DA.icons.pencil(13)])
+    ]);
   }
 
   function emptyView(label) {
@@ -596,6 +609,161 @@
       ]);
     }
 
+    /** Filter row shared by Rate Charts: a scenario picker plus a Filters button. */
+    function rateChartFilters() {
+      return el('div', { className: 'card' }, [
+        el('div', { className: 'view-filters' }, [
+          el('div', { className: 'view-filters__field' }, [
+            C.SelectField({
+              label: 'Choose Scenario',
+              value: scenarios[0] && scenarios[0].name,
+              options: scenarios.map(function (scenario) {
+                return { value: scenario.name, label: scenario.name };
+              })
+            })
+          ]),
+          C.Button({ label: 'Filters', variant: 'ghost', icon: DA.icons.filter(16) })
+        ])
+      ]);
+    }
+
+    /** Filter row shared by Adjustments and Other Terms: scenario picker plus Reset. */
+    function scenarioResetFilters() {
+      return el('div', { className: 'card' }, [
+        el('div', { className: 'view-filters' }, [
+          el('div', { className: 'view-filters__field' }, [
+            C.SelectField({
+              label: 'Choose Scenario',
+              value: scenarios[0] && scenarios[0].name,
+              options: scenarios.map(function (scenario) {
+                return { value: scenario.name, label: scenario.name };
+              })
+            })
+          ]),
+          C.Button({
+            label: 'Reset',
+            variant: 'ghost',
+            icon: DA.icons.refresh(15),
+            iconPosition: 'end'
+          })
+        ])
+      ]);
+    }
+
+    /** Label column shared by the flat (non-expanding) rate/adjustment tables. */
+    function flatLabelColumn(key, label, width) {
+      return { key: key, label: label, width: width || '150px', className: 'is-rowhead' };
+    }
+
+    function rateChartsView() {
+      return el('div', {}, [
+        rateChartFilters(),
+        el('div', { className: 'card' }, [
+          C.DataTable({
+            caption: 'Rate charts',
+            embedded: true,
+            headerTone: 'warm',
+            tinted: true,
+            columns: [
+              flatLabelColumn('service', 'Core Service', '220px'),
+              numeric('zone', 'Zone', { width: '90px' }),
+              numeric('volume', 'Volume', { link: true, width: '110px' }),
+              numeric('grossRate', 'Gross Rate', { link: true, width: '120px' }),
+              numeric('netRate', 'Net Rate', { link: true, width: '120px' }),
+              numeric('disc', 'Disc', { width: '100px' })
+            ],
+            rows: DA.data.packetRateCharts
+          })
+        ])
+      ]);
+    }
+
+    function adjustmentsView() {
+      return el('div', {}, [
+        scenarioResetFilters(),
+        el('div', { className: 'card' }, [
+          C.DataTable({
+            caption: 'Adjustments',
+            embedded: true,
+            headerTone: 'warm',
+            tinted: true,
+            freezeColumns: 4,
+            columns: [
+              flatLabelColumn('movement', 'Movement', '120px'),
+              flatLabelColumn('mode', 'Mode', '110px'),
+              flatLabelColumn('serviceGroup', 'Service Group', '150px'),
+              flatLabelColumn('service', 'Core Service', '190px'),
+              { key: 'basis', label: 'Basis', width: '140px' },
+              {
+                key: 'amount',
+                label: 'Dollar Amount',
+                width: '150px',
+                className: 'is-numeric is-end',
+                headerClassName: 'is-end',
+                render: function (row) { return editableCell(row.amount); }
+              }
+            ],
+            rows: DA.data.packetAdjustments
+          }),
+          el('div', { className: 'grid-footer' }, [
+            el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
+              DA.icons.save(15),
+              el('span', { text: 'Save Changes' })
+            ])
+          ])
+        ])
+      ]);
+    }
+
+    /** Other Terms > Dim Divisor: the DIM weight divisor set per service. */
+    function dimDivisorView() {
+      return el('div', {}, [
+        scenarioResetFilters(),
+        el('div', { style: { padding: '0 var(--space-4) var(--space-4)' } }, [
+          C.Button({ label: 'Add Service', icon: DA.icons.plusCircle(16) })
+        ]),
+        el('div', { className: 'card' }, [
+          C.DataTable({
+            caption: 'Dim divisor',
+            embedded: true,
+            headerTone: 'warm',
+            tinted: true,
+            freezeColumns: 3,
+            columns: [
+              flatLabelColumn('movement', 'Movement', '120px'),
+              flatLabelColumn('mode', 'Mode', '110px'),
+              flatLabelColumn('serviceGroup', 'Service Group', '190px'),
+              { key: 'incentiveType', label: 'Incentive Type', width: '150px' },
+              numeric('divisor', 'Dim Weight Divisor', { width: '170px' }),
+              {
+                key: 'structureDetails',
+                label: 'Structure Details',
+                width: '160px',
+                render: function () {
+                  return el('a', { text: 'Structure Details', attrs: { href: '#structure-details' } });
+                }
+              }
+            ],
+            rows: DA.data.packetDimDivisor
+          })
+        ])
+      ]);
+    }
+
+    /** Other Terms: Dim Divisor is built; Minimums has no reference screen yet. */
+    function otherTermsView() {
+      return el('div', { className: 'card' }, [
+        C.Tabs({
+          ariaLabel: 'Other term views',
+          value: 'dim-divisor',
+          items: [
+            { id: 'dim-divisor', label: 'Dim Divisor', render: dimDivisorView },
+            { id: 'minimums', label: 'Minimums', render: emptyView('Minimum') }
+          ]
+        })
+      ]);
+    }
+
     /**
      * The merged "Analyzer" tab: Comparisons (the former standalone Summary
      * tab's content, unchanged) alongside the shipping-profile views, all as
@@ -699,10 +867,9 @@
                 ])
               ]);
             } },
-            { id: 'other-terms', label: 'Other Terms', render: emptyView('Other Term') },
-            // Not built yet -- placeholder tab, content to follow.
-            { id: 'adjustments', label: 'Adjustments', render: emptyView('Adjustment') },
-            { id: 'rate-charts', label: 'Rate Charts', render: emptyView('Rate Chart') }
+            { id: 'other-terms', label: 'Other Terms', render: otherTermsView },
+            { id: 'adjustments', label: 'Adjustments', render: adjustmentsView },
+            { id: 'rate-charts', label: 'Rate Charts', render: rateChartsView }
           ]
         })
       ])
