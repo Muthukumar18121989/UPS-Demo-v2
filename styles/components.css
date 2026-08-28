@@ -1189,7 +1189,7 @@
 }
 
 .summary-panel__title-value {
-  color: var(--color-text-link);
+  color: var(--color-text-primary);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -1224,7 +1224,7 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wider);
   text-transform: uppercase;
-  color: var(--color-text-link);
+  color: var(--color-text-primary);
   margin: 0 0 var(--space-3);
 }
 
@@ -1232,14 +1232,6 @@
   display: grid;
   grid-template-columns: repeat(var(--summary-panel-columns, 3), minmax(0, 1fr));
   gap: var(--space-4) var(--space-5);
-}
-
-.summary-panel__section .detail__label {
-  color: var(--color-field-label);
-}
-
-.summary-panel__section .detail__value {
-  color: var(--color-text-link);
 }
 
 /* Label/value pair — inline on the header row, stacked in the detail grid. */
