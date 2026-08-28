@@ -2749,6 +2749,12 @@
   padding-top: var(--space-5);
 }
 
+/* Other Terms' Dim Divisor/Minimums switch centres in its box instead of
+   starting flush left, unlike every other .tabs--boxed usage. */
+.tabs--boxed-center .tabs__list {
+  justify-content: center;
+}
+
 /*
  * Accessorial and Pricing terms' label columns used to sit on a dark bar of
  * their own (is-rowhead-dark). Once the header-color unification made that

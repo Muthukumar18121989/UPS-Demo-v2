@@ -7,12 +7,13 @@
  * own sub-tabs: Comparisons, Services, Charges, Accounts, Cost Details,
  * Zones and Weight & Cube.
  *
- * Comparisons, Services, Charges, Cost Details, Zones, Adjustments and Rate
- * Charts are documented by reference screens. Accounts and Weight & Cube are
- * built from the same conventions (is-rowhead label columns, a breakdown
- * that always sums back to its parent) rather than a reference screenshot of
- * this exact packet's data. Other Terms still renders the product's empty
- * table state -- not built yet.
+ * Comparisons, Services, Charges, Cost Details, Zones, Adjustments, Rate
+ * Charts and Other Terms > Dim Divisor are documented by reference screens.
+ * Accounts and Weight & Cube are built from the same conventions
+ * (is-rowhead label columns, a breakdown that always sums back to its
+ * parent) rather than a reference screenshot of this exact packet's data.
+ * Other Terms > Minimums still renders the product's empty table state --
+ * not built yet.
  */
 (function (DA) {
   'use strict';
@@ -632,6 +633,19 @@
       ]);
     }
 
+    /** The gold pill that commits changes made on Adjustments or Other Terms. */
+    function updatePacketAction() {
+      return el('div', { className: 'update-packet-row' }, [
+        C.Button({
+          label: 'Update Analyzer Packet',
+          variant: 'primary',
+          shape: 'pill',
+          icon: DA.icons.chevronRight(14, ''),
+          iconPosition: 'end'
+        })
+      ]);
+    }
+
     function adjustmentsView() {
       return el('div', {}, [
         el('div', { className: 'card' }, [
@@ -670,15 +684,89 @@
             ])
           ])
         ]),
-        el('div', { className: 'update-packet-row' }, [
-          C.Button({
-            label: 'Update Analyzer Packet',
-            variant: 'primary',
-            shape: 'pill',
-            icon: DA.icons.chevronRight(14, ''),
-            iconPosition: 'end'
-          })
-        ])
+        updatePacketAction()
+      ]);
+    }
+
+    /* ---- Other Terms tab --------------------------------------------------- */
+
+    /** Other Terms > Dim Divisor: the same scenario picker + table shape as
+        Adjustments and Rate Charts, with an Add Service link ahead of the
+        table (there is nothing here to edit in place, unlike Adjustments'
+        Dollar Amount). */
+    function dimDivisorPanel() {
+      return el('div', {}, [
+        scenarioPicker(C.Button({
+          label: 'Reset',
+          variant: 'ghost',
+          icon: DA.icons.refresh(15),
+          iconPosition: 'end'
+        })),
+        el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+          el('a', { className: 'link-with-icon', attrs: { href: '#add-service' } }, [
+            DA.icons.plusCircle(18),
+            el('span', { text: 'Add Service' })
+          ])
+        ]),
+        C.DataTable({
+          caption: 'Dim divisor',
+          embedded: true,
+          headerTone: 'warm',
+          tinted: true,
+          columns: [
+            { key: 'movement', label: 'Movement', width: '140px', className: 'is-rowhead' },
+            { key: 'mode', label: 'Mode', width: '120px', className: 'is-rowhead' },
+            { key: 'serviceGroup', label: 'Service Group', width: '190px' },
+            { key: 'incentiveType', label: 'Incentive Type', width: '170px' },
+            numeric('divisor', 'Dim Weight Divisor', { width: '170px' }),
+            {
+              key: 'structureDetails',
+              label: 'Structure Details',
+              width: '170px',
+              render: function (row) {
+                return el('a', {
+                  text: 'Structure Details',
+                  attrs: { href: '#detail', 'aria-label': 'Structure details for ' + row.serviceGroup }
+                });
+              }
+            }
+          ],
+          rows: DA.data.dimDivisor
+        })
+      ]);
+    }
+
+    /** Minimums has no reference screen yet -- the product's empty table
+        state, minus emptyView's own card since it already sits in one. */
+    function minimumsPanel() {
+      return C.DataTable({
+        caption: 'Minimum',
+        embedded: true,
+        headerTone: 'warm',
+        columns: [{ key: 'name', label: 'Minimum' }],
+        rows: [],
+        emptyState: el('p', { className: 'table-empty', text: 'No data available.' })
+      });
+    }
+
+    function otherTermsView() {
+      return el('div', {}, [
+        el('div', { className: 'card' }, [
+          el('div', {
+            className: 'tabs--boxed tabs--boxed-center',
+            style: { margin: 'var(--space-4) var(--space-4) 0' }
+          }, [
+            C.Tabs({
+              ariaLabel: 'Other term views',
+              value: 'dim-divisor',
+              items: [
+                { id: 'dim-divisor', label: 'Dim Divisor', render: dimDivisorPanel },
+                { id: 'minimums', label: 'Minimums', render: minimumsPanel }
+              ]
+            })
+          ])
+        ]),
+        updatePacketAction()
       ]);
     }
 
@@ -785,8 +873,7 @@
                 ])
               ]);
             } },
-            // Not built yet -- placeholder tab, content to follow.
-            { id: 'other-terms', label: 'Other Terms', render: emptyView('Other Term') },
+            { id: 'other-terms', label: 'Other Terms', render: otherTermsView },
             { id: 'adjustments', label: 'Adjustments', render: adjustmentsView },
             { id: 'rate-charts', label: 'Rate Charts', render: rateChartsView }
           ]
