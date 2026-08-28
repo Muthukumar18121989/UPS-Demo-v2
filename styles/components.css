@@ -2907,6 +2907,10 @@
   padding: var(--space-3) var(--space-4);
 }
 
+.update-packet-row {
+  margin-top: var(--space-5);
+}
+
 .grid-scroll {
   max-height: 260px;
   overflow: auto;

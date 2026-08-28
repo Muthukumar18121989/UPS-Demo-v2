@@ -324,6 +324,33 @@
     }
   ];
 
+  /** Rows behind Analyzer Packet > Rate Charts: gross/net rate by service and zone. */
+  DA.data.rateCharts = [
+    { service: 'N-Next Day Air', zone: '102', volume: '2', grossRate: '$ 32.15', netRate: '$ 5.72', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '103', volume: '2', grossRate: '$ 34.90', netRate: '$ 6.21', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '104', volume: '48', grossRate: '$ 38.45', netRate: '$ 6.84', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '105', volume: '160', grossRate: '$ 41.20', netRate: '$ 7.33', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '106', volume: '317', grossRate: '$ 44.80', netRate: '$ 7.97', disc: '82.2%' },
+    { service: 'N-2nd Day Air', zone: '204', volume: '1,204', grossRate: '$ 21.35', netRate: '$ 4.33', disc: '79.7%' },
+    { service: 'N-3 Day Select', zone: '304', volume: '1', grossRate: '$ 17.90', netRate: '$ 4.19', disc: '76.6%' },
+    { service: 'N-Ground', zone: '5', volume: '14,926', grossRate: '$ 12.44', netRate: '$ 3.89', disc: '68.7%' },
+    { service: 'N-Ground Saver > 1 lbs', zone: '6', volume: '132,566', grossRate: '$ 9.85', netRate: '$ 3.78', disc: '61.6%' }
+  ];
+
+  /**
+   * Rows behind Analyzer Packet > Adjustments: a flat per-package dollar
+   * adjustment for each lane, editable in place -- amounts start at $0.00
+   * until the user enters one.
+   */
+  DA.data.adjustments = [
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air', basis: 'Per Package', amount: '$ 0.00' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Saver', basis: 'Per Package', amount: '$ 0.00' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air', basis: 'Per Package', amount: '$ 0.00' },
+    { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground', basis: 'Per Package', amount: '$ 0.00' },
+    { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground Saver > 1 lbs', basis: 'Per Package', amount: '$ 0.00' },
+    { movement: 'Export', mode: 'Air', serviceGroup: 'Worldwide', service: 'Worldwide Express Saver', basis: 'Per Package', amount: '$ 0.00' }
+  ];
+
   /** Rows behind Shipping Profiles > Service. */
   DA.data.packetServices = [
     { service: 'N-2nd Day Air', volume: '128', adv: '1.1', avgZone: '204.9', billableWt: '3.1', pps: '1.0', baseGrossRev: '$5,975', baseNetRev: '$5,975', disc: '0.0%', baseRpp: '$46.68', baseProfit: '$3,836', baseOr: '0.36' },

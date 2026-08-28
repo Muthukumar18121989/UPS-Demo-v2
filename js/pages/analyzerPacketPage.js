@@ -7,12 +7,12 @@
  * own sub-tabs: Comparisons, Services, Charges, Accounts, Cost Details,
  * Zones and Weight & Cube.
  *
- * Comparisons, Services, Charges, Cost Details and Zones are documented by
- * reference screens. Accounts and Weight & Cube are built from the same
- * conventions (is-rowhead label columns, a breakdown that always sums back
- * to its parent) rather than a reference screenshot of this exact packet's
- * data. Other Terms, Adjustments and Rate Charts still render the product's
- * empty table state -- not built yet.
+ * Comparisons, Services, Charges, Cost Details, Zones, Adjustments and Rate
+ * Charts are documented by reference screens. Accounts and Weight & Cube are
+ * built from the same conventions (is-rowhead label columns, a breakdown
+ * that always sums back to its parent) rather than a reference screenshot of
+ * this exact packet's data. Other Terms still renders the product's empty
+ * table state -- not built yet.
  */
 (function (DA) {
   'use strict';
@@ -574,6 +574,114 @@
       ]);
     }
 
+    /* ---- Rate Charts tab ---------------------------------------------------- */
+
+    /** A single scenario picker: unlike the other tabs' filters, Rate Charts
+        and Adjustments have nothing else to filter by. `trailing` is the
+        node or nodes that follow it in the same row. */
+    function scenarioPicker(trailing) {
+      return el('div', { className: 'view-filters' }, [
+        el('div', { className: 'view-filters__field' }, [
+          C.SelectField({
+            label: 'Choose Scenario',
+            value: scenarios[0] && scenarios[0].name,
+            options: scenarios.map(function (scenario) {
+              return { value: scenario.name, label: scenario.name };
+            })
+          })
+        ])
+      ].concat(trailing));
+    }
+
+    function rateChartsView() {
+      return el('div', { className: 'card' }, [
+        scenarioPicker([
+          el('span', { className: 'view-filters__divider' }),
+          C.Button({ label: 'Filters', variant: 'ghost', icon: DA.icons.filter(16) })
+        ]),
+        C.DataTable({
+          caption: 'Rate charts',
+          embedded: true,
+          headerTone: 'warm',
+          tinted: true,
+          columns: [
+            { key: 'service', label: 'Core Service', width: '260px', className: 'is-rowhead' },
+            numeric('zone', 'Zone', { width: '100px' }),
+            numeric('volume', 'Volume', { width: '110px' }),
+            numeric('grossRate', 'Gross Rate', { width: '130px' }),
+            numeric('netRate', 'Net Rate', { width: '120px' }),
+            numeric('disc', 'Disc', { width: '100px' })
+          ],
+          rows: DA.data.rateCharts
+        })
+      ]);
+    }
+
+    /* ---- Adjustments tab ------------------------------------------------- */
+
+    /** Dollar Amount's own cell: the value plus a pencil affordance to edit
+        it, the same treatment Pricing Terms' rate grid gives an editable
+        figure. */
+    function editableAmount(value) {
+      return el('span', { className: 'cell-value' }, [
+        el('span', { text: value }),
+        el('button', {
+          className: 'icon-action u-tap-target',
+          attrs: { type: 'button', 'aria-label': 'Edit ' + value }
+        }, [DA.icons.pencil(13)])
+      ]);
+    }
+
+    function adjustmentsView() {
+      return el('div', {}, [
+        el('div', { className: 'card' }, [
+          scenarioPicker(C.Button({
+            label: 'Reset',
+            variant: 'ghost',
+            icon: DA.icons.refresh(15),
+            iconPosition: 'end'
+          })),
+          C.DataTable({
+            caption: 'Adjustments',
+            embedded: true,
+            headerTone: 'warm',
+            tinted: true,
+            columns: [
+              { key: 'movement', label: 'Movement', width: '140px', className: 'is-rowhead' },
+              { key: 'mode', label: 'Mode', width: '130px', className: 'is-rowhead' },
+              { key: 'serviceGroup', label: 'Service Group', width: '160px' },
+              { key: 'service', label: 'Core Service', width: '220px' },
+              { key: 'basis', label: 'Basis', width: '150px' },
+              {
+                key: 'amount',
+                label: 'Dollar Amount',
+                width: '160px',
+                className: 'is-numeric is-end',
+                headerClassName: 'is-end',
+                render: function (row) { return editableAmount(row.amount); }
+              }
+            ],
+            rows: DA.data.adjustments
+          }),
+          el('div', { className: 'grid-footer' }, [
+            el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
+              DA.icons.save(15),
+              el('span', { text: 'Save Changes' })
+            ])
+          ])
+        ]),
+        el('div', { className: 'update-packet-row' }, [
+          C.Button({
+            label: 'Update Analyzer Packet',
+            variant: 'primary',
+            shape: 'pill',
+            icon: DA.icons.chevronRight(14, ''),
+            iconPosition: 'end'
+          })
+        ])
+      ]);
+    }
+
     /**
      * The merged "Analyzer" tab: Comparisons (the former standalone Summary
      * tab's content, unchanged) alongside the shipping-profile views, all as
@@ -677,10 +785,10 @@
                 ])
               ]);
             } },
-            { id: 'other-terms', label: 'Other Terms', render: emptyView('Other Term') },
             // Not built yet -- placeholder tab, content to follow.
-            { id: 'adjustments', label: 'Adjustments', render: emptyView('Adjustment') },
-            { id: 'rate-charts', label: 'Rate Charts', render: emptyView('Rate Chart') }
+            { id: 'other-terms', label: 'Other Terms', render: emptyView('Other Term') },
+            { id: 'adjustments', label: 'Adjustments', render: adjustmentsView },
+            { id: 'rate-charts', label: 'Rate Charts', render: rateChartsView }
           ]
         })
       ])
