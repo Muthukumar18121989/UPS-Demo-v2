@@ -1,8 +1,11 @@
 /**
- * ComparisonSummary — the scenario comparison band on the Analyzer Packet
- * report. Revenue and Profit lead as hero cards with a from/to bar underneath
- * each; the remaining figures follow as a row of smaller tiles. Replaces the
- * plain comparison table with the two scenarios read side by side.
+ * ComparisonSummary — the "Scenario Impact" band on the Analyzer Packet
+ * report. Revenue and Profit lead as hero cards under Primary Business
+ * Impact, each with a from/to bar; the remaining figures follow under Key
+ * Scenario Drivers as a grid of individual cards, current and scenario
+ * value either side of an arrow with the delta set off below. Every card
+ * reads current -> scenario -> impact top to bottom, so nothing needs
+ * comparing across a row or column the way a plain table would ask for.
  */
 (function (DA) {
   'use strict';
@@ -16,7 +19,7 @@
     { key: 'profit', label: 'Profit' }
   ];
 
-  var TILE_FIELDS = [
+  var DRIVER_FIELDS = [
     { key: 'adv', label: 'ADV' },
     { key: 'baseFrtDisc', label: 'Base Frt Disc' },
     { key: 'totalDisc', label: 'Total Disc' },
@@ -114,26 +117,55 @@
     return el('div', { className: 'comparison-summary__hero' }, children);
   }
 
-  function tile(field, baseline, compare, difference) {
+  /**
+   * One "key scenario driver" card: the metric's name and a change badge up
+   * top, its current and scenario values either side of an arrow, then the
+   * delta set off below a rule -- current, scenario, impact, in that order,
+   * so reading the card top to bottom tells the same story reading a table
+   * row left to right used to, without the side-by-side columns.
+   */
+  function driverCard(field, baseline, compare, difference) {
     var key = field.key;
     var fromText = baseline.figures[key];
+    var deltaText = compare ? difference[key] : null;
+    var deltaNum = num(deltaText);
+    var isDown = deltaNum != null && deltaNum < 0;
 
-    var children = [
-      el('p', { className: 'comparison-summary__tile-label', text: field.label }),
-      el('p', { className: 'comparison-summary__tile-value', text: fromText == null ? '-' : fromText })
+    var header = el('div', { className: 'driver-card__header' }, [
+      el('span', { className: 'driver-card__name', text: field.label }),
+      deltaNum != null
+        ? el('span', {
+            className: 'driver-card__change-badge ' + (isDown ? 'is-down' : 'is-up'),
+            attrs: { 'aria-hidden': 'true' }
+          }, [isDown ? DA.icons.arrowDown(12) : DA.icons.arrowUp(12)])
+        : null
+    ]);
+
+    var valueCols = [
+      el('div', { className: 'driver-card__value-col' }, [
+        el('span', { className: 'driver-card__value-tag', text: baseline.name }),
+        el('span', { className: 'driver-card__value', text: fromText == null ? '-' : fromText })
+      ])
     ];
-
     if (compare) {
-      var toLine = [
-        el('span', { className: 'comparison-summary__tile-arrow', text: '→' }),
-        el('span', { text: compare.figures[key] == null ? '-' : compare.figures[key] })
-      ];
-      var tag = deltaTag(key, difference[key]);
-      if (tag) toLine.push(tag);
-      children.push(el('p', { className: 'comparison-summary__tile-delta-line' }, toLine));
+      valueCols.push(el('span', { className: 'driver-card__arrow', text: '→' }));
+      valueCols.push(el('div', { className: 'driver-card__value-col driver-card__value-col--end' }, [
+        el('span', { className: 'driver-card__value-tag', text: compare.name }),
+        el('span', { className: 'driver-card__value', text: compare.figures[key] == null ? '-' : compare.figures[key] })
+      ]));
     }
 
-    return el('div', { className: 'comparison-summary__tile' }, children);
+    var children = [header, el('div', { className: 'driver-card__values' }, valueCols)];
+
+    if (compare && deltaNum != null) {
+      children.push(el('hr', { className: 'driver-card__divider' }));
+      children.push(el('div', { className: 'driver-card__impact' }, [
+        deltaTag(key, deltaText),
+        el('span', { className: 'driver-card__impact-caption', text: 'Scenario impact' })
+      ]));
+    }
+
+    return el('div', { className: 'driver-card' }, children);
   }
 
   /**
@@ -155,11 +187,13 @@
     }
 
     return el('div', { className: 'comparison-summary' }, [
+      el('p', { className: 'comparison-summary__section-heading', text: 'Primary Business Impact' }),
       el('div', { className: 'comparison-summary__heroes' },
         HERO_FIELDS.map(function (field) { return heroCard(field, baseline, compare, difference); })
       ),
-      el('div', { className: 'comparison-summary__tiles' },
-        TILE_FIELDS.map(function (field) { return tile(field, baseline, compare, difference); })
+      el('p', { className: 'comparison-summary__section-heading', text: 'Key Scenario Drivers' }),
+      el('div', { className: 'scenario-drivers__grid' },
+        DRIVER_FIELDS.map(function (field) { return driverCard(field, baseline, compare, difference); })
       )
     ]);
   };

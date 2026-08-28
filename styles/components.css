@@ -3000,27 +3000,46 @@
 }
 
 /* --------------------------------------------------------------------------
-   Comparison summary — Revenue/Profit hero cards plus the smaller figures
-   below them, replacing the plain scenario comparison table.
+   Comparison summary — the "Scenario Impact" experience: Revenue/Profit
+   hero cards under Primary Business Impact, then a card grid under Key
+   Scenario Drivers. Replaces the plain scenario comparison table with
+   current -> scenario -> impact read top to bottom in every card, so
+   nothing needs comparing across a row or column the way a table would.
    -------------------------------------------------------------------------- */
 .comparison-summary {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.comparison-summary__section-heading {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: var(--space-2) 0 0;
 }
 
 .comparison-summary__heroes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--space-4);
+  margin-bottom: var(--space-2);
 }
 
 .comparison-summary__hero {
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-container);
+  box-shadow: var(--shadow-xs);
   padding: var(--space-5);
+  transition: box-shadow var(--duration-base) var(--easing-standard);
+}
+
+.comparison-summary__hero:hover {
+  box-shadow: var(--shadow-sm);
 }
 
 .comparison-summary__hero-label {
@@ -3036,7 +3055,7 @@
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
@@ -3051,14 +3070,20 @@
 .comparison-summary__hero-delta-line {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
   margin: var(--space-2) 0 0;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.comparison-summary__hero-delta-line .comparison-summary__delta {
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 .comparison-summary__hero-percent {
   color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-regular);
 }
 
@@ -3066,7 +3091,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  margin-top: var(--space-4);
+  margin-top: var(--space-5);
 }
 
 .comparison-summary__bar-row {
@@ -3099,46 +3124,6 @@
   background-color: var(--color-primary);
 }
 
-.comparison-summary__tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--space-5);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-container);
-  padding: var(--space-5);
-}
-
-.comparison-summary__tile-label {
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--letter-spacing-wider);
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-  margin: 0 0 var(--space-1);
-}
-
-.comparison-summary__tile-value {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-  margin: 0;
-}
-
-.comparison-summary__tile-delta-line {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-  margin: 0;
-}
-
-.comparison-summary__tile-arrow {
-  color: var(--color-text-muted);
-}
-
 .comparison-summary__delta {
   display: inline-flex;
   align-items: center;
@@ -3162,6 +3147,129 @@
 
 .comparison-summary__delta--muted span {
   color: var(--color-text-secondary);
+}
+
+/*
+ * Key Scenario Drivers — one compact insight card per figure instead of a
+ * table row. auto-fit lets five cards share one line on a wide desktop
+ * screen and wrap in twos or threes on anything narrower, without a fixed
+ * column count anywhere pinning it to a grid.
+ */
+.scenario-drivers__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-4);
+}
+
+.driver-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-4) var(--space-5);
+  transition: box-shadow var(--duration-base) var(--easing-standard);
+}
+
+.driver-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.driver-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.driver-card__name {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.driver-card__change-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted);
+  flex: 0 0 auto;
+}
+
+.driver-card__change-badge.is-up {
+  color: var(--color-warning);
+}
+
+.driver-card__change-badge.is-down {
+  color: var(--color-text-muted);
+}
+
+.driver-card__values {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.driver-card__value-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.driver-card__value-col--end {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.driver-card__value-tag {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.driver-card__value {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.driver-card__arrow {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.driver-card__divider {
+  height: 1px;
+  margin: var(--space-4) 0 var(--space-3);
+  border: 0;
+  background-color: var(--color-border-subtle);
+}
+
+.driver-card__impact {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.driver-card__impact .comparison-summary__delta {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+}
+
+.driver-card__impact-caption {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
 }
 
 /* --------------------------------------------------------------------------
