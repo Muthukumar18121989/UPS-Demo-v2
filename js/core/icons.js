@@ -110,11 +110,11 @@
     );
   }
 
-  function check(size) {
+  function check(size, className) {
     return svg(
       '<path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" ' +
       'stroke-linejoin="round" d="m6 12.4 4 4 8-8.8"/>',
-      { size: size || 16 }
+      { size: size || 16, className: className || '' }
     );
   }
 
@@ -178,6 +178,20 @@
       '<path ' + STROKE + ' d="M19.1 14.2a1.5 1.5 0 0 0 .3 1.65l.05.05a1.8 1.8 0 1 1-2.55 2.55l-.05-.05a1.5 1.5 0 0 0-1.65-.3 1.5 1.5 0 0 0-.9 1.37v.14a1.8 1.8 0 1 1-3.6 0v-.07a1.5 1.5 0 0 0-.98-1.37 1.5 1.5 0 0 0-1.65.3l-.05.05a1.8 1.8 0 1 1-2.55-2.55l.05-.05a1.5 1.5 0 0 0 .3-1.65 1.5 1.5 0 0 0-1.37-.9h-.14a1.8 1.8 0 1 1 0-3.6h.07a1.5 1.5 0 0 0 1.37-.98 1.5 1.5 0 0 0-.3-1.65l-.05-.05a1.8 1.8 0 1 1 2.55-2.55l.05.05a1.5 1.5 0 0 0 1.65.3h.07a1.5 1.5 0 0 0 .9-1.37v-.14a1.8 1.8 0 1 1 3.6 0v.07a1.5 1.5 0 0 0 .9 1.37 1.5 1.5 0 0 0 1.65-.3l.05-.05a1.8 1.8 0 1 1 2.55 2.55l-.05.05a1.5 1.5 0 0 0-.3 1.65v.07a1.5 1.5 0 0 0 1.37.9h.14a1.8 1.8 0 1 1 0 3.6h-.07a1.5 1.5 0 0 0-1.37.9Z"/>',
       { size: size || 14 }
     );
+  }
+
+  function arrowUp(size, className) {
+    return svg('<path ' + STROKE + ' d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/>', {
+      size: size || 14,
+      className: className || ''
+    });
+  }
+
+  function arrowDown(size, className) {
+    return svg('<path ' + STROKE + ' d="M12 5.5V18M6.5 12.5 12 18l5.5-5.5"/>', {
+      size: size || 14,
+      className: className || ''
+    });
   }
 
   function plusCircle(size) {
@@ -252,6 +266,8 @@
     box: box,
     boxOff: boxOff,
     settings: settings,
+    arrowUp: arrowUp,
+    arrowDown: arrowDown,
     plusCircle: plusCircle,
     file: file,
     plus: plus,

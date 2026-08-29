@@ -427,20 +427,69 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-normal);
   white-space: nowrap;
+  /* Light-on-dark divider, so adjoining header labels read as distinct
+     columns. */
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .data-table thead th:first-child {
   border-top-left-radius: 0;
 }
 
+.data-table thead th:last-child {
+  border-right: 0;
+}
+
 .data-table tbody td {
   height: var(--table-row-height);
   border-bottom: 1px solid var(--color-border-subtle);
+  border-right: 1px solid var(--color-border-subtle);
   color: var(--color-text-primary);
 }
 
 .data-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.data-table tbody td:last-child {
+  border-right: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Frozen columns -- applied unconditionally by DataTable to any table with
+   more than one column. The header row is already sticky unconditionally;
+   this adds `freezeColumns` leading columns (the first by default, more
+   where several together identify a row -- Movement/Mode/Core Service),
+   each positioned by DataTable itself (position: sticky, its own `left`
+   offset, inline per cell -- computed from the columns before it, since
+   they can be different widths). This layers the rest on top: z-index so
+   a frozen cell sits above the columns scrolling past it (higher still for
+   the header row's own frozen cells, so the top-left corner outranks both
+   axes), a background so a plain frozen cell doesn't let scrolling content
+   show through it, and an edge shadow marking where the frozen group ends.
+   -------------------------------------------------------------------------- */
+.data-table--frozen .is-frozen-col {
+  z-index: 1;
+}
+
+.data-table--frozen thead th.is-frozen-col {
+  z-index: 2;
+}
+
+/*
+ * :where() keeps this from outweighing a cell's own background -- is-rowhead
+ * (Zone's Movement, Accessorial's Type) already carries one at real
+ * specificity and needs to win; this is only a fallback for a plain cell
+ * that has none of its own. tr:hover and the sync-highlight rule already
+ * carry enough extra specificity (an extra element or class) to win over
+ * both without needing a frozen-specific override of their own.
+ */
+.data-table td:where(.is-frozen-col) {
+  background-color: var(--color-surface);
+}
+
+.data-table--frozen .is-frozen-edge {
+  box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.15);
 }
 
 .data-table tbody tr {
@@ -637,12 +686,14 @@
               box-shadow var(--duration-fast) var(--easing-standard);
 }
 
-/* Empty: no label is showing, so the placeholder sits optically centred. */
-.field__input:placeholder-shown {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
-}
-
+/*
+ * The label is always visible now (above), so the placeholder no longer
+ * has to carry the field's name -- it still does (same text, set once in
+ * JS), but shown in this muted placeholder tone rather than the value's
+ * own dark text, it reads as secondary hint copy under the label instead
+ * of a second, equally-weighted copy of it. An empty field with nothing
+ * here at all read as broken, not calm.
+ */
 .field__input::placeholder {
   color: var(--color-field-placeholder);
   opacity: 1;
@@ -667,6 +718,11 @@
   outline-offset: 1px;
 }
 
+/*
+ * Always visible -- the same convention select-field's own label already
+ * used, now the one rule every field control follows rather than only
+ * showing on focus or once filled.
+ */
 .field__label {
   position: absolute;
   top: 5px;
@@ -679,20 +735,17 @@
   font-size: var(--font-size-2xs);
   line-height: 1.1;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(3px);
-  transition: opacity var(--duration-fast) var(--easing-standard),
-              transform var(--duration-fast) var(--easing-standard);
 }
 
-.field__input:not(:placeholder-shown) ~ .field__label,
-.field__input:focus ~ .field__label,
-.field--static-label .field__label {
-  opacity: 1;
-  transform: none;
-}
-
+/*
+ * The row above reserves a help-button gutter (--field-help-size, plus the
+ * row's own gap) even when no help button is present, so the input box's
+ * own right edge sits that far left of .form-field's. The hint is a sibling
+ * of that row, not part of its grid, so without this it stretched to
+ * .form-field's full width and overflowed past the box it describes.
+ */
 .field__hint {
+  max-width: calc(100% - var(--field-help-size) - var(--space-2));
   margin-top: var(--space-1);
   color: var(--color-text-muted);
   font-size: var(--font-size-2xs);
@@ -735,29 +788,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Select field
-   -------------------------------------------------------------------------- */
-.select-field .field__input {
-  appearance: none;
-  padding-right: var(--space-7);
-  cursor: pointer;
-}
-
-.select-field .field__label {
-  opacity: 1;
-  transform: none;
-}
-
-.select-field__chevron {
-  position: absolute;
-  top: 50%;
-  right: var(--field-padding-x);
-  transform: translateY(-50%);
-  color: var(--color-field-text);
-  pointer-events: none;
-}
-
-/* --------------------------------------------------------------------------
    Chip input  (linked records / OPP entries)
    -------------------------------------------------------------------------- */
 .chip-input {
@@ -786,10 +816,21 @@
   border-color: var(--color-field-border-filled);
 }
 
+/*
+ * The base padding-top (space-4, 16px) was sized for a single-line label
+ * that isn't part of layout flow either way. At 11px font / 1.1 line-height
+ * the label's own bottom edge lands past that, so the shaded area below it
+ * started overlapping the label by ~1px instead of clearing it -- padding
+ * the label doesn't visually own reads as "ditching" it. Widened just for
+ * the multiline variant, since only it has a solid-background area to
+ * visibly collide with the label above.
+ */
 .chip-input--multiline {
-  min-height: 62px;
+  min-height: 68px;
+  padding-top: var(--space-6);
 }
 
+/* Always visible, matching every other field control. */
 .chip-input__label {
   position: absolute;
   top: 5px;
@@ -798,21 +839,6 @@
   font-size: var(--font-size-2xs);
   line-height: 1.1;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(3px);
-  transition: opacity var(--duration-fast) var(--easing-standard),
-              transform var(--duration-fast) var(--easing-standard);
-}
-
-.chip-input--labelled .chip-input__label {
-  opacity: 1;
-  transform: none;
-}
-
-/* No label showing means no reserved room for it. */
-.chip-input:not(.chip-input--labelled) {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
 }
 
 .chip-input__area {
@@ -1156,12 +1182,15 @@
   text-align: left;
 }
 
-.summary-panel__header-items {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+.summary-panel__title {
   flex: 1 1 auto;
   min-width: 0;
+  font-size: var(--font-size-sm);
+}
+
+.summary-panel__title-value {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .summary-panel__icon {
@@ -1174,9 +1203,9 @@
 }
 
 .summary-panel__body {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   padding: 0 var(--space-5) var(--space-5) var(--space-8);
 }
 
@@ -1184,11 +1213,25 @@
   display: none;
 }
 
-.summary-panel__column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
+.summary-panel__section {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  padding: var(--space-4) var(--space-5);
+}
+
+.summary-panel__section-title {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3);
+}
+
+.summary-panel__section-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--summary-panel-columns, 3), minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
 }
 
 /* Label/value pair — inline on the header row, stacked in the detail grid. */
@@ -1722,7 +1765,15 @@
 .field__input--multiline {
   height: auto;
   min-height: 68px;
-  padding-top: var(--space-2);
+  /*
+   * This 8px predates the label's move to always-visible: sized for a
+   * placeholder that only needed slight centring, not a fixed label
+   * ending ~17px down that it now has to clear -- the label and the
+   * placeholder's first line were overlapping. The same fix already
+   * applied to the multiline chip input (its shaded area was overlapping
+   * its own label by ~1px), scaled up for the larger gap here.
+   */
+  padding-top: var(--space-7);
   padding-bottom: var(--space-2);
   line-height: var(--line-height-normal);
   resize: vertical;
@@ -2207,6 +2258,9 @@
   color: var(--color-text-primary);
   font-weight: var(--font-weight-bold);
   border-bottom: 1px solid var(--color-border);
+  /* The light-on-dark divider above would be invisible here; same idea,
+     adapted for a light header. */
+  border-right-color: var(--color-border-subtle);
 }
 
 .data-table--dividers thead th + th,
@@ -2315,11 +2369,6 @@
   min-height: var(--field-height);
 }
 
-.select-field--bare .field__input {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
-}
-
 .view-filters {
   display: flex;
   flex-wrap: wrap;
@@ -2353,6 +2402,13 @@
    -------------------------------------------------------------------------- */
 .dropdown {
   position: relative;
+  /* Matches .field__control: when a dropdown sits inside .field's flex
+     row (as SelectField's does), it must grow to fill it the same way a
+     text input does, rather than shrinking to its trigger's content width.
+     A no-op outside a flex parent, so harmless for Comparison View and the
+     report-filter dropdowns, which aren't nested in .field. */
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .dropdown__trigger {
@@ -2373,6 +2429,29 @@
 
 .dropdown__trigger:hover {
   border-color: var(--color-field-border-hover);
+}
+
+/* Label above value, the same convention select-field's own always-on
+   label uses, so a dropdown trigger reads like every other field instead
+   of showing a single unlabelled line. */
+.dropdown__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dropdown__label {
+  color: var(--color-field-label);
+  font-size: var(--font-size-2xs);
+  line-height: 1.1;
+}
+
+.dropdown__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dropdown__option:has(:focus-visible) {
@@ -2423,6 +2502,121 @@
   padding: var(--space-3) var(--space-4) var(--space-1);
 }
 
+/*
+ * SelectField's single-select listbox, built on the exact same
+ * .dropdown__option row Comparison View's checkbox rows use -- same
+ * padding, same hover -- with a checkmark standing in for the checkbox.
+ */
+.dropdown__listbox {
+  max-height: 288px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  outline: none;
+}
+
+.dropdown__option--select {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Keyboard focus stays on the listbox itself (aria-activedescendant), so
+   the active option needs its own visual cue -- the same background hover
+   already gives a pointer user. */
+.dropdown__option.is-active {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdown__option-check {
+  flex: 0 0 auto;
+  color: var(--color-primary);
+  opacity: 0;
+}
+
+.dropdown__option--select.is-selected .dropdown__option-check {
+  opacity: 1;
+}
+
+.dropdown__option--select.is-selected .dropdown__option-label {
+  font-weight: var(--font-weight-medium);
+}
+
+.dropdown__option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * TreeSelectField's panel: a search box over a tree of groups and leaves,
+ * built on the same .dropdown__option row as SelectField's flat listbox.
+ * Only leaves are selectable -- a group exists purely to expand/collapse
+ * the leaves under it, so it gets a plain toggle button instead.
+ */
+.dropdown__tree-search {
+  padding: 0 var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.dropdown__tree {
+  max-height: 320px;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.dropdown__tree-group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dropdown__tree-node[hidden] {
+  display: none;
+}
+
+.dropdown__tree-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  padding-left: calc(var(--space-4) + var(--tree-depth, 0) * var(--space-5));
+  background: none;
+  border: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown__tree-toggle:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdown__tree-chevron {
+  flex: 0 0 auto;
+  transition: transform var(--duration-fast) var(--easing-standard);
+}
+
+.dropdown__tree-toggle[aria-expanded="false"] .dropdown__tree-chevron {
+  transform: rotate(-90deg);
+}
+
+.dropdown__tree-leaf {
+  width: 100%;
+  padding-left: calc(var(--space-4) + var(--tree-depth, 0) * var(--space-5));
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
 /* --------------------------------------------------------------------------
    Applied filter chips
    -------------------------------------------------------------------------- */
@@ -2451,10 +2645,84 @@
   padding: var(--space-5);
 }
 
+/*
+ * A compact variant of the standard switch, scoped to this one control --
+ * the full-size 44x24 switch in its own padded row read as heavier than a
+ * secondary, opt-in display preference should. Half the size, a third of
+ * the vertical padding.
+ */
+.comparison-sync-toggle {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-1) var(--space-5) 0;
+}
+
+.comparison-sync-toggle .toggle-row {
+  gap: var(--space-2);
+  font-size: var(--font-size-3xs);
+  color: var(--color-text-secondary);
+}
+
+.comparison-sync-toggle .toggle {
+  width: 28px;
+  height: 16px;
+}
+
+.comparison-sync-toggle .toggle::after {
+  width: 12px;
+  height: 12px;
+  left: 2px;
+}
+
+.comparison-sync-toggle .toggle[aria-checked="true"]::after {
+  transform: translateX(12px);
+}
+
+/* The cell at the same row/column position in every other scenario panel,
+   while comparison sync is on. */
+.data-table tbody td.is-sync-highlight {
+  background-color: var(--color-info-subtle);
+  box-shadow: inset 0 0 0 1px var(--color-info);
+}
+
 .accordion--filled > .accordion__trigger {
   background-color: var(--color-surface-muted);
   border-radius: var(--radius-container) var(--radius-container) 0 0;
   font-weight: var(--font-weight-medium);
+}
+
+/* The base accordion panel has no top padding, so its dark table header
+   sat flush against the shaded trigger above it with no breathing room. */
+.accordion--filled > .accordion__panel {
+  padding-top: var(--space-4);
+}
+
+/* Accessorials' charge-family cards: the trigger reads as a small caps
+   label (Fuel Surcharge, Delivery Area) rather than a full-size heading,
+   the same treatment a table's own section titles get. */
+.accordion--charges > .accordion__trigger {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.accordion--charges > .accordion__trigger:hover {
+  color: var(--color-text-link);
+}
+
+/* Nested cards (Delivery Area > Delivery Area Commercial) stack with the
+   same gap a top-level list of them would. */
+.accordion--charges .accordion--charges {
+  margin-top: var(--space-3);
+}
+
+.accessorial-tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
 }
 
 /* Row-label column, held visually apart from the figures beside it. */
@@ -2498,7 +2766,7 @@
    Boxed tab bar  (centred section switch)
    -------------------------------------------------------------------------- */
 .tabs--boxed .tabs__list {
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space-6);
   padding: 0 var(--space-5);
   border: 1px solid var(--color-border);
@@ -2509,51 +2777,32 @@
   padding-top: var(--space-5);
 }
 
-/* Label columns held on the header's own dark bar, as the accessorial
-   breakdown draws them. */
-.data-table td.is-rowhead-dark {
-  background-color: var(--color-surface-inverse-warm);
-  color: var(--color-text-inverse);
-  border-bottom-color: rgba(255, 255, 255, 0.12);
+/* Other Terms' Dim Divisor/Minimums switch centres in its box instead of
+   starting flush left, unlike every other .tabs--boxed usage. */
+.tabs--boxed-center .tabs__list {
+  justify-content: center;
 }
 
-.data-table tbody tr:hover td.is-rowhead-dark {
-  background-color: var(--color-surface-inverse-warm);
-}
-
-.is-rowhead-dark .row-expander,
-.is-rowhead-dark .row-expander__icon,
-.is-rowhead-dark .tree-cell__toggle {
-  color: inherit;
-}
-
-.is-rowhead-dark .row-expander:hover {
-  color: var(--color-brand-gold);
-}
+/*
+ * Accessorial and Pricing terms' label columns used to sit on a dark bar of
+ * their own (is-rowhead-dark). Once the header-color unification made that
+ * bar identical to the table's own header row, the two visually fused into
+ * one heavy block. Retired in favour of the same is-rowhead treatment every
+ * other table's row-header columns already use.
+ */
 
 /* --------------------------------------------------------------------------
    Pricing terms
    -------------------------------------------------------------------------- */
-.plan-tree {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
+.plan-detail-panel {
+  padding: 0 var(--space-4) var(--space-4);
 }
 
-/* Nested plan levels: each is a card, each level steps in. */
-.accordion--plan > .accordion__trigger {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: var(--letter-spacing-wide);
-  text-transform: uppercase;
-}
-
-.accordion--plan > .accordion__panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: 0 var(--space-4) var(--space-4) var(--space-5);
+.plan-detail-panel__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .plan-detail {
@@ -2622,6 +2871,11 @@
   color: var(--color-text-inverse);
   font-weight: var(--font-weight-medium);
   text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.matrix thead th:last-child {
+  border-right: 0;
 }
 
 .matrix__rowhead {
@@ -2679,12 +2933,24 @@
   color: #8c1d17;
 }
 
+/* The only threshold band in Structure Details can't be removed -- a
+   divisor needs at least one to mean anything. */
+.icon-action:disabled,
+.icon-action:disabled:hover {
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
 .grid-footer {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-3) var(--space-4);
+}
+
+.update-packet-row {
+  margin-top: var(--space-5);
 }
 
 .grid-scroll {
@@ -2701,6 +2967,11 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-4);
+}
+
+.tier-header__icon {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
 }
 
 .tier-header__meta {
@@ -2779,11 +3050,277 @@
   text-transform: uppercase;
 }
 
-/* The difference between two compared scenarios, set apart from the figures
-   it was derived from. */
-.data-table tr.is-difference td {
-  color: var(--color-primary-text);
+/* --------------------------------------------------------------------------
+   Comparison summary — the "Scenario Impact" experience: Revenue/Profit
+   hero cards under Primary Business Impact, then a card grid under Key
+   Scenario Drivers. Replaces the plain scenario comparison table with
+   current -> scenario -> impact read top to bottom in every card, so
+   nothing needs comparing across a row or column the way a table would.
+   -------------------------------------------------------------------------- */
+.comparison-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.comparison-summary__section-heading {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: var(--space-2) 0 0;
+}
+
+.comparison-summary__heroes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.comparison-summary__hero {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-5);
+  transition: box-shadow var(--duration-base) var(--easing-standard);
+}
+
+.comparison-summary__hero:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.comparison-summary__hero-label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-2);
+}
+
+.comparison-summary__hero-values {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.comparison-summary__hero-arrow {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.comparison-summary__hero-delta-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.comparison-summary__hero-delta-line .comparison-summary__delta {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.comparison-summary__hero-percent {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+}
+
+.comparison-summary__hero-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.comparison-summary__bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.comparison-summary__bar-track {
+  position: relative;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted-strong);
+  overflow: hidden;
+}
+
+.comparison-summary__bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.comparison-summary__bar-fill--accent {
+  background-color: var(--color-primary);
+}
+
+.comparison-summary__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   font-weight: var(--font-weight-medium);
+}
+
+/* Arrow tint follows direction; text tint follows what kind of figure moved.
+   Targeted separately so the two can combine in any of the four ways. */
+.comparison-summary__delta--up svg {
+  color: var(--color-warning);
+}
+
+.comparison-summary__delta--down svg {
+  color: var(--color-text-muted);
+}
+
+.comparison-summary__delta--accent span {
+  color: var(--color-text-link);
+}
+
+.comparison-summary__delta--muted span {
+  color: var(--color-text-secondary);
+}
+
+/*
+ * Key Scenario Drivers — one compact insight card per figure instead of a
+ * table row. auto-fit lets five cards share one line on a wide desktop
+ * screen and wrap in twos or threes on anything narrower, without a fixed
+ * column count anywhere pinning it to a grid.
+ */
+.scenario-drivers__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-4);
+}
+
+.driver-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-4) var(--space-5);
+  transition: box-shadow var(--duration-base) var(--easing-standard);
+}
+
+.driver-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.driver-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.driver-card__name {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.driver-card__change-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted);
+  flex: 0 0 auto;
+}
+
+.driver-card__change-badge.is-up {
+  color: var(--color-warning);
+}
+
+.driver-card__change-badge.is-down {
+  color: var(--color-text-muted);
+}
+
+.driver-card__values {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.driver-card__value-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.driver-card__value-col--end {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.driver-card__value-tag {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.driver-card__value {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.driver-card__arrow {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.driver-card__divider {
+  height: 1px;
+  margin: var(--space-4) 0 var(--space-3);
+  border: 0;
+  background-color: var(--color-border-subtle);
+}
+
+.driver-card__impact {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.driver-card__impact .comparison-summary__delta {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+}
+
+.driver-card__impact-caption {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
 }
 
 /* --------------------------------------------------------------------------
@@ -2820,19 +3357,6 @@
   color: var(--color-text-link);
 }
 
-/* Keep the toggle legible on the dark label columns. */
-.is-rowhead-dark .row-toggle {
-  color: inherit;
-}
-
-.is-rowhead-dark .row-toggle:hover {
-  color: var(--color-brand-gold);
-}
-
 .data-table tbody tr.is-child-row td {
   color: var(--color-text-secondary);
-}
-
-.data-table tbody tr.is-child-row .is-rowhead-dark {
-  color: var(--color-text-inverse);
 }

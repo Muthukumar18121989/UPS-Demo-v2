@@ -73,18 +73,19 @@
       return el('tr', {}, [
         el('th', { className: 'matrix__label', attrs: { scope: 'row' } }, [
           el('span', { text: group.name }),
-          el('span', { className: 'matrix__label-sub', text: group.codes + '  ' + group.variant })
+          el('span', { className: 'matrix__label-sub', text: group.variant + '  ' + group.codes })
         ])
       ].concat(group.rates.map(function (rate, index) {
-        var target = tier.bands[index] && tier.bands[index].target;
-        return el('td', { className: 'matrix__cell' + (target ? ' is-target' : '') }, [
-          editableCell(rate)
+        var band = tier.bands[index];
+        return el('td', { className: 'matrix__cell' + (band && band.target ? ' is-target' : '') }, [
+          editableCell(rate, { editable: !(band && band.locked) })
         ]);
       })));
     })));
 
     return el('div', { className: 'card' }, [
       el('div', { className: 'tier-header' }, [
+        DA.icons.chevronDown(16, 'tier-header__icon'),
         el('span', { className: 'tier-header__value', text: tier.tier }),
         el('div', { className: 'tier-header__meta' }, tier.meta.map(function (item) {
           return el('div', { className: 'tier-header__item' }, [
@@ -201,74 +202,138 @@
     ]);
   }
 
-  function planNode(node) {
-    var C = DA.components;
-    return C.Accordion({
-      title: node.label,
-      className: 'accordion--plan',
-      expanded: Boolean(node.expanded),
-      // Branches and plans are built the first time they are opened.
-      renderContent: node.children
-        ? function () { return node.children.map(planNode); }
-        : function () { return [servicePlan()]; }
-    });
+  /**
+   * The first leaf (a node with no `children`) under a tree, depth-first,
+   * shaped like TreeSelectField's own leaf records so the initial plan
+   * shown before any selection reads the same as one chosen from it.
+   */
+  function firstLeaf(nodes, ancestors) {
+    ancestors = ancestors || [];
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      if (!node.children) {
+        return { label: node.label, value: node.label, path: ancestors.concat(node.label) };
+      }
+      var found = firstLeaf(node.children, ancestors.concat(node.label));
+      if (found) return found;
+    }
+    return null;
   }
 
   function servicesView() {
-    var el2 = el;
-    return el2('div', {}, [
-      el2('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el2('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
+    var C = DA.components;
+    var tree = DA.data.pricingServiceTree;
+    var planSlot = el('div', {});
+
+    function showPlan(leaf) {
+      DA.dom.clear(planSlot).appendChild(
+        el('div', { className: 'plan-detail-panel' }, [
+          el('p', { className: 'plan-detail-panel__title', text: leaf.path.join(' / ') }),
+          servicePlan()
+        ])
+      );
+    }
+
+    var defaultLeaf = firstLeaf(tree);
+    var select = C.TreeSelectField({
+      label: 'Choose Service',
+      tree: tree,
+      value: defaultLeaf && defaultLeaf.value,
+      onChange: function (value, leaf) { showPlan(leaf); }
+    });
+
+    if (defaultLeaf) showPlan(defaultLeaf);
+
+    return el('div', {}, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
           DA.icons.plusCircle(18),
-          el2('span', { text: 'Add Service Incentive Plan' })
+          el('span', { text: 'Add Service Incentive Plan' })
         ])
       ]),
-      el2('div', { className: 'plan-tree' }, DA.data.pricingServiceTree.map(function (region) {
-        return planNode({ label: region.label, children: region.children, expanded: true });
-      }))
+      el('div', { className: 'view-filters' }, [
+        el('div', { className: 'view-filters__field' }, [select])
+      ]),
+      planSlot
     ]);
   }
 
   /* ---- Accessorials -------------------------------------------------------- */
 
+  /**
+   * Accessorials reads as a tree of cards rather than Services' single-select
+   * dropdown: several charge families can be open at once, and Delivery Area
+   * opens onto its own Delivery Area Commercial card rather than a lone
+   * plan, so a plain accordion (each card its own toggle) fits where
+   * TreeSelectField's "pick exactly one leaf" doesn't.
+   */
   function accessorialsView(numeric) {
     var C = DA.components;
 
-    function labelColumn(key, label, width) {
-      return { key: key, label: label, width: width || '190px', className: 'is-rowhead-dark' };
-    }
-
-    return el('div', { className: 'card' }, [
-      C.DataTable({
-        caption: 'Accessorial pricing terms',
+    function accessorialTable(rows) {
+      return C.DataTable({
+        caption: 'Accessorial incentive plan',
         embedded: true,
         headerTone: 'warm',
         tinted: true,
-        expandKey: 'detail',
-        // Charges the reference breaks out keep their own lines; the rest are
-        // split across the services that incurred them.
-        getChildren: function (row) {
-          return row.children ||
-            DA.data.serviceBreakdown(row, 'detail', DA.data.additive.accessorial);
-        },
         columns: [
-          labelColumn('group', 'Group'),
-          labelColumn('detail', 'Detail', '280px'),
-          numeric('totalUnits', 'Total Units', { link: true, width: '120px' }),
-          numeric('pctTotalVolume', '% Total Volume', { link: true, width: '150px' }),
-          numeric('adu', 'ADU', { link: true, width: '110px' }),
-          numeric('grossRevenue', 'Gross Revenue', { link: true, width: '150px' }),
-          numeric('netRevenue', 'Net Revenue', { link: true, width: '145px' }),
-          numeric('discount', 'Discount', { link: true, width: '110px' }),
-          numeric('rate', 'Rate', { link: true, width: '110px' })
+          { key: 'movement', label: 'Movement', width: '130px', className: 'is-rowhead' },
+          { key: 'mode', label: 'Mode', width: '100px', className: 'is-rowhead' },
+          { key: 'serviceGroup', label: 'Service Group', width: '140px' },
+          { key: 'service', label: 'Core Service', width: '190px' },
+          numeric('adu', 'ADU', { width: '100px' }),
+          numeric('nrpp', 'NRPP', { width: '100px' }),
+          {
+            key: 'incentiveType',
+            label: 'Incentive Type',
+            width: '160px',
+            className: 'is-numeric is-end',
+            headerClassName: 'is-end',
+            render: function (row) { return editableCell(row.incentiveType); }
+          },
+          {
+            key: 'incentiveAmount',
+            label: 'Incentive Amount',
+            width: '170px',
+            className: 'is-numeric is-end',
+            headerClassName: 'is-end',
+            render: function (row) { return editableCell(row.incentiveAmount); }
+          }
         ],
-        rows: DA.data.pricingAccessorials
-      })
+        rows: rows
+      });
+    }
+
+    /** A charge family with nothing built under it yet still opens -- onto
+        the product's empty table state, same as any other unbuilt view. */
+    function accessorialNode(node) {
+      return C.Accordion({
+        title: node.label,
+        className: 'accordion--charges',
+        expanded: Boolean(node.expanded),
+        renderContent: function () {
+          if (node.children) return node.children.map(accessorialNode);
+          if (node.rows) return [accessorialTable(node.rows)];
+          return [el('p', { className: 'table-empty', text: 'No data available.' })];
+        }
+      });
+    }
+
+    return el('div', { className: 'card' }, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-accessorial-plan' } }, [
+          DA.icons.plusCircle(18),
+          el('span', { text: 'Add Accessorial Incentive Plan' })
+        ])
+      ]),
+      el('div', { className: 'accessorial-tree' },
+        DA.data.pricingAccessorialTree.map(accessorialNode)
+      )
     ]);
   }
 
   /**
-   * @param {Object} context  { packet, numeric, filters, emptyView }
+   * @param {Object} context  { packet, numeric, filters, emptyView, updatePacketAction }
    */
   DA.views.PricingTerms = function PricingTerms(context) {
     var C = DA.components;
@@ -285,7 +350,11 @@
             return el('div', {}, [context.filters(), el('div', { className: 'card' }, [servicesView()])]);
           } },
           { id: 'accessorials', label: 'Accessorials', render: function () {
-            return el('div', {}, [context.filters(), accessorialsView(context.numeric)]);
+            return el('div', {}, [
+              context.filters(),
+              accessorialsView(context.numeric),
+              context.updatePacketAction()
+            ]);
           } },
           { id: 'modifiers', label: 'Modifiers', render: function () {
             return el('div', {}, [context.filters(), context.emptyView('Modifier')()]);

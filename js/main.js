@@ -15,13 +15,39 @@
   // The packet under construction, so a screen can be revisited with its state.
   var current = { packet: null };
 
+  // Full packets built this session, keyed by packetId, so reopening one
+  // from the list reuses what was actually configured rather than the
+  // generic figures a seed row falls back to.
+  var createdPackets = {};
+
+  /** Adds a packet built through the New Analyzer Packet flow to the list,
+      once -- revisiting Analyzer Packet for the same packet must not add a
+      second row. */
+  function registerPacket(packet) {
+    createdPackets[packet.packetId] = packet;
+    var exists = DA.data.analyzerPackets.some(function (row) {
+      return row.packetId === packet.packetId;
+    });
+    if (!exists) DA.data.analyzerPackets.unshift(DA.data.packetListRow(packet));
+  }
+
+  /** The full packet behind a list row: one built this session if there is
+      one, otherwise a synthetic stand-in built from the row itself. */
+  function resolveFullPacket(row) {
+    return createdPackets[row.packetId] || DA.data.syntheticPacketFromRow(row);
+  }
+
   var views = {
     packets: {
       render: function () {
         return DA.pages.AnalyzerPacketsPage({
           rows: DA.data.analyzerPackets,
           currentUser: DA.session.currentUser,
-          onNewPacket: function () { navigate('customer-details'); }
+          onNewPacket: function () { navigate('customer-details'); },
+          onOpenPacket: function (row) {
+            current.packet = resolveFullPacket(row);
+            navigate('analyzer-packet');
+          }
         });
       }
     },
@@ -47,7 +73,10 @@
           onOpenAccounts: function (bid, scenario) {
             navigate('account-association', { bid: bid, scenario: scenario });
           },
-          onProceed: function () { navigate('analyzer-packet'); }
+          onProceed: function () {
+            registerPacket(current.packet);
+            navigate('analyzer-packet');
+          }
         });
       }
     },

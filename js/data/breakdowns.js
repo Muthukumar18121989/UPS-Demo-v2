@@ -60,6 +60,21 @@
     });
   };
 
+  /**
+   * Split a service's volume across the billable weight tiers it shipped
+   * in -- the numbered rows a Weight & Cube service opens onto. `labelKey`
+   * is blanked (like accessorial's children), since the tier number in
+   * `billable` is what identifies the row once it's under its service.
+   */
+  DA.data.weightBreakdown = function weightBreakdown(row, labelKey, additive) {
+    var shares = [0.32, 0.24, 0.18, 0.14, 0.12];
+    return shares.map(function (share, index) {
+      var overrides = { billable: String(index + 1) };
+      overrides[labelKey] = '';
+      return scaleRow(row, share, additive, overrides);
+    });
+  };
+
   DA.data.additive = {
     cost: ['volume', 'adv'],
     zone: ['volume', 'adv', 'freightGrossSpent', 'freightNetSpent', 'freightProfit'],

@@ -230,48 +230,154 @@
     meta: [
       { label: 'Basis', value: 'Gross Revenue' },
       { label: 'Rolling Avg', value: '52 Weeks' },
-      { label: 'Modeled', value: '$2,207,875.71' }
+      { label: 'Modeled', value: '$481,401' }
     ],
     bands: [
-      { modeled: '0.0%', low: '$0.01', high: '$499,999.99', locked: true },
-      { modeled: '22.6%', low: '$500,000.00', high: '$749,999.99' },
-      { modeled: '34.0%', low: '$750,000.00', high: '$999,999.99' },
-      { modeled: '45.3%', low: '$1,000,000.00', high: '$1,249,999.99' },
-      { modeled: '56.6%', low: '$1,250,000.00', high: '$1,499,999.99' },
-      { modeled: '67.9%', low: '$1,500,000.00', high: '$9,999,999,999.99', target: true }
+      { modeled: '0.0%', low: '$0.01', high: '$249,999.99', locked: true },
+      { modeled: '51.9%', low: '$250,000.00', high: '$289,999.99' },
+      { modeled: '60.2%', low: '$290,000.00', high: '$329,999.99' },
+      { modeled: '68.6%', low: '$330,000.00', high: '$359,999.99' },
+      { modeled: '74.8%', low: '$360,000.00', high: '$444,999.99' },
+      { modeled: '92.4%', low: '$445,000.00', high: '$9,999,999,999.99', target: true }
     ],
     serviceGroups: [
-      { name: 'UPS N-Next Day Air', variant: '.LTR', codes: 'P/C P/P N/S R/T T/P', rates: ['0.0%', '82.4%', '84.8%', '86.5%', '88.7%', '88.7%'] },
-      { name: 'UPS N-Next Day Air', variant: '.PKG', codes: 'P/C P/P N/S R/T T/P', rates: ['0.0%', '82.3%', '84.7%', '86.5%', '87.4%', '87.7%'] },
-      { name: 'UPS N-Next Day Air Saver', variant: '.LTR', codes: 'P/C P/P T/P', rates: ['0.0%', '82.0%', '84.6%', '86.0%', '86.1%', '86.4%'] }
+      { name: 'UPS N-Next Day Air', variant: '-LTR', codes: 'FC PP RI TP', rates: ['0.0%', '72.1%', '76.3%', '76.7%', '78.7%', '79.0%'] },
+      { name: 'UPS N-Next Day Air', variant: '-PKG-Hundredweight', codes: 'FC PP TP', rates: ['0.0%', '38.0%', '43.0%', '44.0%', '46.3%', '46.6%'] },
+      { name: 'UPS N-Next Day Air', variant: '-PKG', codes: 'FC PP RI TP', rates: ['0.0%', '72.8%', '76.8%', '77.3%', '81.7%', '82.2%'] },
+      { name: 'UPS N-Next Day Air Saver', variant: '-LTR', codes: 'FC PP TP', rates: ['0.0%', '72.9%', '77.0%', '77.4%', '79.4%', '79.6%'] },
+      { name: 'UPS N-Next Day Air Saver', variant: '-PKG-Hundredweight', codes: 'FC PP TP', rates: ['0.0%', '38.0%', '43.0%', '44.0%', '46.3%', '46.6%'] }
     ]
   };
 
-  /** Accessorial charges under pricing terms, grouped by charge family. */
-  DA.data.pricingAccessorials = [
-    { group: 'Ground Saver', detail: 'Ground Saver < 1 lbs', totalUnits: '1495.0', pctTotalVolume: '1.7%', adu: '299.0', grossRevenue: '$ 5,253.00', netRevenue: '$ 1,868.00', discount: '64.4%', rate: '$ 3.51' },
-    { group: 'Other Charges', detail: 'Third Party Billing Service', totalUnits: '92.0', pctTotalVolume: '0.1%', adu: '18.4', grossRevenue: '$ 576.00', netRevenue: '$ 114.00', discount: '80.2%', rate: '$ 6.27' },
-    { group: 'Other Pickup and Delivery', detail: 'Saturday Air Processing Fee (Saturday)', totalUnits: '26.0', pctTotalVolume: '0.0%', adu: '5.2', grossRevenue: '$ 416.00', netRevenue: '$ 208.00', discount: '50.0%', rate: '$ 16.00' },
-    { group: 'Saturday Delivery', detail: 'Saturday Delivery', totalUnits: '5.0', pctTotalVolume: '0.0%', adu: '1.0', grossRevenue: '$ 80.00', netRevenue: '$ 40.00', discount: '50.0%', rate: '$ 16.00' },
-    { group: 'Return Labels', detail: 'Electronic Label', totalUnits: '360.0', pctTotalVolume: '0.4%', adu: '72.0', grossRevenue: '$ 414.00', netRevenue: '$ 205.00', discount: '50.4%', rate: '$ 1.15' },
-    { group: 'Return Labels', detail: 'Print Return Label', totalUnits: '39.0', pctTotalVolume: '0.0%', adu: '7.8', grossRevenue: '$ 45.00', netRevenue: '$ 22.00', discount: '50.4%', rate: '$ 1.15' },
-    { group: 'Additional Handling', detail: 'Additional Handling Length', totalUnits: '3.0', pctTotalVolume: '0.0%', adu: '0.6', grossRevenue: '$ 107.00', netRevenue: '$ 80.00', discount: '25.0%', rate: '$ 35.67' },
-    { group: 'Additional Handling', detail: 'Additional Handling Length + Girth', totalUnits: '18.0', pctTotalVolume: '0.0%', adu: '3.6', grossRevenue: '$ 685.00', netRevenue: '$ 514.00', discount: '25.0%', rate: '$ 38.04' },
-    { group: 'Additional Handling', detail: 'Additional Handling Packaging', totalUnits: '15.0', pctTotalVolume: '0.0%', adu: '3.0', grossRevenue: '$ 477.00', netRevenue: '$ 358.00', discount: '25.0%', rate: '$ 31.78' },
-    { group: 'Additional Handling', detail: 'Additional Handling Weight', totalUnits: '45.0', pctTotalVolume: '0.1%', adu: '9.0', grossRevenue: '$ 2,430.00', netRevenue: '$ 1,822.00', discount: '25.0%', rate: '$ 53.99' },
-    { group: 'Additional Handling', detail: 'Additional Handling Width', totalUnits: '1.0', pctTotalVolume: '0.0%', adu: '0.2', grossRevenue: '$ 38.00', netRevenue: '$ 29.00', discount: '25.0%', rate: '$ 38.50' },
-    { group: 'Delivery Area', detail: 'Delivery Area Commercial', totalUnits: '729.0', pctTotalVolume: '0.8%', adu: '145.8', grossRevenue: '$ 3,280.00', netRevenue: '$ 1,312.00', discount: '60.0%', rate: '$ 4.50' },
+  /**
+   * Accessorial incentive plans under Pricing Terms, grouped by charge
+   * family exactly as the reference screen's cards nest them: most
+   * families are a single card (nothing to open onto yet, so `rows` is
+   * left out and the card opens onto the empty table state); Delivery Area
+   * alone opens onto a Delivery Area Commercial card carrying the actual
+   * incentive grid.
+   */
+  DA.data.pricingAccessorialTree = [
+    { label: 'Fuel Surcharge' },
+    { label: 'Transportation Charges' },
+    { label: 'Other Charges' },
     {
-      group: 'Delivery Area', detail: 'Delivery Area Commercial Extended',
+      label: 'Delivery Area',
       expanded: true,
-      totalUnits: '175.0', pctTotalVolume: '0.2%', adu: '35.0',
-      grossRevenue: '$ 997.00', netRevenue: '$ 399.00', discount: '60.0%', rate: '$ 5.70',
       children: [
-        { group: '', detail: 'Next Day Air', totalUnits: '9.0', pctTotalVolume: '0.0%', adu: '1.8', grossRevenue: '$ 51.00', netRevenue: '$ 21.00', discount: '60.0%', rate: '$ 5.70' },
-        { group: '', detail: 'Ground', totalUnits: '164.0', pctTotalVolume: '0.2%', adu: '32.8', grossRevenue: '$ 935.00', netRevenue: '$ 374.00', discount: '60.0%', rate: '$ 5.70' },
-        { group: '', detail: '2nd Day Air', totalUnits: '1.0', pctTotalVolume: '0.0%', adu: '0.2', grossRevenue: '$ 6.00', netRevenue: '$ 2.00', discount: '60.0%', rate: '$ 5.70' }
+        {
+          label: 'Delivery Area Commercial',
+          expanded: true,
+          rows: [
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Early', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air', adu: '0.42', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Saver', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air A.M.', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air', adu: '0.40', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '3rd Day', service: '3 Day Select', adu: '0.03', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground', adu: '1.68', nrpp: '$ 1.82', incentiveType: '% Off', incentiveAmount: '60.00%' }
+          ]
+        }
       ]
     }
+  ];
+
+  /**
+   * Rows behind Analyzer > Accounts: the customer's parent account, grouped
+   * by subparent, over the individual UPS account numbers billing under it.
+   * Volume/ADV/Zone on the parent are the group's totals, not independent
+   * figures, so they're written down directly rather than summed from
+   * children the way an additive breakdown would -- there's no shared
+   * "share of the whole" to derive per account here, each is its own record.
+   */
+  DA.data.packetAccounts = [
+    {
+      parent: '{customer}',
+      subParent: 'No Sub Parent',
+      accountNumber: '-',
+      expanded: true,
+      volume: '172658.0', adv: '2656.3', zone: '19.4',
+      children: [
+        { parent: '', subParent: '', accountNumber: '0000AW0689', volume: '19307.0', adv: '297.0', zone: '65.8' },
+        { parent: '', subParent: '', accountNumber: '000082W208', volume: '153317.0', adv: '2358.7', zone: '13.6' },
+        { parent: '', subParent: '', accountNumber: '000083E306', volume: '34.0', adv: '0.5', zone: '3.6' }
+      ]
+    }
+  ];
+
+  /**
+   * Rows behind Analyzer > Weight & Cube: the same core services Services
+   * lists, opening onto the billable weight tiers behind each (derived via
+   * weightBreakdown, so a tier's figures always add back up to its
+   * service's).
+   */
+  DA.data.packetWeightCube = [
+    {
+      service: 'N-Next Day Air', billable: '-',
+      volume: '890', adv: '13.7', pps: '1.0', weightPiece: '8.8',
+      baseGrossRev: '$164,299', baseNetRev: '$29,249', baseDisc: '82.2%',
+      baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50'
+    },
+    {
+      service: 'N-Next Day Air Saver', billable: '-',
+      volume: '1', adv: '0', pps: '1.0', weightPiece: '-',
+      baseGrossRev: '$59', baseNetRev: '$12', baseDisc: '79.6%',
+      baseRpp: '$11.98', baseProfit: '$0', baseOr: '0.99'
+    },
+    {
+      service: 'N-2nd Day Air', billable: '-', expanded: true,
+      volume: '4203', adv: '64.7', pps: '1.0', weightPiece: '8.5',
+      baseGrossRev: '$407,142', baseNetRev: '$82,709', baseDisc: '79.7%',
+      baseRpp: '$19.68', baseProfit: '$ -341', baseOr: '0.52'
+    }
+  ];
+
+  /** Rows behind Analyzer Packet > Rate Charts: gross/net rate by service and zone. */
+  DA.data.rateCharts = [
+    { service: 'N-Next Day Air', zone: '102', volume: '2', grossRate: '$ 32.15', netRate: '$ 5.72', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '103', volume: '2', grossRate: '$ 34.90', netRate: '$ 6.21', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '104', volume: '48', grossRate: '$ 38.45', netRate: '$ 6.84', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '105', volume: '160', grossRate: '$ 41.20', netRate: '$ 7.33', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '106', volume: '317', grossRate: '$ 44.80', netRate: '$ 7.97', disc: '82.2%' },
+    { service: 'N-2nd Day Air', zone: '204', volume: '1,204', grossRate: '$ 21.35', netRate: '$ 4.33', disc: '79.7%' },
+    { service: 'N-3 Day Select', zone: '304', volume: '1', grossRate: '$ 17.90', netRate: '$ 4.19', disc: '76.6%' },
+    { service: 'N-Ground', zone: '5', volume: '14,926', grossRate: '$ 12.44', netRate: '$ 3.89', disc: '68.7%' },
+    { service: 'N-Ground Saver > 1 lbs', zone: '6', volume: '132,566', grossRate: '$ 9.85', netRate: '$ 3.78', disc: '61.6%' }
+  ];
+
+  /**
+   * Rows behind Analyzer Packet > Adjustments: a single flat dollar
+   * adjustment, editable in place, starting at $0 until the user enters
+   * one -- there is nothing to break out by lane here, unlike Dim Divisor
+   * or Rate Charts.
+   */
+  DA.data.adjustments = [
+    { amount: '$0' }
+  ];
+
+  /**
+   * Rows behind Other Terms > Dim Divisor. Incentive Amount opens the
+   * Structure Details drawer rather than showing a flat figure -- the
+   * divisor is itself a small table of cubic-volume threshold bands, kept
+   * in dimDivisorThreshold below.
+   */
+  DA.data.dimDivisor = [
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' }
+  ];
+
+  /** The single code the Structure Details drawer's picker currently offers. */
+  DA.data.dimDivisorCodes = ['01 - Dim Weight Divisor'];
+
+  /** The cubic-volume threshold band(s) behind a Dim Divisor's Structure Details. */
+  DA.data.dimDivisorThreshold = [
+    { volume: '0.0', divisor: '194.0' }
   ];
 
   /** Rows behind Shipping Profiles > Service. */

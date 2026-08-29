@@ -55,6 +55,50 @@
     };
   };
 
+  /**
+   * The Analyzer Packets list row for a packet built through the New
+   * Analyzer Packet flow -- shaped like the seed rows in analyzerPackets.js
+   * so it drops into the same table. Scenario Setup is the status a packet
+   * carries once it has scenarios and has reached the Analyzer Packet page.
+   */
+  DA.data.packetListRow = function packetListRow(packet) {
+    return {
+      packetId: packet.packetId,
+      customerName: packet.customerName,
+      customerNumber: packet.referenceNumber,
+      owner: packet.owner,
+      status: 'Scenario Setup',
+      createdDate: DA.format.formatDate(new Date()),
+      lastModifiedDate: DA.format.formatDate(new Date()),
+      scenarios: (packet.scenarios || []).length,
+      customerHierarchy: packet.hierarchy || '-'
+    };
+  };
+
+  /**
+   * A minimal full packet for a list row that was never built through the
+   * New Analyzer Packet flow (the seed data) -- just enough for the
+   * Analyzer Packet page's Comparisons view, which reads scenario figures
+   * by name ("Current"/"Scenario 1") rather than from the packet itself.
+   */
+  DA.data.syntheticPacketFromRow = function syntheticPacketFromRow(row) {
+    return {
+      packetId: row.packetId,
+      customerName: row.customerName,
+      referenceNumber: row.customerNumber,
+      owner: row.owner,
+      lastModifiedBy: row.owner,
+      createdAt: row.createdDate,
+      lastModifiedAt: row.lastModifiedDate,
+      hierarchy: row.customerHierarchy,
+      industry: '',
+      scenarios: [
+        { title: 'Scenario 0', number: 0, name: 'Current' },
+        { title: 'Scenario 1', number: 1, name: 'Scenario 1' }
+      ]
+    };
+  };
+
   DA.data.buildPacket = function buildPacket(input, currentUser) {
     var format = DA.format;
     var now = new Date();

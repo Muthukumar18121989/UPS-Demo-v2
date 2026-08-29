@@ -160,8 +160,14 @@
   /* WCAG 2.2 target size: icon-only controls extend to this, visual size aside. */
   --tap-target-min: 24px;
 
-  --table-header-height: 42px;
-  --table-row-height: 36px;
+  /*
+   * Row height was previously 36px (reference ~26px), a deliberate deviation
+   * for click-target comfort -- see README. Reduced to 32px for density,
+   * which still clears the 24px WCAG 2.2 target above; going lower would
+   * start eating into that margin.
+   */
+  --table-header-height: 38px;
+  --table-row-height: 32px;
   --table-cell-padding-x: var(--space-3);
   --table-min-width: 1180px;
   --table-min-height: 180px;
@@ -183,9 +189,10 @@
 }
 
 /*
- * The bid table inside a scenario uses a warmer header than the packet list.
- * Point this at --color-surface-inverse to make every table header identical.
+ * The bid table inside a scenario previously used a warmer header than the
+ * packet list. Unified to --color-surface-inverse so every table header
+ * matches.
  */
 :root {
-  --color-surface-inverse-warm: #5a4b45;
+  --color-surface-inverse-warm: var(--color-surface-inverse);
 }
