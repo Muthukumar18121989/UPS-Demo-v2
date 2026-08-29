@@ -21,13 +21,17 @@
 
   DA.data = DA.data || {};
 
+  // The signed-in demo user owns a couple of these, so "My Analyzers" isn't
+  // empty before this session has created anything of its own.
+  var me = DA.session.currentUser.name;
+
   DA.data.analyzerPackets = [
-    packet(112001, 'Soumya Chandran', 'Sourcing Data', 1),
+    packet(112001, me, 'Sourcing Data', 1),
     packet(112000, 'Machavarapu Sai', 'Sourcing Data', 1),
     packet(111999, 'Machavarapu Sai', 'Sourcing Data', 1),
     packet(111998, 'Machavarapu Sai', 'Sourcing Data', 1),
     packet(111996, 'Devesh Tulshyan', 'Sourcing Data', 1),
-    packet(111995, 'Venkateshwar Gudla', 'Scenario Setup', 1),
+    packet(111995, me, 'Scenario Setup', 1),
     packet(111994, 'Venkateshwar Gudla', 'Error Occurred', 2),
     packet(111993, 'Machavarapu Sai', 'Scenario Setup', 1),
     packet(111997, 'Devesh Tulshyan', 'Sourcing Data', 1),

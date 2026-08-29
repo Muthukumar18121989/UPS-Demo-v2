@@ -13,33 +13,38 @@
 
   var SCOPE = { MINE: 'mine', ALL: 'all' };
 
-  var COLUMNS = [
-    {
-      key: 'packetId',
-      label: 'Analyzer Packet ID',
-      width: '150px',
-      render: function (row) {
-        return C.RecordLink({
-          label: row.packetId,
-          href: '#packet-' + row.packetId,
-          ariaLabel: 'Open analyzer packet ' + row.packetId
-        });
-      }
-    },
-    { key: 'customerName', label: 'Customer Name', width: '155px' },
-    { key: 'customerNumber', label: 'Customer Number', width: '135px', className: 'is-numeric is-muted' },
-    { key: 'owner', label: 'Owner', width: '150px' },
-    {
-      key: 'status',
-      label: 'Status',
-      width: '175px',
-      render: function (row) { return C.StatusBadge(row.status); }
-    },
-    { key: 'createdDate', label: 'Created Date', width: '105px', className: 'is-numeric' },
-    { key: 'lastModifiedDate', label: 'Last Modified Date', width: '140px', className: 'is-numeric' },
-    { key: 'scenarios', label: 'Scenarios', width: '90px', className: 'is-numeric' },
-    { key: 'customerHierarchy', label: 'Customer Hierarchy', width: '145px' }
-  ];
+  /** Packet ID's own column: a closure over `onOpenPacket` so clicking it
+      navigates straight to that packet's Analyzer Packet report. */
+  function columns(onOpenPacket) {
+    return [
+      {
+        key: 'packetId',
+        label: 'Analyzer Packet ID',
+        width: '150px',
+        render: function (row) {
+          return C.RecordLink({
+            label: row.packetId,
+            href: '#packet-' + row.packetId,
+            ariaLabel: 'Open analyzer packet ' + row.packetId,
+            onClick: onOpenPacket ? function () { onOpenPacket(row); } : null
+          });
+        }
+      },
+      { key: 'customerName', label: 'Customer Name', width: '155px' },
+      { key: 'customerNumber', label: 'Customer Number', width: '135px', className: 'is-numeric is-muted' },
+      { key: 'owner', label: 'Owner', width: '150px' },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '175px',
+        render: function (row) { return C.StatusBadge(row.status); }
+      },
+      { key: 'createdDate', label: 'Created Date', width: '105px', className: 'is-numeric' },
+      { key: 'lastModifiedDate', label: 'Last Modified Date', width: '140px', className: 'is-numeric' },
+      { key: 'scenarios', label: 'Scenarios', width: '90px', className: 'is-numeric' },
+      { key: 'customerHierarchy', label: 'Customer Hierarchy', width: '145px' }
+    ];
+  }
 
   function matchesQuery(row, query) {
     if (!query) return true;
@@ -85,9 +90,16 @@
       attrs: { role: 'status', 'aria-live': 'polite' }
     });
 
+    // "Owner" holds either a plain name (the seed data) or "ID - Name" (a
+    // packet built through the New Analyzer Packet flow), so scope matches
+    // by whether the current user's name appears in it, not equality.
+    function isOwnedByCurrentUser(row) {
+      return Boolean(currentUser.name) && String(row.owner || '').indexOf(currentUser.name) !== -1;
+    }
+
     function visibleRows() {
       return allRows.filter(function (row) {
-        var inScope = state.scope === SCOPE.ALL || row.owner === currentUser.name;
+        var inScope = state.scope === SCOPE.ALL || isOwnedByCurrentUser(row);
         return inScope && matchesQuery(row, state.query);
       });
     }
@@ -98,7 +110,7 @@
       DA.dom.clear(tableMount).appendChild(
         C.DataTable({
           caption: 'Analyzer packets',
-          columns: COLUMNS,
+          columns: columns(options.onOpenPacket),
           rows: rows,
           emptyState: emptyStateFor(state)
         })

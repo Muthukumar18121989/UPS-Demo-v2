@@ -210,7 +210,12 @@
     return viewport;
   };
 
-  /** Record link cell: identifier + chevron affordance, one hit target. */
+  /**
+   * Record link cell: identifier + chevron affordance, one hit target.
+   * `onClick`, when given, is called instead of following `href` -- the
+   * caller owns navigation, `href` stays only for right-click/open-in-tab
+   * and as a fallback.
+   */
   DA.components.RecordLink = function RecordLink(options) {
     return el(
       'a',
@@ -219,7 +224,13 @@
         attrs: {
           href: options.href || '#',
           'aria-label': options.ariaLabel || false
-        }
+        },
+        on: options.onClick ? {
+          click: function (event) {
+            event.preventDefault();
+            options.onClick();
+          }
+        } : {}
       },
       [
         el('span', { className: 'record-link__label', text: options.label }),
