@@ -59,16 +59,6 @@
     }
   };
 
-  /** Charge filters currently applied to the report. */
-  DA.data.chargeFilters = [
-    'Fuel Surcharge',
-    'Transportation Charges',
-    'Pickup And Delivery',
-    'Returns',
-    'Other Charges',
-    'Custom Brokerage'
-  ];
-
   /* ---- Summary tab -------------------------------------------------------- */
 
   var SERVICE_ROWS = [
