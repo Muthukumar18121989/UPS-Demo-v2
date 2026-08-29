@@ -2900,7 +2900,10 @@
   color: var(--color-text-inverse);
   font-weight: var(--font-weight-medium);
   text-align: center;
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  /* Same light-on-dark divider convention every other table's dark header
+     uses; a touch stronger than the plain 0.12 default so it stays a
+     visible, light seam instead of blending into the fill. */
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .matrix thead th:last-child {
