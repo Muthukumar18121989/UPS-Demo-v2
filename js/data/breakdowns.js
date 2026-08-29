@@ -46,20 +46,6 @@
     });
   };
 
-  /** Split an accessorial charge across the services that incurred it. */
-  DA.data.serviceBreakdown = function serviceBreakdown(row, labelKey, additive) {
-    var shares = [
-      { label: 'Next Day Air', share: 0.05 },
-      { label: 'Ground', share: 0.72 },
-      { label: '2nd Day Air', share: 0.23 }
-    ];
-    return shares.map(function (entry) {
-      var overrides = { group: '' };
-      overrides[labelKey] = entry.label;
-      return scaleRow(row, entry.share, additive, overrides);
-    });
-  };
-
   /**
    * Split a service's volume across the billable weight tiers it shipped
    * in -- the numbered rows a Weight & Cube service opens onto. `labelKey`
@@ -79,7 +65,6 @@
     cost: ['volume', 'adv'],
     zone: ['volume', 'adv', 'freightGrossSpent', 'freightNetSpent', 'freightProfit'],
     service: ['volume', 'adv', 'baseGrossRev', 'baseNetRev', 'baseProfit'],
-    accessorial: ['totalUnits', 'pctTotalVolume', 'adu', 'grossRevenue', 'netRevenue'],
     summary: ['adv', 'annRev']
   };
 })(window.DA);

@@ -201,16 +201,23 @@
     ]);
   }
 
-  function planNode(node) {
+  /**
+   * One collapsible tree node. Branches and plans are built the first time
+   * they're opened; `leafRender` supplies whatever a terminal node in this
+   * particular tree opens onto (a service's rate grid, an accessorial's
+   * incentive table, ...) so the recursive shell stays shared.
+   */
+  function planNode(node, leafRender) {
     var C = DA.components;
     return C.Accordion({
       title: node.label,
       className: 'accordion--plan',
       expanded: Boolean(node.expanded),
-      // Branches and plans are built the first time they are opened.
       renderContent: node.children
-        ? function () { return node.children.map(planNode); }
-        : function () { return [servicePlan()]; }
+        ? function () {
+            return node.children.map(function (child) { return planNode(child, leafRender); });
+          }
+        : function () { return [leafRender()]; }
     });
   }
 
@@ -224,46 +231,84 @@
         ])
       ]),
       el2('div', { className: 'plan-tree' }, DA.data.pricingServiceTree.map(function (region) {
-        return planNode({ label: region.label, children: region.children, expanded: true });
+        return planNode({ label: region.label, children: region.children, expanded: true }, servicePlan);
       }))
     ]);
   }
 
   /* ---- Accessorials -------------------------------------------------------- */
 
-  function accessorialsView(numeric) {
+  /**
+   * An accessorial's incentive plan: the same generic table for every leaf,
+   * mirroring servicePlan() -- what's edited is the incentive itself, not
+   * which leaf you opened it from.
+   */
+  function accessorialPlan() {
     var C = DA.components;
 
     function labelColumn(key, label, width) {
-      return { key: key, label: label, width: width || '190px', className: 'is-rowhead' };
+      return { key: key, label: label, width: width || '140px', className: 'is-rowhead' };
+    }
+
+    function editableColumn(key, label, width) {
+      return {
+        key: key,
+        label: label,
+        width: width,
+        className: 'is-numeric is-end',
+        headerClassName: 'is-end',
+        render: function (row) { return editableCell(row[key]); }
+      };
     }
 
     return el('div', { className: 'card' }, [
       C.DataTable({
-        caption: 'Accessorial pricing terms',
+        caption: 'Accessorial incentive plan',
         embedded: true,
         headerTone: 'warm',
         tinted: true,
-        expandKey: 'detail',
-        // Charges the reference breaks out keep their own lines; the rest are
-        // split across the services that incurred them.
-        getChildren: function (row) {
-          return row.children ||
-            DA.data.serviceBreakdown(row, 'detail', DA.data.additive.accessorial);
-        },
+        // Movement, Mode, Service Group and Core Service together identify
+        // the line -- frozen as a group, same as Adjustments.
+        freezeColumns: 4,
         columns: [
-          labelColumn('group', 'Group'),
-          labelColumn('detail', 'Detail', '280px'),
-          numeric('totalUnits', 'Total Units', { link: true, width: '120px' }),
-          numeric('pctTotalVolume', '% Total Volume', { link: true, width: '150px' }),
-          numeric('adu', 'ADU', { link: true, width: '110px' }),
-          numeric('grossRevenue', 'Gross Revenue', { link: true, width: '150px' }),
-          numeric('netRevenue', 'Net Revenue', { link: true, width: '145px' }),
-          numeric('discount', 'Discount', { link: true, width: '110px' }),
-          numeric('rate', 'Rate', { link: true, width: '110px' })
+          labelColumn('movement', 'Movement', '110px'),
+          labelColumn('mode', 'Mode', '90px'),
+          labelColumn('serviceGroup', 'Service Group', '130px'),
+          labelColumn('service', 'Core Service', '170px'),
+          {
+            key: 'adu', label: 'ADU', width: '90px',
+            className: 'is-numeric is-end', headerClassName: 'is-end'
+          },
+          {
+            key: 'nrpp', label: 'NRPP', width: '100px',
+            className: 'is-numeric is-end', headerClassName: 'is-end'
+          },
+          editableColumn('incentiveType', 'Incentive Type', '150px'),
+          editableColumn('incentiveAmount', 'Incentive Amount', '165px')
         ],
-        rows: DA.data.pricingAccessorials
-      })
+        rows: DA.data.pricingAccessorialIncentives
+      }),
+      el('div', { className: 'grid-footer' }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
+          DA.icons.save(15),
+          el('span', { text: 'Save Changes' })
+        ])
+      ])
+    ]);
+  }
+
+  function accessorialsView() {
+    var el2 = el;
+    return el2('div', {}, [
+      el2('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el2('a', { className: 'link-with-icon', attrs: { href: '#add-accessorial-plan' } }, [
+          DA.icons.plusCircle(18),
+          el2('span', { text: 'Add Accessorial Incentive Plan' })
+        ])
+      ]),
+      el2('div', { className: 'plan-tree' }, DA.data.pricingAccessorialTree.map(function (node) {
+        return planNode(node, accessorialPlan);
+      }))
     ]);
   }
 
@@ -285,7 +330,7 @@
             return el('div', {}, [context.filters(), el('div', { className: 'card' }, [servicesView()])]);
           } },
           { id: 'accessorials', label: 'Accessorials', render: function () {
-            return el('div', {}, [context.filters(), accessorialsView(context.numeric)]);
+            return el('div', {}, [context.filters(), el('div', { className: 'card' }, [accessorialsView()])]);
           } },
           { id: 'modifiers', label: 'Modifiers', render: function () {
             return el('div', {}, [context.filters(), context.emptyView('Modifier')()]);
