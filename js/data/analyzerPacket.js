@@ -365,16 +365,6 @@
     { service: 'N-Ground Saver > 1 lbs', zone: '6', volume: '132,566', grossRate: '$9.85', netRate: '$3.78', disc: '61.6%' }
   ];
 
-  /** Rows behind Adjustments: a manual dollar override per service, editable in place. */
-  DA.data.packetAdjustments = [
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air', basis: 'Per Package', amount: '$0.00' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Saver', basis: 'Per Package', amount: '$0.00' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air', basis: 'Per Package', amount: '$0.00' },
-    { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground', basis: 'Per Package', amount: '$0.00' },
-    { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground Saver > 1 lbs', basis: 'Per Package', amount: '$0.00' },
-    { movement: 'Export', mode: 'Air', serviceGroup: 'Worldwide', service: 'Worldwide Express Saver', basis: 'Per Package', amount: '$0.00' }
-  ];
-
   /**
    * Rows behind Other Terms > Dim Divisor. Published Fuel Surcharge has no
    * reference screen yet. Each row's threshold band data (divisorCode,

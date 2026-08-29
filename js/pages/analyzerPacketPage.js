@@ -627,31 +627,8 @@
       ]);
     }
 
-    /** Filter row shared by Adjustments: scenario picker plus Reset. */
-    function scenarioResetFilters() {
-      return el('div', { className: 'card' }, [
-        el('div', { className: 'view-filters' }, [
-          el('div', { className: 'view-filters__field' }, [
-            C.SelectField({
-              label: 'Choose Scenario',
-              value: scenarios[0] && scenarios[0].name,
-              options: scenarios.map(function (scenario) {
-                return { value: scenario.name, label: scenario.name };
-              })
-            })
-          ]),
-          C.Button({
-            label: 'Reset',
-            variant: 'ghost',
-            icon: DA.icons.refresh(15),
-            iconPosition: 'end'
-          })
-        ])
-      ]);
-    }
-
-    /** Filter row for Other Terms: scenario and bid pickers plus Reset. */
-    function otherTermsFilters() {
+    /** Filter row shared by Adjustments and Other Terms: scenario and bid pickers plus Reset. */
+    function scenarioBidFilters() {
       return el('div', { className: 'card' }, [
         el('div', { className: 'view-filters' }, [
           el('div', { className: 'view-filters__field' }, [
@@ -708,32 +685,28 @@
       ]);
     }
 
+    /**
+     * A single, packet-wide dollar adjustment -- not one per lane the way
+     * the reference screen this replaced first suggested. One row, one
+     * editable figure.
+     */
     function adjustmentsView() {
       return el('div', {}, [
-        scenarioResetFilters(),
+        scenarioBidFilters(),
         el('div', { className: 'card' }, [
           C.DataTable({
             caption: 'Adjustments',
             embedded: true,
             headerTone: 'warm',
-            tinted: true,
-            freezeColumns: 4,
             columns: [
-              flatLabelColumn('movement', 'Movement', '120px'),
-              flatLabelColumn('mode', 'Mode', '110px'),
-              flatLabelColumn('serviceGroup', 'Service Group', '150px'),
-              flatLabelColumn('service', 'Core Service', '190px'),
-              { key: 'basis', label: 'Basis', width: '140px' },
               {
                 key: 'amount',
                 label: 'Dollar Amount',
-                width: '150px',
-                className: 'is-numeric is-end',
-                headerClassName: 'is-end',
+                width: '330px',
                 render: function (row) { return editableCell(row.amount); }
               }
             ],
-            rows: DA.data.packetAdjustments
+            rows: [{ amount: '$0' }]
           }),
           el('div', { className: 'grid-footer' }, [
             el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
@@ -741,6 +714,16 @@
               el('span', { text: 'Save Changes' })
             ])
           ])
+        ]),
+        el('div', { className: 'page-actions page-actions--wide' }, [
+          C.Button({
+            label: 'Update Analyzer Packet',
+            variant: 'primary',
+            shape: 'pill',
+            icon: DA.icons.chevronRight(14, ''),
+            iconPosition: 'end',
+            disabled: true
+          })
         ])
       ]);
     }
@@ -748,7 +731,7 @@
     /** Other Terms > Dim Divisor: the DIM weight divisor set per service. */
     function dimDivisorView() {
       return el('div', {}, [
-        otherTermsFilters(),
+        scenarioBidFilters(),
         el('div', { style: { padding: '0 var(--space-4) var(--space-4)' } }, [
           C.Button({ label: 'Add Service', icon: DA.icons.plusCircle(16) })
         ]),
