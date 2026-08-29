@@ -85,30 +85,9 @@
       })));
     })));
 
-    var grid = el('div', { className: 'data-table__viewport scroll-area data-table__viewport--auto' }, [
-      el('table', { className: 'matrix' }, [
-        el('caption', { className: 'u-visually-hidden', text: tier.tier + ' incentives' }),
-        head,
-        body
-      ])
-    ]);
-
-    var open = true;
-    var toggle = el('button', {
-      className: 'tier-header__toggle u-tap-target',
-      attrs: { type: 'button', 'aria-expanded': 'true', 'aria-label': 'Collapse ' + tier.tier }
-    }, [DA.icons.chevronDown(16)]);
-    toggle.addEventListener('click', function () {
-      open = !open;
-      grid.hidden = !open;
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      toggle.setAttribute('aria-label', (open ? 'Collapse ' : 'Expand ') + tier.tier);
-      DA.dom.clear(toggle).appendChild(open ? DA.icons.chevronDown(16) : DA.icons.chevronRight(16, ''));
-    });
-
     return el('div', { className: 'card' }, [
       el('div', { className: 'tier-header' }, [
-        toggle,
+        DA.icons.chevronDown(16, 'tier-header__icon'),
         el('span', { className: 'tier-header__value', text: tier.tier }),
         el('div', { className: 'tier-header__meta' }, tier.meta.map(function (item) {
           return el('div', { className: 'tier-header__item' }, [
@@ -125,7 +104,13 @@
           })
         ])
       ]),
-      grid
+      el('div', { className: 'data-table__viewport scroll-area data-table__viewport--auto' }, [
+        el('table', { className: 'matrix' }, [
+          el('caption', { className: 'u-visually-hidden', text: tier.tier + ' incentives' }),
+          head,
+          body
+        ])
+      ])
     ]);
   }
 
@@ -220,118 +205,140 @@
   }
 
   /**
-   * One collapsible tree node. Branches and plans are built the first time
-   * they're opened; `leafRender` supplies whatever a terminal node in this
-   * particular tree opens onto (a service's rate grid, an accessorial's
-   * incentive table, ...) so the recursive shell stays shared.
+   * The first leaf (a node with no `children`) under a tree, depth-first,
+   * shaped like TreeSelectField's own leaf records so the initial plan
+   * shown before any selection reads the same as one chosen from it.
    */
-  function planNode(node, leafRender) {
-    var C = DA.components;
-    return C.Accordion({
-      title: node.label,
-      className: 'accordion--plan',
-      expanded: Boolean(node.expanded),
-      renderContent: node.children
-        ? function () {
-            return node.children.map(function (child) { return planNode(child, leafRender); });
-          }
-        : function () { return [leafRender()]; }
-    });
+  function firstLeaf(nodes, ancestors) {
+    ancestors = ancestors || [];
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      if (!node.children) {
+        return { label: node.label, value: node.label, path: ancestors.concat(node.label) };
+      }
+      var found = firstLeaf(node.children, ancestors.concat(node.label));
+      if (found) return found;
+    }
+    return null;
   }
 
   function servicesView() {
-    var el2 = el;
-    return el2('div', {}, [
-      el2('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el2('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
+    var C = DA.components;
+    var tree = DA.data.pricingServiceTree;
+    var planSlot = el('div', {});
+
+    function showPlan(leaf) {
+      DA.dom.clear(planSlot).appendChild(
+        el('div', { className: 'plan-detail-panel' }, [
+          el('p', { className: 'plan-detail-panel__title', text: leaf.path.join(' / ') }),
+          servicePlan()
+        ])
+      );
+    }
+
+    var defaultLeaf = firstLeaf(tree);
+    var select = C.TreeSelectField({
+      label: 'Choose Service',
+      tree: tree,
+      value: defaultLeaf && defaultLeaf.value,
+      onChange: function (value, leaf) { showPlan(leaf); }
+    });
+
+    if (defaultLeaf) showPlan(defaultLeaf);
+
+    return el('div', {}, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
           DA.icons.plusCircle(18),
-          el2('span', { text: 'Add Service Incentive Plan' })
+          el('span', { text: 'Add Service Incentive Plan' })
         ])
       ]),
-      el2('div', { className: 'plan-tree' }, DA.data.pricingServiceTree.map(function (region) {
-        return planNode({ label: region.label, children: region.children, expanded: true }, servicePlan);
-      }))
+      el('div', { className: 'view-filters' }, [
+        el('div', { className: 'view-filters__field' }, [select])
+      ]),
+      planSlot
     ]);
   }
 
   /* ---- Accessorials -------------------------------------------------------- */
 
   /**
-   * An accessorial's incentive plan: the same generic table for every leaf,
-   * mirroring servicePlan() -- what's edited is the incentive itself, not
-   * which leaf you opened it from.
+   * Accessorials reads as a tree of cards rather than Services' single-select
+   * dropdown: several charge families can be open at once, and Delivery Area
+   * opens onto its own Delivery Area Commercial card rather than a lone
+   * plan, so a plain accordion (each card its own toggle) fits where
+   * TreeSelectField's "pick exactly one leaf" doesn't.
    */
-  function accessorialPlan() {
+  function accessorialsView(numeric) {
     var C = DA.components;
 
-    function labelColumn(key, label, width) {
-      return { key: key, label: label, width: width || '140px', className: 'is-rowhead' };
-    }
-
-    function editableColumn(key, label, width) {
-      return {
-        key: key,
-        label: label,
-        width: width,
-        className: 'is-numeric is-end',
-        headerClassName: 'is-end',
-        render: function (row) { return editableCell(row[key]); }
-      };
-    }
-
-    return el('div', { className: 'card' }, [
-      C.DataTable({
+    function accessorialTable(rows) {
+      return C.DataTable({
         caption: 'Accessorial incentive plan',
         embedded: true,
         headerTone: 'warm',
         tinted: true,
         // Movement, Mode, Service Group and Core Service together identify
-        // the line -- frozen as a group, same as Adjustments.
+        // the line -- frozen as a group, same as Accounts.
         freezeColumns: 4,
         columns: [
-          labelColumn('movement', 'Movement', '110px'),
-          labelColumn('mode', 'Mode', '90px'),
-          labelColumn('serviceGroup', 'Service Group', '130px'),
-          labelColumn('service', 'Core Service', '170px'),
+          { key: 'movement', label: 'Movement', width: '130px', className: 'is-rowhead' },
+          { key: 'mode', label: 'Mode', width: '100px', className: 'is-rowhead' },
+          { key: 'serviceGroup', label: 'Service Group', width: '140px' },
+          { key: 'service', label: 'Core Service', width: '190px' },
+          numeric('adu', 'ADU', { width: '100px' }),
+          numeric('nrpp', 'NRPP', { width: '100px' }),
           {
-            key: 'adu', label: 'ADU', width: '90px',
-            className: 'is-numeric is-end', headerClassName: 'is-end'
+            key: 'incentiveType',
+            label: 'Incentive Type',
+            width: '160px',
+            className: 'is-numeric is-end',
+            headerClassName: 'is-end',
+            render: function (row) { return editableCell(row.incentiveType); }
           },
           {
-            key: 'nrpp', label: 'NRPP', width: '100px',
-            className: 'is-numeric is-end', headerClassName: 'is-end'
-          },
-          editableColumn('incentiveType', 'Incentive Type', '150px'),
-          editableColumn('incentiveAmount', 'Incentive Amount', '165px')
+            key: 'incentiveAmount',
+            label: 'Incentive Amount',
+            width: '170px',
+            className: 'is-numeric is-end',
+            headerClassName: 'is-end',
+            render: function (row) { return editableCell(row.incentiveAmount); }
+          }
         ],
-        rows: DA.data.pricingAccessorialIncentives
-      }),
-      el('div', { className: 'grid-footer' }, [
-        el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
-          DA.icons.save(15),
-          el('span', { text: 'Save Changes' })
-        ])
-      ])
-    ]);
-  }
+        rows: rows
+      });
+    }
 
-  function accessorialsView() {
-    var el2 = el;
-    return el2('div', {}, [
-      el2('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el2('a', { className: 'link-with-icon', attrs: { href: '#add-accessorial-plan' } }, [
+    /** A charge family with nothing built under it yet still opens -- onto
+        the product's empty table state, same as any other unbuilt view. */
+    function accessorialNode(node) {
+      return C.Accordion({
+        title: node.label,
+        className: 'accordion--charges',
+        expanded: Boolean(node.expanded),
+        renderContent: function () {
+          if (node.children) return node.children.map(accessorialNode);
+          if (node.rows) return [accessorialTable(node.rows)];
+          return [el('p', { className: 'table-empty', text: 'No data available.' })];
+        }
+      });
+    }
+
+    return el('div', { className: 'card' }, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-accessorial-plan' } }, [
           DA.icons.plusCircle(18),
-          el2('span', { text: 'Add Accessorial Incentive Plan' })
+          el('span', { text: 'Add Accessorial Incentive Plan' })
         ])
       ]),
-      el2('div', { className: 'plan-tree' }, DA.data.pricingAccessorialTree.map(function (node) {
-        return planNode(node, accessorialPlan);
-      }))
+      el('div', { className: 'accessorial-tree' },
+        DA.data.pricingAccessorialTree.map(accessorialNode)
+      )
     ]);
   }
 
   /**
-   * @param {Object} context  { packet, numeric, filters, emptyView }
+   * @param {Object} context  { packet, numeric, filters, emptyView, updatePacketAction }
    */
   DA.views.PricingTerms = function PricingTerms(context) {
     var C = DA.components;
@@ -348,7 +355,11 @@
             return el('div', {}, [context.filters(), el('div', { className: 'card' }, [servicesView()])]);
           } },
           { id: 'accessorials', label: 'Accessorials', render: function () {
-            return el('div', {}, [context.filters(), el('div', { className: 'card' }, [accessorialsView()])]);
+            return el('div', {}, [
+              context.filters(),
+              accessorialsView(context.numeric),
+              context.updatePacketAction()
+            ]);
           } },
           { id: 'modifiers', label: 'Modifiers', render: function () {
             return el('div', {}, [context.filters(), context.emptyView('Modifier')()]);

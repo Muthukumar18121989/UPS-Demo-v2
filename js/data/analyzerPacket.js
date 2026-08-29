@@ -242,21 +242,36 @@
   };
 
   /**
-   * Accessorial incentive plans under pricing terms, grouped by charge
-   * family the same way the service incentive plans are grouped by region
-   * -- Fuel Surcharge and Other Charges have nothing to open onto further,
-   * so they're leaves themselves; Transportation Charges opens onto its
-   * charge groups the way Domestic opens onto its modes.
+   * Accessorial incentive plans under Pricing Terms, grouped by charge
+   * family exactly as the reference screen's cards nest them: most
+   * families are a single card (nothing to open onto yet, so `rows` is
+   * left out and the card opens onto the empty table state); Delivery Area
+   * alone opens onto a Delivery Area Commercial card carrying the actual
+   * incentive grid.
    */
   DA.data.pricingAccessorialTree = [
     { label: 'Fuel Surcharge' },
+    { label: 'Transportation Charges' },
+    { label: 'Other Charges' },
     {
-      label: 'Transportation Charges',
+      label: 'Delivery Area',
+      expanded: true,
       children: [
-        { label: 'Delivery Area', children: [{ label: 'Delivery Area Commercial' }] }
+        {
+          label: 'Delivery Area Commercial',
+          expanded: true,
+          rows: [
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Early', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air', adu: '0.42', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Saver', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air A.M.', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air', adu: '0.40', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '3rd Day', service: '3 Day Select', adu: '0.03', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground', adu: '1.68', nrpp: '$ 1.82', incentiveType: '% Off', incentiveAmount: '60.00%' }
+          ]
+        }
       ]
-    },
-    { label: 'Other Charges' }
+    }
   ];
 
   /**
@@ -322,6 +337,104 @@
       baseGrossRev: '$407,142', baseNetRev: '$82,709', baseDisc: '79.7%',
       baseRpp: '$19.68', baseProfit: '$ -341', baseOr: '0.52'
     }
+  ];
+
+  /**
+   * Rows behind Analyzer > Accounts: the customer's parent account, grouped
+   * by subparent, over the individual UPS account numbers billing under it.
+   * Volume/ADV/Zone on the parent are the group's totals, not independent
+   * figures, so they're written down directly rather than summed from
+   * children the way an additive breakdown would -- there's no shared
+   * "share of the whole" to derive per account here, each is its own record.
+   */
+  DA.data.packetAccounts = [
+    {
+      parent: '{customer}',
+      subParent: 'No Sub Parent',
+      accountNumber: '-',
+      expanded: true,
+      volume: '172658.0', adv: '2656.3', zone: '19.4',
+      children: [
+        { parent: '', subParent: '', accountNumber: '0000AW0689', volume: '19307.0', adv: '297.0', zone: '65.8' },
+        { parent: '', subParent: '', accountNumber: '000082W208', volume: '153317.0', adv: '2358.7', zone: '13.6' },
+        { parent: '', subParent: '', accountNumber: '000083E306', volume: '34.0', adv: '0.5', zone: '3.6' }
+      ]
+    }
+  ];
+
+  /**
+   * Rows behind Analyzer > Weight & Cube: the same core services Services
+   * lists, opening onto the billable weight tiers behind each (derived via
+   * weightBreakdown, so a tier's figures always add back up to its
+   * service's).
+   */
+  DA.data.packetWeightCube = [
+    {
+      service: 'N-Next Day Air', billable: '-',
+      volume: '890', adv: '13.7', pps: '1.0', weightPiece: '8.8',
+      baseGrossRev: '$164,299', baseNetRev: '$29,249', baseDisc: '82.2%',
+      baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50'
+    },
+    {
+      service: 'N-Next Day Air Saver', billable: '-',
+      volume: '1', adv: '0', pps: '1.0', weightPiece: '-',
+      baseGrossRev: '$59', baseNetRev: '$12', baseDisc: '79.6%',
+      baseRpp: '$11.98', baseProfit: '$0', baseOr: '0.99'
+    },
+    {
+      service: 'N-2nd Day Air', billable: '-', expanded: true,
+      volume: '4203', adv: '64.7', pps: '1.0', weightPiece: '8.5',
+      baseGrossRev: '$407,142', baseNetRev: '$82,709', baseDisc: '79.7%',
+      baseRpp: '$19.68', baseProfit: '$ -341', baseOr: '0.52'
+    }
+  ];
+
+  /** Rows behind Analyzer Packet > Rate Charts: gross/net rate by service and zone. */
+  DA.data.rateCharts = [
+    { service: 'N-Next Day Air', zone: '102', volume: '2', grossRate: '$ 32.15', netRate: '$ 5.72', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '103', volume: '2', grossRate: '$ 34.90', netRate: '$ 6.21', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '104', volume: '48', grossRate: '$ 38.45', netRate: '$ 6.84', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '105', volume: '160', grossRate: '$ 41.20', netRate: '$ 7.33', disc: '82.2%' },
+    { service: 'N-Next Day Air', zone: '106', volume: '317', grossRate: '$ 44.80', netRate: '$ 7.97', disc: '82.2%' },
+    { service: 'N-2nd Day Air', zone: '204', volume: '1,204', grossRate: '$ 21.35', netRate: '$ 4.33', disc: '79.7%' },
+    { service: 'N-3 Day Select', zone: '304', volume: '1', grossRate: '$ 17.90', netRate: '$ 4.19', disc: '76.6%' },
+    { service: 'N-Ground', zone: '5', volume: '14,926', grossRate: '$ 12.44', netRate: '$ 3.89', disc: '68.7%' },
+    { service: 'N-Ground Saver > 1 lbs', zone: '6', volume: '132,566', grossRate: '$ 9.85', netRate: '$ 3.78', disc: '61.6%' }
+  ];
+
+  /**
+   * Rows behind Analyzer Packet > Adjustments: a single flat dollar
+   * adjustment, editable in place, starting at $0 until the user enters
+   * one -- there is nothing to break out by lane here, unlike Dim Divisor
+   * or Rate Charts.
+   */
+  DA.data.adjustments = [
+    { amount: '$0' }
+  ];
+
+  /**
+   * Rows behind Other Terms > Dim Divisor. Incentive Amount opens the
+   * Structure Details drawer rather than showing a flat figure -- the
+   * divisor is itself a small table of cubic-volume threshold bands, kept
+   * in dimDivisorThreshold below.
+   */
+  DA.data.dimDivisor = [
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' }
+  ];
+
+  /** The single code the Structure Details drawer's picker currently offers. */
+  DA.data.dimDivisorCodes = ['01 - Dim Weight Divisor'];
+
+  /** The cubic-volume threshold band(s) behind a Dim Divisor's Structure Details. */
+  DA.data.dimDivisorThreshold = [
+    { volume: '0.0', divisor: '194.0' }
   ];
 
   /** Rows behind Shipping Profiles > Service. */

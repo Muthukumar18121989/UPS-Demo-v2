@@ -55,8 +55,7 @@
    * same fields simply stack in the order they already appear.
    */
   .form-grid,
-  .summary-panel__header-items,
-  .summary-panel__body {
+  .summary-panel__section-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 

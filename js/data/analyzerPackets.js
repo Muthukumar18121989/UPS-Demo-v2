@@ -21,17 +21,17 @@
 
   DA.data = DA.data || {};
 
-  // 112001 and 111995 are owned by the signed-in demo user (Alagulaxman
-  // Alagappan, see js/data/session.js) so My Analyzers isn't empty by
-  // default -- everything else stays owned by the rest of the team, as
-  // the reference screen has it.
+  // The signed-in demo user owns a couple of these, so "My Analyzers" isn't
+  // empty before this session has created anything of its own.
+  var me = DA.session.currentUser.name;
+
   DA.data.analyzerPackets = [
-    packet(112001, 'Alagulaxman Alagappan', 'Sourcing Data', 1),
+    packet(112001, me, 'Sourcing Data', 1),
     packet(112000, 'Machavarapu Sai', 'Sourcing Data', 1),
     packet(111999, 'Machavarapu Sai', 'Sourcing Data', 1),
     packet(111998, 'Machavarapu Sai', 'Sourcing Data', 1),
     packet(111996, 'Devesh Tulshyan', 'Sourcing Data', 1),
-    packet(111995, 'Alagulaxman Alagappan', 'Scenario Setup', 1),
+    packet(111995, me, 'Scenario Setup', 1),
     packet(111994, 'Venkateshwar Gudla', 'Error Occurred', 2),
     packet(111993, 'Machavarapu Sai', 'Scenario Setup', 1),
     packet(111997, 'Devesh Tulshyan', 'Sourcing Data', 1),

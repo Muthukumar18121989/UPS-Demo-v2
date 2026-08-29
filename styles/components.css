@@ -1189,12 +1189,15 @@
   text-align: left;
 }
 
-.summary-panel__header-items {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+.summary-panel__title {
   flex: 1 1 auto;
   min-width: 0;
+  font-size: var(--font-size-sm);
+}
+
+.summary-panel__title-value {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .summary-panel__icon {
@@ -1207,26 +1210,35 @@
 }
 
 .summary-panel__body {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4) var(--space-5);
-  /* Matches the header row's own left edge exactly: its padding-left
-     (--space-5) plus the disclosure icon (16px) plus its gap (--space-3),
-     so "Analyzer Packet ID" and the rows below it share one left edge
-     instead of the icon's width leaving them out of line. */
-  padding: var(--space-4) var(--space-5) var(--space-5) calc(var(--space-5) + 16px + var(--space-3));
-  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0 var(--space-5) var(--space-5) var(--space-8);
 }
 
 .summary-panel__body[hidden] {
   display: none;
 }
 
-.summary-panel__column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
+.summary-panel__section {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  padding: var(--space-4) var(--space-5);
+}
+
+.summary-panel__section-title {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3);
+}
+
+.summary-panel__section-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--summary-panel-columns, 3), minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
 }
 
 /* A row appended after the columns (Detail's `wide`): spans both, for a
@@ -2364,6 +2376,11 @@
   border-right-color: rgba(255, 255, 255, 0.25);
 }
 
+.data-table--dividers thead th + th,
+.data-table--dividers tbody td + td {
+  border-left: 1px solid var(--color-border-subtle);
+}
+
 .data-table--tinted tbody td {
   background-color: var(--color-surface-muted);
   border-bottom-color: var(--color-border);
@@ -2644,6 +2661,75 @@
   white-space: nowrap;
 }
 
+/*
+ * TreeSelectField's panel: a search box over a tree of groups and leaves,
+ * built on the same .dropdown__option row as SelectField's flat listbox.
+ * Only leaves are selectable -- a group exists purely to expand/collapse
+ * the leaves under it, so it gets a plain toggle button instead.
+ */
+.dropdown__tree-search {
+  padding: 0 var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.dropdown__tree {
+  max-height: 320px;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.dropdown__tree-group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dropdown__tree-node[hidden] {
+  display: none;
+}
+
+.dropdown__tree-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  padding-left: calc(var(--space-4) + var(--tree-depth, 0) * var(--space-5));
+  background: none;
+  border: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown__tree-toggle:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdown__tree-chevron {
+  flex: 0 0 auto;
+  transition: transform var(--duration-fast) var(--easing-standard);
+}
+
+.dropdown__tree-toggle[aria-expanded="false"] .dropdown__tree-chevron {
+  transform: rotate(-90deg);
+}
+
+.dropdown__tree-leaf {
+  width: 100%;
+  padding-left: calc(var(--space-4) + var(--tree-depth, 0) * var(--space-5));
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
 /* --------------------------------------------------------------------------
    Applied filter chips
    -------------------------------------------------------------------------- */
@@ -2724,6 +2810,34 @@
   padding-top: var(--space-4);
 }
 
+/* Accessorials' charge-family cards: the trigger reads as a small caps
+   label (Fuel Surcharge, Delivery Area) rather than a full-size heading,
+   the same treatment a table's own section titles get. */
+.accordion--charges > .accordion__trigger {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.accordion--charges > .accordion__trigger:hover {
+  color: var(--color-text-link);
+}
+
+/* Nested cards (Delivery Area > Delivery Area Commercial) stack with the
+   same gap a top-level list of them would. */
+.accordion--charges .accordion--charges {
+  margin-top: var(--space-3);
+}
+
+.accessorial-tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
 /* Row-label column, held visually apart from the figures beside it. */
 .data-table td.is-rowhead,
 .data-table th.is-rowhead {
@@ -2776,6 +2890,12 @@
   padding-top: var(--space-5);
 }
 
+/* Other Terms' Dim Divisor/Minimums switch centres in its box instead of
+   starting flush left, unlike every other .tabs--boxed usage. */
+.tabs--boxed-center .tabs__list {
+  justify-content: center;
+}
+
 /*
  * Accessorial and Pricing terms' label columns used to sit on a dark bar of
  * their own (is-rowhead-dark). Once the header-color unification made that
@@ -2787,11 +2907,8 @@
 /* --------------------------------------------------------------------------
    Pricing terms
    -------------------------------------------------------------------------- */
-.plan-tree {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
+.plan-detail-panel {
+  padding: 0 var(--space-4) var(--space-4);
 }
 
 /* Nested plan levels: each is a card, each level steps in. Padding is half
@@ -2825,6 +2942,13 @@
  */
 .accordion--plan > .accordion__panel[hidden] {
   display: none;
+}
+
+.plan-detail-panel__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .plan-detail {
@@ -2955,13 +3079,12 @@
   color: #8c1d17;
 }
 
-.icon-action[disabled] {
+/* The only threshold band in Structure Details can't be removed -- a
+   divisor needs at least one to mean anything. */
+.icon-action:disabled,
+.icon-action:disabled:hover {
   color: var(--color-disabled-text);
   cursor: not-allowed;
-}
-
-.icon-action[disabled]:hover {
-  color: var(--color-disabled-text);
 }
 
 .grid-footer {
@@ -2970,6 +3093,10 @@
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-3) var(--space-4);
+}
+
+.update-packet-row {
+  margin-top: var(--space-5);
 }
 
 .grid-scroll {
@@ -2986,6 +3113,11 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-4);
+}
+
+.tier-header__icon {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
 }
 
 .tier-header__meta {
@@ -3082,11 +3214,277 @@
   text-transform: uppercase;
 }
 
-/* The difference between two compared scenarios, set apart from the figures
-   it was derived from. */
-.data-table tr.is-difference td {
-  color: var(--color-primary-text);
+/* --------------------------------------------------------------------------
+   Comparison summary — the "Scenario Impact" experience: Revenue/Profit
+   hero cards under Primary Business Impact, then a card grid under Key
+   Scenario Drivers. Replaces the plain scenario comparison table with
+   current -> scenario -> impact read top to bottom in every card, so
+   nothing needs comparing across a row or column the way a table would.
+   -------------------------------------------------------------------------- */
+.comparison-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.comparison-summary__section-heading {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: var(--space-2) 0 0;
+}
+
+.comparison-summary__heroes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.comparison-summary__hero {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-5);
+  transition: box-shadow var(--duration-base) var(--easing-standard);
+}
+
+.comparison-summary__hero:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.comparison-summary__hero-label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-2);
+}
+
+.comparison-summary__hero-values {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.comparison-summary__hero-arrow {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.comparison-summary__hero-delta-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.comparison-summary__hero-delta-line .comparison-summary__delta {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.comparison-summary__hero-percent {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+}
+
+.comparison-summary__hero-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.comparison-summary__bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.comparison-summary__bar-track {
+  position: relative;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted-strong);
+  overflow: hidden;
+}
+
+.comparison-summary__bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.comparison-summary__bar-fill--accent {
+  background-color: var(--color-primary);
+}
+
+.comparison-summary__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   font-weight: var(--font-weight-medium);
+}
+
+/* Arrow tint follows direction; text tint follows what kind of figure moved.
+   Targeted separately so the two can combine in any of the four ways. */
+.comparison-summary__delta--up svg {
+  color: var(--color-warning);
+}
+
+.comparison-summary__delta--down svg {
+  color: var(--color-text-muted);
+}
+
+.comparison-summary__delta--accent span {
+  color: var(--color-text-link);
+}
+
+.comparison-summary__delta--muted span {
+  color: var(--color-text-secondary);
+}
+
+/*
+ * Key Scenario Drivers — one compact insight card per figure instead of a
+ * table row. auto-fit lets five cards share one line on a wide desktop
+ * screen and wrap in twos or threes on anything narrower, without a fixed
+ * column count anywhere pinning it to a grid.
+ */
+.scenario-drivers__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-4);
+}
+
+.driver-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-4) var(--space-5);
+  transition: box-shadow var(--duration-base) var(--easing-standard);
+}
+
+.driver-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.driver-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.driver-card__name {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.driver-card__change-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted);
+  flex: 0 0 auto;
+}
+
+.driver-card__change-badge.is-up {
+  color: var(--color-warning);
+}
+
+.driver-card__change-badge.is-down {
+  color: var(--color-text-muted);
+}
+
+.driver-card__values {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.driver-card__value-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.driver-card__value-col--end {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.driver-card__value-tag {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.driver-card__value {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.driver-card__arrow {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.driver-card__divider {
+  height: 1px;
+  margin: var(--space-4) 0 var(--space-3);
+  border: 0;
+  background-color: var(--color-border-subtle);
+}
+
+.driver-card__impact {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.driver-card__impact .comparison-summary__delta {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+}
+
+.driver-card__impact-caption {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
 }
 
 /* --------------------------------------------------------------------------

@@ -13,7 +13,8 @@
 
   var SCOPE = { MINE: 'mine', ALL: 'all' };
 
-  /** `onOpenPacket` is threaded through from the page's own options each render. */
+  /** Packet ID's own column: a closure over `onOpenPacket` so clicking it
+      navigates straight to that packet's Analyzer Packet report. */
   function columns(onOpenPacket) {
     return [
       {
@@ -25,7 +26,7 @@
             label: row.packetId,
             href: '#packet-' + row.packetId,
             ariaLabel: 'Open analyzer packet ' + row.packetId,
-            onClick: function () { if (onOpenPacket) onOpenPacket(row); }
+            onClick: onOpenPacket ? function () { onOpenPacket(row); } : null
           });
         }
       },
@@ -89,9 +90,16 @@
       attrs: { role: 'status', 'aria-live': 'polite' }
     });
 
+    // "Owner" holds either a plain name (the seed data) or "ID - Name" (a
+    // packet built through the New Analyzer Packet flow), so scope matches
+    // by whether the current user's name appears in it, not equality.
+    function isOwnedByCurrentUser(row) {
+      return Boolean(currentUser.name) && String(row.owner || '').indexOf(currentUser.name) !== -1;
+    }
+
     function visibleRows() {
       return allRows.filter(function (row) {
-        var inScope = state.scope === SCOPE.ALL || row.owner === currentUser.name;
+        var inScope = state.scope === SCOPE.ALL || isOwnedByCurrentUser(row);
         return inScope && matchesQuery(row, state.query);
       });
     }

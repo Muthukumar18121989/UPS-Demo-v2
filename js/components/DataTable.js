@@ -244,8 +244,9 @@
 
   /**
    * Record link cell: identifier + chevron affordance, one hit target.
-   * `onClick` navigates in place (event.preventDefault() first) instead of
-   * following `href`, for records opened without a real route behind them.
+   * `onClick`, when given, is called instead of following `href` -- the
+   * caller owns navigation, `href` stays only for right-click/open-in-tab
+   * and as a fallback.
    */
   DA.components.RecordLink = function RecordLink(options) {
     return el(

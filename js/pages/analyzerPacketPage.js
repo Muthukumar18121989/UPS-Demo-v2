@@ -7,14 +7,13 @@
  * own sub-tabs: Comparisons, Services, Charges, Accounts, Cost Details,
  * Zones and Weight & Cube.
  *
- * Comparisons, Services, Charges, Cost Details and Zones are documented by
- * reference screens. Accounts and Weight & Cube are built from the same
- * conventions (is-rowhead label columns, a breakdown that always sums back
- * to its parent) rather than a reference screenshot of this exact packet's
- * data. Rate Charts, Adjustments and Other Terms > Dim Divisor are now built
- * from their own reference screens too, transcribed as flat (non-expanding)
- * tables since none of them open onto a breakdown. Other Terms > Minimums
- * still renders the product's empty table state -- not built yet.
+ * Comparisons, Services, Charges, Cost Details, Zones, Adjustments, Rate
+ * Charts and Other Terms > Dim Divisor are documented by reference screens.
+ * Accounts and Weight & Cube are built from the same conventions
+ * (is-rowhead label columns, a breakdown that always sums back to its
+ * parent) rather than a reference screenshot of this exact packet's data.
+ * Other Terms > Minimums still renders the product's empty table state --
+ * not built yet.
  */
 (function (DA) {
   'use strict';
@@ -93,10 +92,11 @@
 
     /* ---- Comparison selector --------------------------------------------- */
 
-    // The baseline scenario is always part of a comparison; the rest are opt-in.
-    var chosen = scenarios.slice(0, 1).map(function (scenario) { return scenario.name; });
+    // The baseline scenario is always part of a comparison; the next one joins
+    // it by default so the report opens already showing a comparison.
+    var chosen = scenarios.slice(0, 2).map(function (scenario) { return scenario.name; });
     var pending = chosen.slice();
-    var comparisonBand = el('section', { className: 'panel panel--auto' });
+    var comparisonBand = el('section', { className: 'panel--auto' });
 
     var comparisonSelector = C.Dropdown({
       label: 'Comparison View',
@@ -132,59 +132,37 @@
     });
 
     /**
-     * One row per chosen scenario, padded to two, then their difference.
-     * A recorded difference is used when there is one; otherwise it is derived
-     * from the figures shown, which can land a unit off where those are
-     * rounded for display.
+     * The baseline and (if chosen) a second scenario's figures, plus their
+     * difference. A recorded difference is used when there is one; otherwise
+     * it is derived from the figures shown, which can land a unit off where
+     * those are rounded for display.
      */
-    function comparisonRows() {
+    function renderComparisonBand() {
       var figures = DA.data.scenarioFigures;
       var keys = DA.data.comparisonKeys;
       var picked = scenarios.filter(function (scenario) {
         return chosen.indexOf(scenario.name) !== -1;
       });
 
-      var rows = picked.map(function (scenario) {
-        var values = figures[scenario.name] || {};
-        var row = { scenario: scenario.name };
-        keys.forEach(function (key) { row[key] = values[key]; });
-        return row;
-      });
+      var baseline = picked[0]
+        ? { name: picked[0].name, figures: figures[picked[0].name] || {} }
+        : null;
+      var compare = picked[1]
+        ? { name: picked[1].name, figures: figures[picked[1].name] || {} }
+        : null;
 
-      while (rows.length < 2) rows.push({ scenario: '-' });
-
-      var difference = { scenario: 'Change', difference: true };
-      if (picked.length === 2) {
-        var a = figures[picked[0].name] || {};
-        var b = figures[picked[1].name] || {};
-        var recorded = DA.data.scenarioDifferences[picked[0].name + '|' + picked[1].name];
+      var difference = {};
+      if (baseline && compare) {
+        var recorded = DA.data.scenarioDifferences[baseline.name + '|' + compare.name];
         keys.forEach(function (key) {
-          difference[key] = recorded ? recorded[key] : DA.figures.difference(a[key], b[key]);
+          difference[key] = recorded
+            ? recorded[key]
+            : DA.figures.difference(baseline.figures[key], compare.figures[key]);
         });
       }
-      rows.push(difference);
-      return rows;
-    }
 
-    function renderComparisonBand() {
       DA.dom.clear(comparisonBand).appendChild(
-        C.DataTable({
-          caption: 'Scenario comparison',
-          embedded: true,
-          headerTone: 'plain',
-          rowClassName: function (row) { return row.difference ? 'is-difference' : ''; },
-          columns: [
-            { key: 'scenario', label: 'Scenario', width: '150px' },
-            numeric('adv', 'ADV'),
-            numeric('baseFrtDisc', 'Base Frt Disc'),
-            numeric('totalDisc', 'Total Disc'),
-            numeric('rpp', 'RPP'),
-            numeric('revenue', 'Revenue', { width: '150px' }),
-            numeric('or', 'OR'),
-            numeric('profit', 'Profit', { width: '130px' })
-          ],
-          rows: comparisonRows()
-        })
+        C.ComparisonSummary({ baseline: baseline, compare: compare, difference: difference })
       );
     }
 
@@ -628,157 +606,116 @@
       ]);
     }
 
-    /** Filter row shared by Adjustments and Other Terms: scenario and bid pickers plus Reset. */
-    function scenarioBidFilters() {
+    /* ---- Rate Charts tab ---------------------------------------------------- */
+
+    /** A single scenario picker: unlike the other tabs' filters, Rate Charts
+        and Adjustments have nothing else to filter by. `trailing` is the
+        node or nodes that follow it in the same row. */
+    function scenarioPicker(trailing) {
+      return el('div', { className: 'view-filters' }, [
+        el('div', { className: 'view-filters__field' }, [
+          C.SelectField({
+            label: 'Choose Scenario',
+            value: scenarios[0] && scenarios[0].name,
+            options: scenarios.map(function (scenario) {
+              return { value: scenario.name, label: scenario.name };
+            })
+          })
+        ])
+      ].concat(trailing));
+    }
+
+    /** Other Terms' own filter row: Choose Scenario and Choose Bid together,
+        unlike Rate Charts/Adjustments' scenario-only picker. */
+    function scenarioAndBidPicker(trailing) {
+      return el('div', { className: 'view-filters' }, [
+        el('div', { className: 'view-filters__field' }, [
+          C.SelectField({
+            label: 'Choose Scenario',
+            value: scenarios[0] && scenarios[0].name,
+            options: scenarios.map(function (scenario) {
+              return { value: scenario.name, label: scenario.name };
+            })
+          })
+        ]),
+        el('div', { className: 'view-filters__field' }, [
+          C.SelectField({
+            label: 'Choose Bid',
+            value: customer + ' MAIN',
+            options: accountOptions()
+          })
+        ])
+      ].concat(trailing));
+    }
+
+    function rateChartsView() {
       return el('div', { className: 'card' }, [
-        el('div', { className: 'view-filters' }, [
-          el('div', { className: 'view-filters__field' }, [
-            C.SelectField({
-              label: 'Choose Scenario',
-              value: scenarios[0] && scenarios[0].name,
-              options: scenarios.map(function (scenario) {
-                return { value: scenario.name, label: scenario.name };
-              })
-            })
-          ]),
-          el('div', { className: 'view-filters__field' }, [
-            C.SelectField({
-              label: 'Choose Bid',
-              value: customer + ' MAIN',
-              options: accountOptions()
-            })
-          ]),
-          C.Button({
+        scenarioPicker([
+          el('span', { className: 'view-filters__divider' }),
+          C.Button({ label: 'Filters', variant: 'ghost', icon: DA.icons.filter(16) })
+        ]),
+        C.DataTable({
+          caption: 'Rate charts',
+          embedded: true,
+          headerTone: 'warm',
+          tinted: true,
+          columns: [
+            { key: 'service', label: 'Core Service', width: '260px', className: 'is-rowhead' },
+            numeric('zone', 'Zone', { width: '100px' }),
+            numeric('volume', 'Volume', { width: '110px' }),
+            numeric('grossRate', 'Gross Rate', { width: '130px' }),
+            numeric('netRate', 'Net Rate', { width: '120px' }),
+            numeric('disc', 'Disc', { width: '100px' })
+          ],
+          rows: DA.data.rateCharts
+        })
+      ]);
+    }
+
+    /* ---- Adjustments tab ------------------------------------------------- */
+
+    /** Dollar Amount's own cell: the value plus a pencil affordance to edit
+        it, the same treatment Pricing Terms' rate grid gives an editable
+        figure. */
+    function editableAmount(value) {
+      return el('span', { className: 'cell-value' }, [
+        el('span', { text: value }),
+        el('button', {
+          className: 'icon-action u-tap-target',
+          attrs: { type: 'button', 'aria-label': 'Edit ' + value }
+        }, [DA.icons.pencil(13)])
+      ]);
+    }
+
+    /** The gold pill that commits changes made on Adjustments or Other Terms. */
+    function updatePacketAction(disabled) {
+      return el('div', { className: 'update-packet-row' }, [
+        C.Button({
+          label: 'Update Analyzer Packet',
+          variant: 'primary',
+          shape: 'pill',
+          icon: DA.icons.chevronRight(14, ''),
+          iconPosition: 'end',
+          disabled: Boolean(disabled)
+        })
+      ]);
+    }
+
+    /** Adjustments has nothing to filter its single figure by beyond which
+        scenario/bid it applies to, so -- unlike Rate Charts and Dim
+        Divisor -- that picker gets its own card rather than sharing one
+        with the table below it. Update Analyzer Packet starts disabled:
+        there is nothing to commit until the amount changes. */
+    function adjustmentsView() {
+      return el('div', {}, [
+        el('div', { className: 'card' }, [
+          scenarioAndBidPicker(C.Button({
             label: 'Reset',
             variant: 'ghost',
             icon: DA.icons.refresh(15),
             iconPosition: 'end'
-          })
-        ])
-      ]);
-    }
-
-    /** Label column shared by the flat (non-expanding) rate/adjustment tables. */
-    function flatLabelColumn(key, label, width) {
-      return { key: key, label: label, width: width || '150px', className: 'is-rowhead' };
-    }
-
-    /** Filter row above a Rate Charts panel: bid and service group pickers, Export. */
-    function rateChartPanelFilters() {
-      var bid = 'P310041099 (SP- Stampin Up)';
-      var serviceGroup = 'UPS E-Standard to Canada';
-      return el('div', { className: 'card' }, [
-        el('div', { className: 'view-filters' }, [
-          el('div', { className: 'view-filters__field' }, [
-            C.SelectField({ label: 'Choose Bid', value: bid, options: [{ value: bid, label: bid }] })
-          ]),
-          el('div', { className: 'view-filters__field' }, [
-            C.SelectField({
-              label: 'Choose Service Group',
-              value: serviceGroup,
-              options: [{ value: serviceGroup, label: serviceGroup }]
-            })
-          ]),
-          C.Button({ label: 'Export', variant: 'ghost', icon: DA.icons.download(16) })
-        ])
-      ]);
-    }
-
-    /**
-     * One scenario's rate grid: zones across, weight tiers down, a $ figure
-     * per cell -- the same 2-row-header shape servicePlan()'s own weight
-     * break grid uses (a merged corner label over two matrix__rowhead
-     * columns, zone/weight-break headers spanning both header rows).
-     * Net is the only basis with reference data; Gross and Volume show the
-     * table's own empty state rather than invented figures.
-     */
-    function rateChartGrid(scenario, basis) {
-      var data = DA.data.rateChartGrid;
-      var zones = data.zones;
-
-      if (basis !== 'net') {
-        return el('p', { className: 'table-empty', text: 'No data available.' });
-      }
-
-      var head = el('thead', {}, [
-        el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'col', colspan: 2 }, text: 'Zones' })
-        ].concat(zones.map(function (zone) {
-          return el('th', { attrs: { scope: 'col', rowspan: 2 }, text: zone });
-        }))),
-        el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'col', colspan: 2 }, text: 'Weight' })
-        ])
-      ]);
-
-      var body = el('tbody', {}, data.rows.map(function (row) {
-        return el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' } }),
-          el('td', { className: 'matrix__rowhead', text: row.weight })
-        ].concat(row.net.map(function (rate) {
-          return el('td', { className: 'matrix__cell', text: rate });
-        })));
-      }));
-
-      return el('div', { className: 'grid-scroll scroll-area' }, [
-        el('table', { className: 'matrix' }, [
-          el('caption', { className: 'u-visually-hidden', text: scenario.name + ' rate chart' }),
-          head,
-          body
-        ])
-      ]);
-    }
-
-    function rateChartPanel(scenario) {
-      var basis = 'net';
-      var gridMount = el('div', {});
-
-      function renderGrid() {
-        DA.dom.clear(gridMount).appendChild(rateChartGrid(scenario, basis));
-      }
-      renderGrid();
-
-      return el('div', {}, [
-        rateChartPanelFilters(),
-        el('div', { className: 'card' }, [
-          el('div', { className: 'card__body' }, [
-            el('p', { className: 'section-title', style: { margin: 0 }, text: scenario.name })
-          ])
+          }))
         ]),
-        el('div', { className: 'card' }, [
-          el('div', { className: 'card__body' }, [
-            C.RadioGroup({
-              ariaLabel: 'Rate basis for ' + scenario.name,
-              name: 'rate-basis-' + scenario.number,
-              value: basis,
-              items: [
-                { value: 'net', label: 'Net' },
-                { value: 'gross', label: 'Gross' },
-                { value: 'volume', label: 'Volume' }
-              ],
-              onChange: function (value) { basis = value; renderGrid(); }
-            }),
-            el('div', { style: { 'margin-top': 'var(--space-4)' } }, [gridMount])
-          ])
-        ])
-      ]);
-    }
-
-    /** Rate Charts: one panel per scenario, side by side. */
-    function rateChartsView() {
-      return el('div', { className: 'comparison-grid' },
-        scenarios.map(function (scenario) { return rateChartPanel(scenario); })
-      );
-    }
-
-    /**
-     * A single, packet-wide dollar adjustment -- not one per lane the way
-     * the reference screen this replaced first suggested. One row, one
-     * editable figure.
-     */
-    function adjustmentsView() {
-      return el('div', {}, [
-        scenarioBidFilters(),
         el('div', { className: 'card' }, [
           C.DataTable({
             caption: 'Adjustments',
@@ -788,11 +725,11 @@
               {
                 key: 'amount',
                 label: 'Dollar Amount',
-                width: '330px',
-                render: function (row) { return editableCell(row.amount); }
+                width: '220px',
+                render: function (row) { return editableAmount(row.amount); }
               }
             ],
-            rows: [{ amount: '$0' }]
+            rows: DA.data.adjustments
           }),
           el('div', { className: 'grid-footer' }, [
             el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
@@ -801,93 +738,185 @@
             ])
           ])
         ]),
-        el('div', { className: 'page-actions page-actions--wide' }, [
-          C.Button({
-            label: 'Update Analyzer Packet',
-            variant: 'primary',
-            shape: 'pill',
-            icon: DA.icons.chevronRight(14, ''),
-            iconPosition: 'end',
-            disabled: true
-          })
-        ])
+        updatePacketAction(true)
       ]);
     }
 
-    /** Other Terms > Dim Divisor: the DIM weight divisor set per service. */
-    function dimDivisorView() {
-      return el('div', {}, [
-        scenarioBidFilters(),
-        el('div', { style: { padding: '0 var(--space-4) var(--space-4)' } }, [
-          C.Button({ label: 'Add Service', icon: DA.icons.plusCircle(16) })
-        ]),
-        el('div', { className: 'card' }, [
-          C.DataTable({
-            caption: 'Dim divisor',
-            embedded: true,
-            headerTone: 'warm',
-            tinted: true,
-            freezeColumns: 3,
-            columns: [
-              flatLabelColumn('movement', 'Movement', '120px'),
-              flatLabelColumn('mode', 'Mode', '110px'),
-              flatLabelColumn('serviceGroup', 'Service Group', '190px'),
-              { key: 'incentiveType', label: 'Incentive Type', width: '150px' },
-              {
-                key: 'incentiveAmount',
-                label: 'Incentive Amount',
-                width: '160px',
-                // The threshold bands behind the divisor code live in the
-                // Details dialog, not as a flat figure on this row.
-                render: function (row) {
-                  return el('a', {
-                    className: 'link-with-icon',
-                    attrs: { href: '#structure-details-' + row.serviceGroup },
-                    on: {
-                      click: function (event) {
-                        event.preventDefault();
-                        DA.dialogs.DimDivisorDetailsDialog(row).open();
-                      }
-                    }
-                  }, [el('span', { text: 'Structure Details' }), DA.icons.chevronRight(14, '')]);
-                }
-              },
-              {
-                key: 'remove',
-                label: '',
-                width: '56px',
-                render: function () {
-                  return el('button', {
-                    className: 'icon-action icon-action--danger u-tap-target',
-                    attrs: { type: 'button', 'aria-label': 'Remove service' }
-                  }, [DA.icons.trash(14)]);
-                }
-              }
-            ],
-            rows: DA.data.packetDimDivisor
-          })
-        ])
-      ]);
-    }
+    /* ---- Other Terms tab --------------------------------------------------- */
 
     /**
-     * Other Terms: Dim Divisor is built; Published Fuel Surcharge has no
-     * reference screen yet.
+     * Structure Details: the drawer a Dim Divisor row's Incentive Amount
+     * opens onto, since a divisor isn't one flat figure but a small table of
+     * cubic-volume threshold bands. All rows share the same demo bands --
+     * there is only ever one code and one threshold band recorded.
      */
-    function otherTermsView() {
-      return el('div', { className: 'tabs--boxed' }, [
-        C.Tabs({
-          ariaLabel: 'Other term views',
-          value: 'dim-divisor',
-          items: [
-            { id: 'dim-divisor', label: 'Dim Divisor', render: dimDivisorView },
-            {
-              id: 'published-fuel-surcharge',
-              label: 'Published Fuel Surcharge',
-              render: emptyView('Published Fuel Surcharge')
-            }
-          ]
+    function openStructureDetails(trigger) {
+      var codeField = C.SelectField({
+        label: 'Select Dim Divisor Code',
+        value: DA.data.dimDivisorCodes[0],
+        options: DA.data.dimDivisorCodes.map(function (code) {
+          return { value: code, label: code };
         })
+      });
+
+      var grid = el('table', { className: 'matrix' }, [
+        el('caption', { className: 'u-visually-hidden', text: 'Cubic volume threshold bands' }),
+        el('thead', {}, [
+          el('tr', {}, [
+            el('th', { attrs: { scope: 'colgroup', colspan: 2 }, text: 'Cubic Volume Threshold' }),
+            el('th', { attrs: { scope: 'col' }, text: 'Dim Weight Divisor' }),
+            el('th', { attrs: { scope: 'col' }, text: '' })
+          ]),
+          el('tr', {}, [
+            el('th', { attrs: { scope: 'col' }, text: 'Volume (cu.in)' }),
+            el('th', { attrs: { scope: 'col' }, text: '' }),
+            el('th', { attrs: { scope: 'col' }, text: 'Zone : All' }),
+            el('th', { attrs: { scope: 'col' }, text: '' })
+          ])
+        ]),
+        el('tbody', {}, DA.data.dimDivisorThreshold.map(function (band, index) {
+          return el('tr', {}, [
+            el('td', { className: 'matrix__cell' }, [editableAmount(band.volume)]),
+            el('td', { className: 'matrix__cell', style: { 'font-style': 'italic' } }, [editableAmount('or more')]),
+            el('td', { className: 'matrix__cell' }, [editableAmount(band.divisor)]),
+            el('td', {}, [
+              el('button', {
+                className: 'icon-action icon-action--danger u-tap-target',
+                attrs: {
+                  type: 'button',
+                  'aria-label': 'Remove threshold band ' + (index + 1),
+                  // The only band can't be removed -- a divisor needs at
+                  // least one to mean anything.
+                  disabled: DA.data.dimDivisorThreshold.length < 2
+                }
+              }, [DA.icons.trash(14)])
+            ])
+          ]);
+        }))
+      ]);
+
+      var drawer = C.Modal({
+        variant: 'drawer',
+        title: 'Details',
+        returnFocusTo: trigger,
+        body: el('div', { className: 'drawer-form' }, [
+          codeField,
+          el('div', { className: 'grid-scroll scroll-area' }, [grid]),
+          el('a', { className: 'link-with-icon', attrs: { href: '#add-threshold-band' } }, [
+            DA.icons.plusCircle(18),
+            el('span', { text: 'Add threshold band' })
+          ]),
+          el('div', { className: 'drawer-form__actions' }, [
+            C.Button({
+              label: 'Apply',
+              variant: 'primary',
+              shape: 'pill',
+              icon: DA.icons.chevronRight(14, ''),
+              iconPosition: 'end',
+              onClick: function () { drawer.close(); }
+            }),
+            C.Button({ label: 'Cancel', variant: 'link', onClick: function () { drawer.close(); } })
+          ])
+        ])
+      });
+
+      drawer.open();
+    }
+
+    /** Other Terms > Dim Divisor: Choose Scenario/Choose Bid over a table
+        whose Incentive Amount opens Structure Details rather than showing a
+        flat figure, plus a delete action per row. */
+    function dimDivisorPanel() {
+      return el('div', {}, [
+        scenarioAndBidPicker(C.Button({
+          label: 'Reset',
+          variant: 'ghost',
+          icon: DA.icons.refresh(15),
+          iconPosition: 'end'
+        })),
+        el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+          el('a', { className: 'link-with-icon', attrs: { href: '#add-service' } }, [
+            DA.icons.plusCircle(18),
+            el('span', { text: 'Add Service' })
+          ])
+        ]),
+        C.DataTable({
+          caption: 'Dim divisor',
+          embedded: true,
+          headerTone: 'warm',
+          tinted: true,
+          columns: [
+            { key: 'movement', label: 'Movement', width: '130px', className: 'is-rowhead' },
+            { key: 'mode', label: 'Mode', width: '110px', className: 'is-rowhead' },
+            { key: 'serviceGroup', label: 'Service Group', width: '190px' },
+            { key: 'incentiveType', label: 'Incentive Type', width: '160px' },
+            {
+              key: 'incentiveAmount',
+              label: 'Incentive Amount',
+              width: '170px',
+              render: function (row) {
+                var link = el('a', {
+                  className: 'link-with-icon',
+                  attrs: { href: '#structure-details', 'aria-label': 'Structure details for ' + row.serviceGroup },
+                  on: {
+                    click: function (event) {
+                      event.preventDefault();
+                      openStructureDetails(link);
+                    }
+                  }
+                }, [el('span', { text: 'Structure Details' }), DA.icons.chevronRight(14, '')]);
+                return link;
+              }
+            },
+            {
+              key: 'remove',
+              label: '',
+              width: '60px',
+              render: function () {
+                return el('button', {
+                  className: 'icon-action icon-action--danger u-tap-target',
+                  attrs: { type: 'button', 'aria-label': 'Remove row' }
+                }, [DA.icons.trash(14)]);
+              }
+            }
+          ],
+          rows: DA.data.dimDivisor
+        })
+      ]);
+    }
+
+    /** Published Fuel Surcharge has no reference screen yet -- the product's
+        empty table state, minus emptyView's own card since it already sits
+        in one. */
+    function publishedFuelSurchargePanel() {
+      return C.DataTable({
+        caption: 'Published Fuel Surcharge',
+        embedded: true,
+        headerTone: 'warm',
+        columns: [{ key: 'name', label: 'Published Fuel Surcharge' }],
+        rows: [],
+        emptyState: el('p', { className: 'table-empty', text: 'No data available.' })
+      });
+    }
+
+    function otherTermsView() {
+      return el('div', {}, [
+        el('div', { className: 'card' }, [
+          el('div', {
+            className: 'tabs--boxed tabs--boxed-center',
+            style: { margin: 'var(--space-4) var(--space-4) 0' }
+          }, [
+            C.Tabs({
+              ariaLabel: 'Other term views',
+              value: 'dim-divisor',
+              items: [
+                { id: 'dim-divisor', label: 'Dim Divisor', render: dimDivisorPanel },
+                { id: 'published-fuel-surcharge', label: 'Published Fuel Surcharge', render: publishedFuelSurchargePanel }
+              ]
+            })
+          ])
+        ]),
+        updatePacketAction()
       ]);
     }
 
@@ -970,6 +999,7 @@
           })
         ])
       ]),
+      C.FilterChips({ ariaLabel: 'Applied charge filters', values: DA.data.chargeFilters }),
       comparisonBand,
       el('div', { className: 'tabs--page' }, [
         C.Tabs({
@@ -988,7 +1018,8 @@
                     packet: packet,
                     numeric: numeric,
                     filters: pricingFilters,
-                    emptyView: emptyView
+                    emptyView: emptyView,
+                    updatePacketAction: updatePacketAction
                   })
                 ])
               ]);

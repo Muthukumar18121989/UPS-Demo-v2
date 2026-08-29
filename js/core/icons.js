@@ -180,6 +180,20 @@
     );
   }
 
+  function arrowUp(size, className) {
+    return svg('<path ' + STROKE + ' d="M12 18.5V6M6.5 11.5 12 6l5.5 5.5"/>', {
+      size: size || 14,
+      className: className || ''
+    });
+  }
+
+  function arrowDown(size, className) {
+    return svg('<path ' + STROKE + ' d="M12 5.5V18M6.5 12.5 12 18l5.5-5.5"/>', {
+      size: size || 14,
+      className: className || ''
+    });
+  }
+
   function plusCircle(size) {
     return svg(
       '<circle ' + STROKE + ' cx="12" cy="12" r="8.5"/>' +
@@ -252,6 +266,8 @@
     box: box,
     boxOff: boxOff,
     settings: settings,
+    arrowUp: arrowUp,
+    arrowDown: arrowDown,
     plusCircle: plusCircle,
     file: file,
     plus: plus,

@@ -15,6 +15,31 @@
   // The packet under construction, so a screen can be revisited with its state.
   var current = { packet: null };
 
+  // Full packets built this session, keyed by packetId, so reopening one
+  // from the list reuses what was actually configured rather than the
+  // generic figures a seed row falls back to.
+  var createdPackets = {};
+
+  /** Adds a packet built through the New Analyzer Packet flow to the list,
+      once -- revisiting Analyzer Packet for the same packet must not add a
+      second row. */
+  function registerPacket(packet) {
+    createdPackets[packet.packetId] = packet;
+    var exists = DA.data.analyzerPackets.some(function (row) {
+      return row.packetId === packet.packetId;
+    });
+    if (!exists) {
+      DA.data.analyzerPackets.unshift(DA.data.summarizePacket(packet, DA.session.currentUser));
+    }
+  }
+
+  /** The full packet behind a list row: one built this session if there is
+      one (keeping whatever the user actually configured), otherwise a
+      stand-in reconstructed from the row itself. */
+  function resolveFullPacket(row) {
+    return createdPackets[row.packetId] || DA.data.packetFromRow(row, DA.session.currentUser);
+  }
+
   var views = {
     packets: {
       render: function () {
@@ -23,7 +48,7 @@
           currentUser: DA.session.currentUser,
           onNewPacket: function () { navigate('customer-details'); },
           onOpenPacket: function (row) {
-            current.packet = DA.data.packetFromRow(row, DA.session.currentUser);
+            current.packet = resolveFullPacket(row);
             navigate('analyzer-packet');
           }
         });
@@ -52,17 +77,7 @@
             navigate('account-association', { bid: bid, scenario: scenario });
           },
           onProceed: function () {
-            // Reaching the Analyzer Packet page is what makes a packet real
-            // enough to list -- add it once, so it shows under My Analyzers
-            // from here on without duplicating on a repeat visit.
-            var alreadyListed = current.packet && DA.data.analyzerPackets.some(function (row) {
-              return row.packetId === current.packet.packetId;
-            });
-            if (current.packet && !alreadyListed) {
-              DA.data.analyzerPackets.unshift(
-                DA.data.summarizePacket(current.packet, DA.session.currentUser)
-              );
-            }
+            registerPacket(current.packet);
             navigate('analyzer-packet');
           }
         });

@@ -21,45 +21,46 @@
 
     /* ---- Packet summary -------------------------------------------------- */
 
-    /** Both ends of the window on one line -- a range, not two fields. */
-    function shippingProfileRange() {
-      if (!packet.from && !packet.to) return null;
-      return (packet.from || '-') + '  –  ' + (packet.to || '-');
-    }
-
-    /** Two sparse, optional linked-record IDs -- paired rather than each
-        claiming a full row for what's usually just a dash. */
-    function linkedRecords() {
-      return 'PQR ' + (packet.pqr || '-') + '   ·   OPPs ' + (packet.opps || '-');
-    }
-
     var summary = C.SummaryPanel({
       ariaLabel: 'Analyzer packet summary',
-      headline: [
-        { label: 'Analyzer Packet ID', value: packet.packetId },
-        { label: 'Customer Name', value: packet.customerName },
-        { label: 'Reference Number', value: packet.referenceNumber }
-      ],
-      columns: [
-        [
-          { label: 'Customer Hierarchy', value: packet.hierarchy },
-          { label: 'Industry', value: packet.industry },
-          { label: 'Linked Records', value: linkedRecords() },
-          { label: 'Shipping Profile', value: shippingProfileRange() }
-        ],
-        [
-          { label: 'Owner', value: owner },
-          { label: 'Created Date', value: packet.createdAt },
-          { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
-          { label: 'Last Modified Date', value: packet.lastModifiedAt }
-        ]
-      ],
-      rows: [
-        // Long enough to wrap onto two or three lines -- its own full-width
-        // line rather than squeezed into one column, set off from the
-        // columns above with a rule since it reads as a different kind of
-        // field (free text, not a short value).
-        { label: 'Analyzer Packet Description', value: packet.description, wide: true }
+      headline: {
+        label: 'Analyzer Packet ID',
+        value: packet.packetId,
+        secondary: packet.customerName
+      },
+      sections: [
+        {
+          title: 'Packet Information',
+          columns: 3,
+          fields: [
+            { label: 'Analyzer Packet ID', value: packet.packetId },
+            { label: 'Customer Name', value: packet.customerName },
+            { label: 'Reference Number', value: packet.referenceNumber },
+            { label: 'Analyzer Packet Description', value: packet.description }
+          ]
+        },
+        {
+          title: 'Customer / Business Information',
+          columns: 3,
+          fields: [
+            { label: 'Customer Hierarchy', value: packet.hierarchy },
+            { label: 'Shipping Profile From', value: packet.from },
+            { label: 'Shipping Profile To', value: packet.to },
+            { label: 'Industry', value: packet.industry },
+            { label: 'PQR', value: packet.pqr },
+            { label: 'OPPs', value: packet.opps }
+          ]
+        },
+        {
+          title: 'Ownership & Audit',
+          columns: 4,
+          fields: [
+            { label: 'Owner', value: owner },
+            { label: 'Created Date', value: packet.createdAt },
+            { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
+            { label: 'Last Modified Date', value: packet.lastModifiedAt }
+          ]
+        }
       ]
     });
 
