@@ -657,44 +657,44 @@
     }
 
     /** The gold pill that commits changes made on Adjustments or Other Terms. */
-    function updatePacketAction() {
+    function updatePacketAction(disabled) {
       return el('div', { className: 'update-packet-row' }, [
         C.Button({
           label: 'Update Analyzer Packet',
           variant: 'primary',
           shape: 'pill',
           icon: DA.icons.chevronRight(14, ''),
-          iconPosition: 'end'
+          iconPosition: 'end',
+          disabled: Boolean(disabled)
         })
       ]);
     }
 
+    /** Adjustments has nothing to filter its single figure by beyond which
+        scenario/bid it applies to, so -- unlike Rate Charts and Dim
+        Divisor -- that picker gets its own card rather than sharing one
+        with the table below it. Update Analyzer Packet starts disabled:
+        there is nothing to commit until the amount changes. */
     function adjustmentsView() {
       return el('div', {}, [
         el('div', { className: 'card' }, [
-          scenarioPicker(C.Button({
+          scenarioAndBidPicker(C.Button({
             label: 'Reset',
             variant: 'ghost',
             icon: DA.icons.refresh(15),
             iconPosition: 'end'
-          })),
+          }))
+        ]),
+        el('div', { className: 'card' }, [
           C.DataTable({
             caption: 'Adjustments',
             embedded: true,
             headerTone: 'warm',
-            tinted: true,
             columns: [
-              { key: 'movement', label: 'Movement', width: '140px', className: 'is-rowhead' },
-              { key: 'mode', label: 'Mode', width: '130px', className: 'is-rowhead' },
-              { key: 'serviceGroup', label: 'Service Group', width: '160px' },
-              { key: 'service', label: 'Core Service', width: '220px' },
-              { key: 'basis', label: 'Basis', width: '150px' },
               {
                 key: 'amount',
                 label: 'Dollar Amount',
-                width: '160px',
-                className: 'is-numeric is-end',
-                headerClassName: 'is-end',
+                width: '220px',
                 render: function (row) { return editableAmount(row.amount); }
               }
             ],
@@ -707,7 +707,7 @@
             ])
           ])
         ]),
-        updatePacketAction()
+        updatePacketAction(true)
       ]);
     }
 

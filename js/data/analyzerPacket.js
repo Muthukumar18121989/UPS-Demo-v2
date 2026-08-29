@@ -346,17 +346,13 @@
   ];
 
   /**
-   * Rows behind Analyzer Packet > Adjustments: a flat per-package dollar
-   * adjustment for each lane, editable in place -- amounts start at $0.00
-   * until the user enters one.
+   * Rows behind Analyzer Packet > Adjustments: a single flat dollar
+   * adjustment, editable in place, starting at $0 until the user enters
+   * one -- there is nothing to break out by lane here, unlike Dim Divisor
+   * or Rate Charts.
    */
   DA.data.adjustments = [
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air', basis: 'Per Package', amount: '$ 0.00' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Saver', basis: 'Per Package', amount: '$ 0.00' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air', basis: 'Per Package', amount: '$ 0.00' },
-    { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground', basis: 'Per Package', amount: '$ 0.00' },
-    { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground Saver > 1 lbs', basis: 'Per Package', amount: '$ 0.00' },
-    { movement: 'Export', mode: 'Air', serviceGroup: 'Worldwide', service: 'Worldwide Express Saver', basis: 'Per Package', amount: '$ 0.00' }
+    { amount: '$0' }
   ];
 
   /**
