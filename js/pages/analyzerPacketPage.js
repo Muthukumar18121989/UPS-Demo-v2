@@ -818,10 +818,10 @@
     function dimDivisorView() {
       return el('div', {}, [
         scenarioBidFilters(),
-        el('div', { style: { padding: '0 var(--space-4) var(--space-4)' } }, [
-          C.Button({ label: 'Add Service', icon: DA.icons.plusCircle(16) })
-        ]),
         el('div', { className: 'card' }, [
+          el('div', { style: { padding: 'var(--space-4)' } }, [
+            C.Button({ label: 'Add Service', variant: 'secondary', icon: DA.icons.plusCircle(16) })
+          ]),
           C.DataTable({
             caption: 'Dim divisor',
             embedded: true,
