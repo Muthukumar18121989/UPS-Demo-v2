@@ -2270,7 +2270,10 @@
   color: var(--color-on-primary);
   font-weight: var(--font-weight-bold);
   border-bottom: 1px solid var(--color-primary-hover);
-  border-right-color: var(--color-primary-hover);
+  /* Light-on-dark divider between header cells, same convention the
+     brown report-table header uses -- a darker teal read as an odd,
+     heavy line against the fill instead of a subtle column break. */
+  border-right-color: rgba(255, 255, 255, 0.25);
 }
 
 .data-table--tinted tbody td {
