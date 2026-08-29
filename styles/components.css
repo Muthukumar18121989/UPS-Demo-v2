@@ -1932,6 +1932,13 @@
   gap: var(--space-1);
 }
 
+.dialog-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
 /* --------------------------------------------------------------------------
    Tabs
    -------------------------------------------------------------------------- */
@@ -2860,6 +2867,15 @@
 
 .icon-action--danger:hover {
   color: #8c1d17;
+}
+
+.icon-action[disabled] {
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.icon-action[disabled]:hover {
+  color: var(--color-disabled-text);
 }
 
 .grid-footer {

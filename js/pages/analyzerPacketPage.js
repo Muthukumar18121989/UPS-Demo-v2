@@ -627,7 +627,7 @@
       ]);
     }
 
-    /** Filter row shared by Adjustments and Other Terms: scenario picker plus Reset. */
+    /** Filter row shared by Adjustments: scenario picker plus Reset. */
     function scenarioResetFilters() {
       return el('div', { className: 'card' }, [
         el('div', { className: 'view-filters' }, [
@@ -638,6 +638,36 @@
               options: scenarios.map(function (scenario) {
                 return { value: scenario.name, label: scenario.name };
               })
+            })
+          ]),
+          C.Button({
+            label: 'Reset',
+            variant: 'ghost',
+            icon: DA.icons.refresh(15),
+            iconPosition: 'end'
+          })
+        ])
+      ]);
+    }
+
+    /** Filter row for Other Terms: scenario and bid pickers plus Reset. */
+    function otherTermsFilters() {
+      return el('div', { className: 'card' }, [
+        el('div', { className: 'view-filters' }, [
+          el('div', { className: 'view-filters__field' }, [
+            C.SelectField({
+              label: 'Choose Scenario',
+              value: scenarios[0] && scenarios[0].name,
+              options: scenarios.map(function (scenario) {
+                return { value: scenario.name, label: scenario.name };
+              })
+            })
+          ]),
+          el('div', { className: 'view-filters__field' }, [
+            C.SelectField({
+              label: 'Choose Bid',
+              value: customer + ' MAIN',
+              options: accountOptions()
             })
           ]),
           C.Button({
@@ -718,7 +748,7 @@
     /** Other Terms > Dim Divisor: the DIM weight divisor set per service. */
     function dimDivisorView() {
       return el('div', {}, [
-        scenarioResetFilters(),
+        otherTermsFilters(),
         el('div', { style: { padding: '0 var(--space-4) var(--space-4)' } }, [
           C.Button({ label: 'Add Service', icon: DA.icons.plusCircle(16) })
         ]),
@@ -734,13 +764,34 @@
               flatLabelColumn('mode', 'Mode', '110px'),
               flatLabelColumn('serviceGroup', 'Service Group', '190px'),
               { key: 'incentiveType', label: 'Incentive Type', width: '150px' },
-              numeric('divisor', 'Dim Weight Divisor', { width: '170px' }),
               {
-                key: 'structureDetails',
-                label: 'Structure Details',
+                key: 'incentiveAmount',
+                label: 'Incentive Amount',
                 width: '160px',
+                // The threshold bands behind the divisor code live in the
+                // Details dialog, not as a flat figure on this row.
+                render: function (row) {
+                  return el('a', {
+                    className: 'link-with-icon',
+                    attrs: { href: '#structure-details-' + row.serviceGroup },
+                    on: {
+                      click: function (event) {
+                        event.preventDefault();
+                        DA.dialogs.DimDivisorDetailsDialog(row).open();
+                      }
+                    }
+                  }, [el('span', { text: 'Structure Details' }), DA.icons.chevronRight(14, '')]);
+                }
+              },
+              {
+                key: 'remove',
+                label: '',
+                width: '56px',
                 render: function () {
-                  return el('a', { text: 'Structure Details', attrs: { href: '#structure-details' } });
+                  return el('button', {
+                    className: 'icon-action icon-action--danger u-tap-target',
+                    attrs: { type: 'button', 'aria-label': 'Remove service' }
+                  }, [DA.icons.trash(14)]);
                 }
               }
             ],
@@ -750,7 +801,10 @@
       ]);
     }
 
-    /** Other Terms: Dim Divisor is built; Minimums has no reference screen yet. */
+    /**
+     * Other Terms: Dim Divisor is built; Published Fuel Surcharge has no
+     * reference screen yet.
+     */
     function otherTermsView() {
       return el('div', { className: 'card' }, [
         C.Tabs({
@@ -758,7 +812,11 @@
           value: 'dim-divisor',
           items: [
             { id: 'dim-divisor', label: 'Dim Divisor', render: dimDivisorView },
-            { id: 'minimums', label: 'Minimums', render: emptyView('Minimum') }
+            {
+              id: 'published-fuel-surcharge',
+              label: 'Published Fuel Surcharge',
+              render: emptyView('Published Fuel Surcharge')
+            }
           ]
         })
       ]);

@@ -103,6 +103,10 @@ textarea:focus-visible,
   white-space: nowrap;
 }
 
+.u-italic {
+  font-style: italic;
+}
+
 /*
  * Extends an icon-only control to the WCAG 2.2 minimum target without
  * changing what is drawn: the pseudo-element carries the extra hit area, so
