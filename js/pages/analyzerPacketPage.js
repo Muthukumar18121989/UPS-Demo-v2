@@ -348,12 +348,17 @@
       ]);
     }
 
-    /** The lane keys every shipping profile view opens with. */
+    /** The lane key every shipping profile view opens with: Movement, Mode and
+     * (the raw) Core Service joined into one Core Service label column. */
     function profileKeyColumns() {
       return [
-        { key: 'movement', label: 'Movement', width: '110px', className: 'is-rowhead' },
-        { key: 'mode', label: 'Mode', width: '115px', className: 'is-rowhead' },
-        { key: 'service', label: 'Core Service', width: '175px', className: 'is-rowhead' },
+        {
+          key: 'coreService',
+          label: 'Core Service',
+          width: '220px',
+          className: 'is-rowhead',
+          render: function (row) { return [row.movement, row.mode, row.service].join('-'); }
+        },
         numeric('zone', 'Zone', { width: '85px' }),
         numeric('lane', 'Lane', { width: '85px' })
       ];
@@ -368,11 +373,7 @@
             embedded: true,
             headerTone: 'warm',
             tinted: true,
-            expandKey: 'service',
-            // Movement, Mode and Core Service together identify the lane --
-            // frozen as a group, so they stay in view alongside whichever
-            // figures the reader has scrolled to.
-            freezeColumns: 3,
+            expandKey: 'coreService',
             // A lane opens onto the zones it shipped in.
             getChildren: function (row) {
               if (row.zone !== '-') return null;
