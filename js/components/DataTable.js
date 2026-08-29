@@ -85,11 +85,25 @@
       return children && children.length ? children : null;
     }
 
-    function cell(column, row, depth, index) {
+    /**
+     * `spanRepeats` columns (a shared label like Accessorial Type left
+     * blank on every row after the one that names it) read as one merged
+     * field spanning the whole run rather than a real rowspan: this cell's
+     * own bottom border is dropped whenever the row right after it is
+     * still part of the same run, i.e. that column is blank there too.
+     * The border only reappears on the run's last row, where the value
+     * changes again.
+     */
+    function spansIntoNext(column, nextRow) {
+      return Boolean(column.spanRepeats && nextRow && !nextRow[column.key]);
+    }
+
+    function cell(column, row, depth, index, nextRow) {
       var content = column.render ? column.render(row) : row[column.key];
       var isNode = content instanceof Node;
       var children = column.key === options.expandKey ? childrenOf(row) : null;
       var frozen = frozenStyle(index);
+      var spanContinues = spansIntoNext(column, nextRow);
 
       if (column.key === options.expandKey) {
         var label = isNode ? content : el('span', { text: content == null ? '' : String(content) });
@@ -128,7 +142,8 @@
 
       var plain = content == null ? '' : String(content);
       return el('td', {
-        className: (column.className || '') + (frozen ? ' ' + frozen.className : ''),
+        className: (column.className || '') + (frozen ? ' ' + frozen.className : '') +
+          (spanContinues ? ' is-span-continuation' : ''),
         text: isNode ? null : content,
         // Only a cell that actually holds text carries a tooltip; an empty
         // one was producing an empty tooltip on hover.
@@ -137,15 +152,29 @@
       }, isNode ? [content] : null);
     }
 
-    function addRow(row, depth) {
+    function addRow(row, depth, nextRow) {
       body.appendChild(el('tr', {
         className: (options.rowClassName ? options.rowClassName(row) : '') +
           (depth ? ' is-child-row' : '')
-      }, columns.map(function (column, index) { return cell(column, row, depth, index); })));
+      }, columns.map(function (column, index) { return cell(column, row, depth, index, nextRow); })));
+    }
 
-      if (open.indexOf(row) !== -1) {
-        (childrenOf(row) || []).forEach(function (child) { addRow(child, depth + 1); });
+    /**
+     * Rows in final render order, each paired with the depth it renders at
+     * -- collected up front (rather than appended as each is visited) so a
+     * spanRepeats column can look at the row right after it before that
+     * row's own <tr> exists yet.
+     */
+    function flatten() {
+      var flat = [];
+      function visit(row, depth) {
+        flat.push({ row: row, depth: depth });
+        if (open.indexOf(row) !== -1) {
+          (childrenOf(row) || []).forEach(function (child) { visit(child, depth + 1); });
+        }
       }
+      rows.forEach(function (row) { visit(row, 0); });
+      return flat;
     }
 
     function render() {
@@ -166,7 +195,11 @@
       }
       table.classList.remove('data-table--empty');
       if (!colgroup.parentNode) table.insertBefore(colgroup, head);
-      rows.forEach(function (row) { addRow(row, 0); });
+      var flat = flatten();
+      flat.forEach(function (entry, index) {
+        var next = flat[index + 1];
+        addRow(entry.row, entry.depth, next ? next.row : null);
+      });
     }
 
 

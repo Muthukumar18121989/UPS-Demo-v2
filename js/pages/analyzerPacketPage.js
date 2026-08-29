@@ -475,8 +475,14 @@
     }
 
     function accessorialView() {
-      function labelColumn(key, label, width) {
-        return { key: key, label: label, width: width || '135px', className: 'is-rowhead' };
+      function labelColumn(key, label, width, spanRepeats) {
+        return {
+          key: key,
+          label: label,
+          width: width || '135px',
+          className: 'is-rowhead',
+          spanRepeats: spanRepeats
+        };
       }
 
       return el('div', {}, [
@@ -490,8 +496,11 @@
             expandKey: 'detail',
             getChildren: function (row) { return row.children; },
             columns: [
-              labelColumn('type', 'Accessorial Type'),
-              labelColumn('group', 'Group'),
+              // Accessorial Type and Group repeat the same value down every
+              // row a charge breaks into -- the children carry it blank
+              // rather than restate it, so it reads as one merged field.
+              labelColumn('type', 'Accessorial Type', null, true),
+              labelColumn('group', 'Group', null, true),
               labelColumn('detail', 'Detail', '235px'),
               numeric('totalUnits', 'Total Units', { link: true, width: '120px' }),
               numeric('pctTotalVolume', '% Total Volume', { link: true, width: '150px' }),
@@ -540,8 +549,15 @@
     }
 
     function accountsView() {
-      function labelColumn(key, label, width, render) {
-        return { key: key, label: label, width: width || '160px', className: 'is-rowhead', render: render };
+      function labelColumn(key, label, width, render, spanRepeats) {
+        return {
+          key: key,
+          label: label,
+          width: width || '160px',
+          className: 'is-rowhead',
+          render: render,
+          spanRepeats: spanRepeats
+        };
       }
 
       return el('div', {}, [
@@ -559,10 +575,13 @@
             freezeColumns: 3,
             getChildren: function (row) { return row.children; },
             columns: [
+              // Parent and Sub Parent repeat down every account under
+              // them, left blank on the children the same way Accessorial
+              // Type/Group are -- one merged field, not a fresh blank cell.
               labelColumn('parent', 'Parent', '170px', function (row) {
                 return row.parent ? withCustomer(row.parent) : '';
-              }),
-              labelColumn('subParent', 'Sub Parent', '150px'),
+              }, true),
+              labelColumn('subParent', 'Sub Parent', '150px', null, true),
               labelColumn('accountNumber', 'Account Number', '170px'),
               numeric('volume', 'Volume', { link: true, width: '110px' }),
               numeric('adv', 'ADV', { link: true, width: '100px' }),

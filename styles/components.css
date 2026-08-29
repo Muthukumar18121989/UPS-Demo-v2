@@ -451,6 +451,13 @@
   border-bottom: 0;
 }
 
+/* A spanRepeats column's shared label reads as one field spanning the
+   whole run of rows it covers, not a fresh cell repeated (blank) on each
+   -- no line between rows still inside that run. */
+.data-table tbody td.is-span-continuation {
+  border-bottom: 0;
+}
+
 .data-table tbody td:last-child {
   border-right: 0;
 }
