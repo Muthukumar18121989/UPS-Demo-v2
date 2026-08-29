@@ -1,12 +1,10 @@
 /**
  * SummaryPanel — collapsible record header.
  *
- * Collapsed it shows the identifying fields inline; expanded it adds the full
- * detail grid. Both use the same label/value pair so the record reads
- * consistently either way. `columns` lays fields out side by side in their
- * own stack; `rows` renders after them as full-width lines, for a value too
- * long to share a column (see Detail's `wide`) or one that joins two related
- * fields into a single line.
+ * Collapsed it shows a single identifying title line; expanded it adds the
+ * detail fields, grouped into titled sections (Packet Information, Customer
+ * Information, User Information) so a long record reads as a few short groups
+ * rather than one flat list.
  */
 (function (DA) {
   'use strict';
@@ -22,8 +20,7 @@
    * treatment a status or tag gets elsewhere in the product. `wide: true`
    * spans the value across the whole row rather than sitting in one column,
    * for a value long enough to wrap onto two or three lines (the packet
-   * description) or one made of two related fields joined into one line
-   * (a date range, a pair of optional linked-record IDs).
+   * description).
    */
   DA.components.Detail = function Detail(options) {
     options = options || {};
@@ -39,31 +36,40 @@
     ]);
   };
 
+  /** One titled, boxed group of fields inside the expanded body. */
+  function section(group) {
+    return el('div', { className: 'summary-panel__section' }, [
+      el('p', { className: 'summary-panel__section-title', text: group.title }),
+      el('div', {
+        className: 'summary-panel__section-grid',
+        style: { '--summary-panel-columns': String(group.columns || 3) }
+      }, (group.fields || []).map(function (field) {
+        return DA.components.Detail(field);
+      }))
+    ]);
+  }
+
   DA.components.SummaryPanel = function SummaryPanel(options) {
     options = options || {};
     uid += 1;
     var bodyId = 'summary-panel-' + uid;
     var expanded = options.expanded !== false;
-
-    var columnNodes = (options.columns || []).map(function (column) {
-      return el('div', { className: 'summary-panel__column' }, column.map(function (item) {
-        return DA.components.Detail(item);
-      }));
-    });
-    var rowNodes = (options.rows || []).map(function (item) {
-      return DA.components.Detail(item);
-    });
-    // Rows read as a different kind of field (free text, not a short
-    // value), so a rule sets them off from the columns above -- only drawn
-    // when there's something on both sides of it.
-    var divider = columnNodes.length && rowNodes.length
-      ? [el('hr', { className: 'summary-panel__divider' })]
-      : [];
+    var headline = options.headline || {};
 
     var body = el('div', {
       className: 'summary-panel__body',
       attrs: { id: bodyId, hidden: !expanded }
-    }, columnNodes.concat(divider, rowNodes));
+    }, (options.sections || []).map(section));
+
+    var titleParts = [
+      el('span', { className: 'detail__label', text: headline.label + ':' }),
+      ' ',
+      el('span', { className: 'summary-panel__title-value', text: headline.value })
+    ];
+    if (headline.secondary) {
+      titleParts.push(' — ');
+      titleParts.push(el('span', { className: 'summary-panel__title-value', text: headline.secondary }));
+    }
 
     var header = el('button', {
       className: 'summary-panel__header',
@@ -81,11 +87,7 @@
       }
     }, [
       DA.icons.chevronRight(16, 'summary-panel__icon'),
-      el('span', { className: 'summary-panel__header-items' },
-        (options.headline || []).map(function (item) {
-          return DA.components.Detail(item);
-        })
-      )
+      el('span', { className: 'summary-panel__title' }, titleParts)
     ]);
 
     return el('section', {

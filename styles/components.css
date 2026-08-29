@@ -1189,12 +1189,15 @@
   text-align: left;
 }
 
-.summary-panel__header-items {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+.summary-panel__title {
   flex: 1 1 auto;
   min-width: 0;
+  font-size: var(--font-size-sm);
+}
+
+.summary-panel__title-value {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .summary-panel__icon {
@@ -1207,12 +1210,12 @@
 }
 
 .summary-panel__body {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   /* Matches the header row's own left edge exactly: its padding-left
      (--space-5) plus the disclosure icon (16px) plus its gap (--space-3),
-     so "Analyzer Packet ID" and the rows below it share one left edge
+     so the first section and the header title share one left edge
      instead of the icon's width leaving them out of line. */
   padding: var(--space-4) var(--space-5) var(--space-5) calc(var(--space-5) + 16px + var(--space-3));
   border-top: 1px solid var(--color-border-subtle);
@@ -1222,26 +1225,31 @@
   display: none;
 }
 
-.summary-panel__column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
+.summary-panel__section {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  padding: var(--space-4) var(--space-5);
 }
 
-/* A row appended after the columns (Detail's `wide`): spans both, for a
-   value long enough to wrap onto two or three lines rather than being
-   squeezed into one column's width. */
+.summary-panel__section-title {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-link);
+  margin: 0 0 var(--space-3);
+}
+
+.summary-panel__section-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--summary-panel-columns, 3), minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
+}
+
+/* Detail's `wide`: spans every column, for a value long enough to wrap
+   onto two or three lines rather than being squeezed into one column. */
 .detail--wide {
   grid-column: 1 / -1;
-}
-
-.summary-panel__divider {
-  grid-column: 1 / -1;
-  height: 1px;
-  margin: 0;
-  border: 0;
-  background-color: var(--color-border-subtle);
 }
 
 /* Label/value pair — inline on the header row, stacked in the detail grid. */
