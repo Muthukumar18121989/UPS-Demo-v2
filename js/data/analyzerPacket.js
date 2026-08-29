@@ -113,16 +113,21 @@
    * Every shipping profile view lists the same lanes in the same order, so the
    * keys live once and each view supplies only its own figures.
    */
+  // Movement/mode/service spelled out in full, the same convention Services
+  // and Weight & Cube already read (e.g. 'N-Next Day Air'), just split
+  // across their own Movement/Mode/Core Service columns here instead of
+  // folded into one field -- Cost Details/Zone read as the same service
+  // list, not a separate short-code one.
   var PROFILE_KEYS = [
-    { movement: 'N', mode: 'AIR', service: '1DA', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'AIR', service: '1DM', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'AIR', service: '1DP', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'AIR', service: '2DA', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'AIR', service: '2DM', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'AIR', service: '3DS', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'GROUND', service: 'GND', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'GROUND SAV', service: 'USG', zone: '-', lane: '-' },
-    { movement: 'N', mode: 'GROUND SAV', service: 'USL', zone: '-', lane: '-' }
+    { movement: 'Domestic', mode: 'Air', service: 'Next Day Air', zone: '-', lane: '-' },
+    { movement: 'Domestic', mode: 'Air', service: 'Next Day Air Early', zone: '-', lane: '-' },
+    { movement: 'Domestic', mode: 'Air', service: 'Next Day Air Saver', zone: '-', lane: '-' },
+    { movement: 'Domestic', mode: 'Air', service: '2nd Day Air', zone: '-', lane: '-' },
+    { movement: 'Domestic', mode: 'Air', service: '2nd Day Air A.M.', zone: '-', lane: '-' },
+    { movement: 'Domestic', mode: 'Air', service: '3 Day Select', zone: '-', lane: '-' },
+    { movement: 'Domestic', mode: 'Ground', service: 'Ground', zone: '-', lane: '-' },
+    { movement: 'Domestic', mode: 'Ground', service: 'Ground Saver > 1 lbs', zone: '-', lane: '-' },
+    { movement: 'Domestic', mode: 'Ground', service: 'Ground Saver < 1 lbs', zone: '-', lane: '-' }
   ];
 
   function withKeys(figures) {

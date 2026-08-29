@@ -353,7 +353,7 @@
       return [
         { key: 'movement', label: 'Movement', width: '110px', className: 'is-rowhead' },
         { key: 'mode', label: 'Mode', width: '115px', className: 'is-rowhead' },
-        { key: 'service', label: 'Core Service', width: '175px', className: 'is-rowhead' },
+        { key: 'service', label: 'Core Service', width: '220px', className: 'is-rowhead' },
         numeric('zone', 'Zone', { width: '85px' }),
         numeric('lane', 'Lane', { width: '85px' })
       ];
