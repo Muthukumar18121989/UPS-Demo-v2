@@ -210,7 +210,11 @@
     return viewport;
   };
 
-  /** Record link cell: identifier + chevron affordance, one hit target. */
+  /**
+   * Record link cell: identifier + chevron affordance, one hit target.
+   * `onClick` navigates in place (event.preventDefault() first) instead of
+   * following `href`, for records opened without a real route behind them.
+   */
   DA.components.RecordLink = function RecordLink(options) {
     return el(
       'a',
@@ -219,7 +223,10 @@
         attrs: {
           href: options.href || '#',
           'aria-label': options.ariaLabel || false
-        }
+        },
+        on: options.onClick
+          ? { click: function (event) { event.preventDefault(); options.onClick(event); } }
+          : {}
       },
       [
         el('span', { className: 'record-link__label', text: options.label }),

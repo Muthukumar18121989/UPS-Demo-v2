@@ -21,7 +21,11 @@
         return DA.pages.AnalyzerPacketsPage({
           rows: DA.data.analyzerPackets,
           currentUser: DA.session.currentUser,
-          onNewPacket: function () { navigate('customer-details'); }
+          onNewPacket: function () { navigate('customer-details'); },
+          onOpenPacket: function (row) {
+            current.packet = DA.data.packetFromRow(row, DA.session.currentUser);
+            navigate('analyzer-packet');
+          }
         });
       }
     },
@@ -47,7 +51,20 @@
           onOpenAccounts: function (bid, scenario) {
             navigate('account-association', { bid: bid, scenario: scenario });
           },
-          onProceed: function () { navigate('analyzer-packet'); }
+          onProceed: function () {
+            // Reaching the Analyzer Packet page is what makes a packet real
+            // enough to list -- add it once, so it shows under My Analyzers
+            // from here on without duplicating on a repeat visit.
+            var alreadyListed = current.packet && DA.data.analyzerPackets.some(function (row) {
+              return row.packetId === current.packet.packetId;
+            });
+            if (current.packet && !alreadyListed) {
+              DA.data.analyzerPackets.unshift(
+                DA.data.summarizePacket(current.packet, DA.session.currentUser)
+              );
+            }
+            navigate('analyzer-packet');
+          }
         });
       }
     },
