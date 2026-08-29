@@ -868,7 +868,8 @@
                     packet: packet,
                     numeric: numeric,
                     filters: pricingFilters,
-                    emptyView: emptyView
+                    emptyView: emptyView,
+                    updatePacketAction: updatePacketAction
                   })
                 ])
               ]);

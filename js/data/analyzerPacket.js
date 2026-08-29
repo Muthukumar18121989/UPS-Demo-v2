@@ -247,29 +247,35 @@
     ]
   };
 
-  /** Accessorial charges under pricing terms, grouped by charge family. */
-  DA.data.pricingAccessorials = [
-    { group: 'Ground Saver', detail: 'Ground Saver < 1 lbs', totalUnits: '1495.0', pctTotalVolume: '1.7%', adu: '299.0', grossRevenue: '$ 5,253.00', netRevenue: '$ 1,868.00', discount: '64.4%', rate: '$ 3.51' },
-    { group: 'Other Charges', detail: 'Third Party Billing Service', totalUnits: '92.0', pctTotalVolume: '0.1%', adu: '18.4', grossRevenue: '$ 576.00', netRevenue: '$ 114.00', discount: '80.2%', rate: '$ 6.27' },
-    { group: 'Other Pickup and Delivery', detail: 'Saturday Air Processing Fee (Saturday)', totalUnits: '26.0', pctTotalVolume: '0.0%', adu: '5.2', grossRevenue: '$ 416.00', netRevenue: '$ 208.00', discount: '50.0%', rate: '$ 16.00' },
-    { group: 'Saturday Delivery', detail: 'Saturday Delivery', totalUnits: '5.0', pctTotalVolume: '0.0%', adu: '1.0', grossRevenue: '$ 80.00', netRevenue: '$ 40.00', discount: '50.0%', rate: '$ 16.00' },
-    { group: 'Return Labels', detail: 'Electronic Label', totalUnits: '360.0', pctTotalVolume: '0.4%', adu: '72.0', grossRevenue: '$ 414.00', netRevenue: '$ 205.00', discount: '50.4%', rate: '$ 1.15' },
-    { group: 'Return Labels', detail: 'Print Return Label', totalUnits: '39.0', pctTotalVolume: '0.0%', adu: '7.8', grossRevenue: '$ 45.00', netRevenue: '$ 22.00', discount: '50.4%', rate: '$ 1.15' },
-    { group: 'Additional Handling', detail: 'Additional Handling Length', totalUnits: '3.0', pctTotalVolume: '0.0%', adu: '0.6', grossRevenue: '$ 107.00', netRevenue: '$ 80.00', discount: '25.0%', rate: '$ 35.67' },
-    { group: 'Additional Handling', detail: 'Additional Handling Length + Girth', totalUnits: '18.0', pctTotalVolume: '0.0%', adu: '3.6', grossRevenue: '$ 685.00', netRevenue: '$ 514.00', discount: '25.0%', rate: '$ 38.04' },
-    { group: 'Additional Handling', detail: 'Additional Handling Packaging', totalUnits: '15.0', pctTotalVolume: '0.0%', adu: '3.0', grossRevenue: '$ 477.00', netRevenue: '$ 358.00', discount: '25.0%', rate: '$ 31.78' },
-    { group: 'Additional Handling', detail: 'Additional Handling Weight', totalUnits: '45.0', pctTotalVolume: '0.1%', adu: '9.0', grossRevenue: '$ 2,430.00', netRevenue: '$ 1,822.00', discount: '25.0%', rate: '$ 53.99' },
-    { group: 'Additional Handling', detail: 'Additional Handling Width', totalUnits: '1.0', pctTotalVolume: '0.0%', adu: '0.2', grossRevenue: '$ 38.00', netRevenue: '$ 29.00', discount: '25.0%', rate: '$ 38.50' },
-    { group: 'Delivery Area', detail: 'Delivery Area Commercial', totalUnits: '729.0', pctTotalVolume: '0.8%', adu: '145.8', grossRevenue: '$ 3,280.00', netRevenue: '$ 1,312.00', discount: '60.0%', rate: '$ 4.50' },
+  /**
+   * Accessorial incentive plans under Pricing Terms, grouped by charge
+   * family exactly as the reference screen's cards nest them: most
+   * families are a single card (nothing to open onto yet, so `rows` is
+   * left out and the card opens onto the empty table state); Delivery Area
+   * alone opens onto a Delivery Area Commercial card carrying the actual
+   * incentive grid.
+   */
+  DA.data.pricingAccessorialTree = [
+    { label: 'Fuel Surcharge' },
+    { label: 'Transportation Charges' },
+    { label: 'Other Charges' },
     {
-      group: 'Delivery Area', detail: 'Delivery Area Commercial Extended',
+      label: 'Delivery Area',
       expanded: true,
-      totalUnits: '175.0', pctTotalVolume: '0.2%', adu: '35.0',
-      grossRevenue: '$ 997.00', netRevenue: '$ 399.00', discount: '60.0%', rate: '$ 5.70',
       children: [
-        { group: '', detail: 'Next Day Air', totalUnits: '9.0', pctTotalVolume: '0.0%', adu: '1.8', grossRevenue: '$ 51.00', netRevenue: '$ 21.00', discount: '60.0%', rate: '$ 5.70' },
-        { group: '', detail: 'Ground', totalUnits: '164.0', pctTotalVolume: '0.2%', adu: '32.8', grossRevenue: '$ 935.00', netRevenue: '$ 374.00', discount: '60.0%', rate: '$ 5.70' },
-        { group: '', detail: '2nd Day Air', totalUnits: '1.0', pctTotalVolume: '0.0%', adu: '0.2', grossRevenue: '$ 6.00', netRevenue: '$ 2.00', discount: '60.0%', rate: '$ 5.70' }
+        {
+          label: 'Delivery Area Commercial',
+          expanded: true,
+          rows: [
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Early', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air', adu: '0.42', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day', service: 'Next Day Air Saver', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air A.M.', adu: '0.00', nrpp: '$ 0.00', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '2nd Day', service: '2nd Day Air', adu: '0.40', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Air', serviceGroup: '3rd Day', service: '3 Day Select', adu: '0.03', nrpp: '$ 1.80', incentiveType: '% Off', incentiveAmount: '60.00%' },
+            { movement: 'Domestic', mode: 'Ground', serviceGroup: 'Ground', service: 'Ground', adu: '1.68', nrpp: '$ 1.82', incentiveType: '% Off', incentiveAmount: '60.00%' }
+          ]
+        }
       ]
     }
   ];

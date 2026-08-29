@@ -2697,6 +2697,34 @@
   padding-top: var(--space-4);
 }
 
+/* Accessorials' charge-family cards: the trigger reads as a small caps
+   label (Fuel Surcharge, Delivery Area) rather than a full-size heading,
+   the same treatment a table's own section titles get. */
+.accordion--charges > .accordion__trigger {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.accordion--charges > .accordion__trigger:hover {
+  color: var(--color-text-link);
+}
+
+/* Nested cards (Delivery Area > Delivery Area Commercial) stack with the
+   same gap a top-level list of them would. */
+.accordion--charges .accordion--charges {
+  margin-top: var(--space-3);
+}
+
+.accessorial-tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
 /* Row-label column, held visually apart from the figures beside it. */
 .data-table td.is-rowhead,
 .data-table th.is-rowhead {
