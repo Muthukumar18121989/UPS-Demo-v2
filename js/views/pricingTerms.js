@@ -229,7 +229,10 @@
     var C = DA.components;
     return C.Accordion({
       title: node.label,
-      className: 'accordion--plan',
+      // The last level -- the one actually holding the table, not another
+      // branch to open -- gets its own class so only it, not every
+      // expanded level above it, picks up the "you're here" highlight.
+      className: 'accordion--plan' + (node.children ? '' : ' accordion--plan-leaf'),
       expanded: Boolean(node.expanded),
       renderContent: node.children
         ? function () {

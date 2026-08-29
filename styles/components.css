@@ -2827,6 +2827,13 @@
   display: none;
 }
 
+/* The open leaf reads as the one you're actually looking at -- same blue
+   the rest of the app uses for a link, not just on hover like every other
+   level, but for as long as it stays expanded. */
+.accordion--plan-leaf > .accordion__trigger[aria-expanded="true"] {
+  color: var(--color-text-link);
+}
+
 .plan-detail {
   display: flex;
   flex-direction: column;
