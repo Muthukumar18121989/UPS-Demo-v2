@@ -153,7 +153,7 @@
 
       while (rows.length < 2) rows.push({ scenario: '-' });
 
-      var difference = { scenario: '', difference: true };
+      var difference = { scenario: 'Change', difference: true };
       if (picked.length === 2) {
         var a = figures[picked[0].name] || {};
         var b = figures[picked[1].name] || {};
@@ -172,7 +172,6 @@
           caption: 'Scenario comparison',
           embedded: true,
           headerTone: 'plain',
-          dividers: true,
           rowClassName: function (row) { return row.difference ? 'is-difference' : ''; },
           columns: [
             { key: 'scenario', label: 'Scenario', width: '150px' },

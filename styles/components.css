@@ -2259,23 +2259,18 @@
 }
 
 /* --------------------------------------------------------------------------
-   DataTable — plain header, column dividers, tinted body
+   DataTable — plain header, tinted body
    -------------------------------------------------------------------------- */
 
-/* Summary tables read as part of their card: no dark bar, just weight. */
+/* Summary tables get their own fill -- the brand teal, not the report
+   tables' dark brown, so a reader can tell at a glance which kind of table
+   they're looking at. */
 .data-table--plain thead th {
-  background-color: var(--color-surface);
-  color: var(--color-text-primary);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
   font-weight: var(--font-weight-bold);
-  border-bottom: 1px solid var(--color-border);
-  /* The light-on-dark divider above would be invisible here; same idea,
-     adapted for a light header. */
-  border-right-color: var(--color-border-subtle);
-}
-
-.data-table--dividers thead th + th,
-.data-table--dividers tbody td + td {
-  border-left: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-primary-hover);
+  border-right-color: var(--color-primary-hover);
 }
 
 .data-table--tinted tbody td {
