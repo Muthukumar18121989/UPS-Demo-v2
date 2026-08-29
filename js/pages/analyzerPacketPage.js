@@ -594,6 +594,29 @@
       ].concat(trailing));
     }
 
+    /** Other Terms' own filter row: Choose Scenario and Choose Bid together,
+        unlike Rate Charts/Adjustments' scenario-only picker. */
+    function scenarioAndBidPicker(trailing) {
+      return el('div', { className: 'view-filters' }, [
+        el('div', { className: 'view-filters__field' }, [
+          C.SelectField({
+            label: 'Choose Scenario',
+            value: scenarios[0] && scenarios[0].name,
+            options: scenarios.map(function (scenario) {
+              return { value: scenario.name, label: scenario.name };
+            })
+          })
+        ]),
+        el('div', { className: 'view-filters__field' }, [
+          C.SelectField({
+            label: 'Choose Bid',
+            value: customer + ' MAIN',
+            options: accountOptions()
+          })
+        ])
+      ].concat(trailing));
+    }
+
     function rateChartsView() {
       return el('div', { className: 'card' }, [
         scenarioPicker([
@@ -690,13 +713,91 @@
 
     /* ---- Other Terms tab --------------------------------------------------- */
 
-    /** Other Terms > Dim Divisor: the same scenario picker + table shape as
-        Adjustments and Rate Charts, with an Add Service link ahead of the
-        table (there is nothing here to edit in place, unlike Adjustments'
-        Dollar Amount). */
+    /**
+     * Structure Details: the drawer a Dim Divisor row's Incentive Amount
+     * opens onto, since a divisor isn't one flat figure but a small table of
+     * cubic-volume threshold bands. All rows share the same demo bands --
+     * there is only ever one code and one threshold band recorded.
+     */
+    function openStructureDetails(trigger) {
+      var codeField = C.SelectField({
+        label: 'Select Dim Divisor Code',
+        value: DA.data.dimDivisorCodes[0],
+        options: DA.data.dimDivisorCodes.map(function (code) {
+          return { value: code, label: code };
+        })
+      });
+
+      var grid = el('table', { className: 'matrix' }, [
+        el('caption', { className: 'u-visually-hidden', text: 'Cubic volume threshold bands' }),
+        el('thead', {}, [
+          el('tr', {}, [
+            el('th', { attrs: { scope: 'colgroup', colspan: 2 }, text: 'Cubic Volume Threshold' }),
+            el('th', { attrs: { scope: 'col' }, text: 'Dim Weight Divisor' }),
+            el('th', { attrs: { scope: 'col' }, text: '' })
+          ]),
+          el('tr', {}, [
+            el('th', { attrs: { scope: 'col' }, text: 'Volume (cu.in)' }),
+            el('th', { attrs: { scope: 'col' }, text: '' }),
+            el('th', { attrs: { scope: 'col' }, text: 'Zone : All' }),
+            el('th', { attrs: { scope: 'col' }, text: '' })
+          ])
+        ]),
+        el('tbody', {}, DA.data.dimDivisorThreshold.map(function (band, index) {
+          return el('tr', {}, [
+            el('td', { className: 'matrix__cell' }, [editableAmount(band.volume)]),
+            el('td', { className: 'matrix__cell', style: { 'font-style': 'italic' } }, [editableAmount('or more')]),
+            el('td', { className: 'matrix__cell' }, [editableAmount(band.divisor)]),
+            el('td', {}, [
+              el('button', {
+                className: 'icon-action icon-action--danger u-tap-target',
+                attrs: {
+                  type: 'button',
+                  'aria-label': 'Remove threshold band ' + (index + 1),
+                  // The only band can't be removed -- a divisor needs at
+                  // least one to mean anything.
+                  disabled: DA.data.dimDivisorThreshold.length < 2
+                }
+              }, [DA.icons.trash(14)])
+            ])
+          ]);
+        }))
+      ]);
+
+      var drawer = C.Modal({
+        variant: 'drawer',
+        title: 'Details',
+        returnFocusTo: trigger,
+        body: el('div', { className: 'drawer-form' }, [
+          codeField,
+          el('div', { className: 'grid-scroll scroll-area' }, [grid]),
+          el('a', { className: 'link-with-icon', attrs: { href: '#add-threshold-band' } }, [
+            DA.icons.plusCircle(18),
+            el('span', { text: 'Add threshold band' })
+          ]),
+          el('div', { className: 'drawer-form__actions' }, [
+            C.Button({
+              label: 'Apply',
+              variant: 'primary',
+              shape: 'pill',
+              icon: DA.icons.chevronRight(14, ''),
+              iconPosition: 'end',
+              onClick: function () { drawer.close(); }
+            }),
+            C.Button({ label: 'Cancel', variant: 'link', onClick: function () { drawer.close(); } })
+          ])
+        ])
+      });
+
+      drawer.open();
+    }
+
+    /** Other Terms > Dim Divisor: Choose Scenario/Choose Bid over a table
+        whose Incentive Amount opens Structure Details rather than showing a
+        flat figure, plus a delete action per row. */
     function dimDivisorPanel() {
       return el('div', {}, [
-        scenarioPicker(C.Button({
+        scenarioAndBidPicker(C.Button({
           label: 'Reset',
           variant: 'ghost',
           icon: DA.icons.refresh(15),
@@ -714,20 +815,37 @@
           headerTone: 'warm',
           tinted: true,
           columns: [
-            { key: 'movement', label: 'Movement', width: '140px', className: 'is-rowhead' },
-            { key: 'mode', label: 'Mode', width: '120px', className: 'is-rowhead' },
+            { key: 'movement', label: 'Movement', width: '130px', className: 'is-rowhead' },
+            { key: 'mode', label: 'Mode', width: '110px', className: 'is-rowhead' },
             { key: 'serviceGroup', label: 'Service Group', width: '190px' },
-            { key: 'incentiveType', label: 'Incentive Type', width: '170px' },
-            numeric('divisor', 'Dim Weight Divisor', { width: '170px' }),
+            { key: 'incentiveType', label: 'Incentive Type', width: '160px' },
             {
-              key: 'structureDetails',
-              label: 'Structure Details',
+              key: 'incentiveAmount',
+              label: 'Incentive Amount',
               width: '170px',
               render: function (row) {
-                return el('a', {
-                  text: 'Structure Details',
-                  attrs: { href: '#detail', 'aria-label': 'Structure details for ' + row.serviceGroup }
-                });
+                var link = el('a', {
+                  className: 'link-with-icon',
+                  attrs: { href: '#structure-details', 'aria-label': 'Structure details for ' + row.serviceGroup },
+                  on: {
+                    click: function (event) {
+                      event.preventDefault();
+                      openStructureDetails(link);
+                    }
+                  }
+                }, [el('span', { text: 'Structure Details' }), DA.icons.chevronRight(14, '')]);
+                return link;
+              }
+            },
+            {
+              key: 'remove',
+              label: '',
+              width: '60px',
+              render: function () {
+                return el('button', {
+                  className: 'icon-action icon-action--danger u-tap-target',
+                  attrs: { type: 'button', 'aria-label': 'Remove row' }
+                }, [DA.icons.trash(14)]);
               }
             }
           ],
@@ -736,14 +854,15 @@
       ]);
     }
 
-    /** Minimums has no reference screen yet -- the product's empty table
-        state, minus emptyView's own card since it already sits in one. */
-    function minimumsPanel() {
+    /** Published Fuel Surcharge has no reference screen yet -- the product's
+        empty table state, minus emptyView's own card since it already sits
+        in one. */
+    function publishedFuelSurchargePanel() {
       return C.DataTable({
-        caption: 'Minimum',
+        caption: 'Published Fuel Surcharge',
         embedded: true,
         headerTone: 'warm',
-        columns: [{ key: 'name', label: 'Minimum' }],
+        columns: [{ key: 'name', label: 'Published Fuel Surcharge' }],
         rows: [],
         emptyState: el('p', { className: 'table-empty', text: 'No data available.' })
       });
@@ -761,7 +880,7 @@
               value: 'dim-divisor',
               items: [
                 { id: 'dim-divisor', label: 'Dim Divisor', render: dimDivisorPanel },
-                { id: 'minimums', label: 'Minimums', render: minimumsPanel }
+                { id: 'published-fuel-surcharge', label: 'Published Fuel Surcharge', render: publishedFuelSurchargePanel }
               ]
             })
           ])

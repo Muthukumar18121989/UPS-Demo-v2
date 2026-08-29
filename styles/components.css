@@ -2933,6 +2933,14 @@
   color: #8c1d17;
 }
 
+/* The only threshold band in Structure Details can't be removed -- a
+   divisor needs at least one to mean anything. */
+.icon-action:disabled,
+.icon-action:disabled:hover {
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
 .grid-footer {
   display: flex;
   flex-wrap: wrap;

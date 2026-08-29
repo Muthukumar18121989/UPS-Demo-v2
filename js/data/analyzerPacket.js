@@ -359,16 +359,29 @@
     { movement: 'Export', mode: 'Air', serviceGroup: 'Worldwide', service: 'Worldwide Express Saver', basis: 'Per Package', amount: '$ 0.00' }
   ];
 
-  /** Rows behind Other Terms > Dim Divisor: the DIM weight divisor applied per service. */
+  /**
+   * Rows behind Other Terms > Dim Divisor. Incentive Amount opens the
+   * Structure Details drawer rather than showing a flat figure -- the
+   * divisor is itself a small table of cubic-volume threshold bands, kept
+   * in dimDivisorThreshold below.
+   */
   DA.data.dimDivisor = [
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisor: '194.0' }
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' },
+    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor' }
+  ];
+
+  /** The single code the Structure Details drawer's picker currently offers. */
+  DA.data.dimDivisorCodes = ['01 - Dim Weight Divisor'];
+
+  /** The cubic-volume threshold band(s) behind a Dim Divisor's Structure Details. */
+  DA.data.dimDivisorThreshold = [
+    { volume: '0.0', divisor: '194.0' }
   ];
 
   /** Rows behind Shipping Profiles > Service. */
