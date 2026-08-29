@@ -124,6 +124,59 @@
       return columns;
     }
 
+    /** Drawer: simulate a new bid into this scenario's table. */
+    function openSimulateBid(trigger) {
+      function updateContinueState() {
+        var ready = Boolean(bidNumberField.input.value.trim()) && Boolean(bidNameField.input.value.trim());
+        continueButton.disabled = !ready;
+      }
+
+      var bidNumberField = C.Field({ label: 'Enter Bid Number *', onInput: updateContinueState });
+      var bidNameField = C.Field({ label: 'Bid Name *', onInput: updateContinueState });
+
+      var continueButton = C.Button({
+        label: 'Continue',
+        variant: 'primary',
+        shape: 'pill',
+        icon: DA.icons.chevronRight(14, ''),
+        iconPosition: 'end',
+        disabled: true,
+        onClick: function () {
+          // Every bid's Structure Details reads from the same shared source
+          // set (see scenarioBids.js) -- a simulated one is no different.
+          var sharedSource = DA.data.scenarioBids[0] && DA.data.scenarioBids[0].serviceSource;
+          scenario.bids.push({
+            bidNumber: bidNumberField.input.value,
+            bidName: bidNameField.input.value,
+            shippingProfile: 'S' + scenario.number + '-UPS-PLD-' + (scenario.bids.length + 1),
+            construct: 'Daily',
+            selectable: true,
+            selected: true,
+            serviceSource: sharedSource
+          });
+          drawer.close();
+          renderCard();
+        }
+      });
+
+      var drawer = C.Modal({
+        variant: 'drawer',
+        title: 'Copy a Bid to Scenario',
+        returnFocusTo: trigger,
+        body: el('div', { className: 'drawer-form' }, [
+          el('p', { className: 'drawer-form__legend', text: '* Indicates required field.' }),
+          bidNumberField,
+          bidNameField,
+          el('div', { className: 'drawer-form__actions' }, [
+            continueButton,
+            C.Button({ label: 'Cancel', variant: 'link', onClick: function () { drawer.close(); } })
+          ])
+        ])
+      });
+
+      drawer.open();
+    }
+
     /* ---- Card ------------------------------------------------------------ */
 
     function summaryCells() {
@@ -216,10 +269,17 @@
           }),
           scenario.editable
             ? el('div', { className: 'simulate-row' }, [
-                el('a', {
-                  className: 'link-with-icon',
-                  attrs: { href: '#simulate-' + scenario.title }
-                }, [DA.icons.plusCircle(18), el('span', { text: 'Simulate New Bid' })])
+                (function () {
+                  var link = el('a', {
+                    className: 'link-with-icon',
+                    attrs: { href: '#simulate-' + scenario.title }
+                  }, [DA.icons.plusCircle(18), el('span', { text: 'Simulate New Bid' })]);
+                  link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    openSimulateBid(link);
+                  });
+                  return link;
+                })()
               ])
             : null
         ])

@@ -1871,6 +1871,12 @@
   gap: var(--space-4);
 }
 
+.drawer-form__legend {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
 .drawer-form__actions {
   display: flex;
   align-items: center;
