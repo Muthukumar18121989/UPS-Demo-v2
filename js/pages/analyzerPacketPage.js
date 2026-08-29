@@ -807,7 +807,7 @@
      * reference screen yet.
      */
     function otherTermsView() {
-      return el('div', { className: 'card' }, [
+      return el('div', { className: 'tabs--boxed' }, [
         C.Tabs({
           ariaLabel: 'Other term views',
           value: 'dim-divisor',
