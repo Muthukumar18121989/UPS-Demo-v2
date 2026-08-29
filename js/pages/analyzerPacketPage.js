@@ -166,26 +166,116 @@
       return rows;
     }
 
+    // The rows behind the band as last rendered -- the driver card reads its
+    // figures straight from here rather than recomputing them.
+    var bandRows = null;
+
+    /** Up / down / flat, from a figure that may carry $, %, commas or a sign. */
+    function deltaDirection(value) {
+      var n = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
+      if (isNaN(n) || n === 0) return 'flat';
+      return n > 0 ? 'up' : 'down';
+    }
+
+    /**
+     * Fills the hovered column's driver card: the baseline figure, the figure
+     * it's being compared against, and the recorded change as the "scenario
+     * impact" -- the same story the Key Scenario Drivers card tells, scoped to
+     * one metric.
+     */
+    function fillDriverCard(card, key, label) {
+      var rows = bandRows || [];
+      var base = rows[0] || {};
+      var against = rows[1] || {};
+      var change = rows[rows.length - 1] || {};
+      var hasAgainst = against.scenario && against.scenario !== '-';
+      var delta = change[key];
+
+      DA.dom.clear(card);
+      card.appendChild(el('p', { className: 'col-driver-card__title', text: label }));
+
+      var flow = el('div', { className: 'col-driver-card__flow' }, [
+        el('div', { className: 'col-driver-card__step' }, [
+          el('span', { className: 'col-driver-card__scen', text: base.scenario || 'Current' }),
+          el('span', { className: 'col-driver-card__val', text: base[key] == null ? '-' : String(base[key]) })
+        ])
+      ]);
+      if (hasAgainst) {
+        flow.appendChild(el('span', { className: 'col-driver-card__arrow', text: '→' }));
+        flow.appendChild(el('div', { className: 'col-driver-card__step' }, [
+          el('span', { className: 'col-driver-card__scen', text: against.scenario }),
+          el('span', { className: 'col-driver-card__val', text: against[key] == null ? '-' : String(against[key]) })
+        ]));
+      }
+      card.appendChild(flow);
+
+      if (hasAgainst && delta != null && delta !== '-') {
+        var dir = deltaDirection(delta);
+        var mark = dir === 'up' ? '▲ ' : dir === 'down' ? '▼ ' : '';
+        card.appendChild(el('div', { className: 'col-driver-card__impact' }, [
+          el('span', {
+            className: 'col-driver-card__delta col-driver-card__delta--' + dir,
+            text: mark + String(delta)
+          }),
+          el('span', { className: 'col-driver-card__impact-label', text: 'Scenario impact' })
+        ]));
+      } else {
+        card.appendChild(el('p', {
+          className: 'col-driver-card__hint',
+          text: 'Add a scenario to the comparison to see its impact.'
+        }));
+      }
+    }
+
+    /** Sits the card just under the hovered header, clamped inside the band. */
+    function positionDriverCard(card, wrap, viewportEl, headerCell) {
+      if (!headerCell) { card.hidden = true; return; }
+      card.hidden = false;
+      var gap = 6;
+      var left = headerCell.offsetLeft - viewportEl.scrollLeft;
+      var maxLeft = wrap.clientWidth - card.offsetWidth - 8;
+      card.style.left = Math.max(8, Math.min(left, Math.max(8, maxLeft))) + 'px';
+      card.style.top = (viewportEl.offsetTop + headerCell.offsetHeight + gap) + 'px';
+    }
+
     function renderComparisonBand() {
-      DA.dom.clear(comparisonBand).appendChild(
-        C.DataTable({
-          caption: 'Scenario comparison',
-          embedded: true,
-          headerTone: 'plain',
-          rowClassName: function (row) { return row.difference ? 'is-difference' : ''; },
-          columns: [
-            { key: 'scenario', label: 'Scenario', width: '150px' },
-            numeric('adv', 'ADV'),
-            numeric('baseFrtDisc', 'Base Frt Disc'),
-            numeric('totalDisc', 'Total Disc'),
-            numeric('rpp', 'RPP'),
-            numeric('revenue', 'Revenue', { width: '150px' }),
-            numeric('or', 'OR'),
-            numeric('profit', 'Profit', { width: '130px' })
-          ],
-          rows: comparisonRows()
-        })
-      );
+      bandRows = comparisonRows();
+
+      var wrap = el('div', { className: 'col-compare' });
+      var card = el('div', {
+        className: 'col-driver-card',
+        attrs: { hidden: true, role: 'status', 'aria-live': 'polite' }
+      });
+
+      var viewportEl = C.DataTable({
+        caption: 'Scenario comparison',
+        embedded: true,
+        headerTone: 'plain',
+        rowClassName: function (row) { return row.difference ? 'is-difference' : ''; },
+        columns: [
+          { key: 'scenario', label: 'Scenario', width: '150px' },
+          numeric('adv', 'ADV'),
+          numeric('baseFrtDisc', 'Base Frt Disc'),
+          numeric('totalDisc', 'Total Disc'),
+          numeric('rpp', 'RPP'),
+          numeric('revenue', 'Revenue', { width: '150px' }),
+          numeric('or', 'OR'),
+          numeric('profit', 'Profit', { width: '130px' })
+        ],
+        rows: bandRows,
+        onColumnHover: function (index, info) {
+          if (index == null || !info || !info.column || info.column.key === 'scenario') {
+            card.hidden = true;
+            return;
+          }
+          fillDriverCard(card, info.column.key, info.column.label);
+          positionDriverCard(card, wrap, viewportEl, info.headerCell);
+        }
+      });
+
+      wrap.appendChild(card);
+      wrap.appendChild(viewportEl);
+      DA.dom.clear(comparisonBand).appendChild(wrap);
     }
 
     renderComparisonBand();

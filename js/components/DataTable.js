@@ -10,6 +10,12 @@
  * Rows expand when `getChildren(row)` returns rows: the cell named by
  * `expandKey` grows a disclosure toggle, and the children appear beneath their
  * parent, indented, until it is closed again.
+ *
+ * `onColumnHover(index, info)` opts a table into column-wise highlighting:
+ * hovering any cell lights that whole column (header + body) instead of the
+ * row, and the callback fires with `{ column, headerCell }` so the caller can
+ * float column-level detail beside it (see the scenario comparison band).
+ * `index` and `info` are null once the pointer leaves the table.
  */
 (function (DA) {
   'use strict';
@@ -239,8 +245,60 @@
     // have nothing to freeze against, so it's skipped there.
     if (columns.length > 1) table.classList.add('data-table--frozen');
 
+    if (typeof options.onColumnHover === 'function') {
+      setupColumnHover(table, viewport, columns, options.onColumnHover);
+    }
+
     return viewport;
   };
+
+  /**
+   * Column-wise hover: light the whole column under the pointer and tell the
+   * caller which one it is. Moving between cells in the same column is a
+   * no-op; leaving the scroll viewport clears it.
+   */
+  function setupColumnHover(table, viewport, columns, notify) {
+    var active = -1;
+
+    function cellsInColumn(index) {
+      var out = [];
+      var rows = table.rows; // thead row(s) then every tbody row, in order
+      for (var r = 0; r < rows.length; r++) {
+        var c = rows[r].cells[index];
+        if (c && !c.hasAttribute('colspan')) out.push(c);
+      }
+      return out;
+    }
+
+    function clear() {
+      if (active === -1) return;
+      cellsInColumn(active).forEach(function (c) { c.classList.remove('is-col-highlight'); });
+      table.classList.remove('has-col-highlight');
+      active = -1;
+    }
+
+    function paint(index) {
+      if (index === active) return;
+      clear();
+      if (index < 0 || index >= columns.length) { notify(null, null); return; }
+      active = index;
+      cellsInColumn(index).forEach(function (c) { c.classList.add('is-col-highlight'); });
+      table.classList.add('has-col-highlight');
+      var headRow = table.tHead && table.tHead.rows[0];
+      notify(index, { column: columns[index], headerCell: headRow && headRow.cells[index] });
+    }
+
+    table.addEventListener('mouseover', function (event) {
+      var cell = event.target.closest && event.target.closest('th, td');
+      if (!cell || cell.hasAttribute('colspan')) return;
+      paint(cell.cellIndex);
+    });
+
+    viewport.addEventListener('mouseleave', function () {
+      clear();
+      notify(null, null);
+    });
+  }
 
   /**
    * Record link cell: identifier + chevron affordance, one hit target.
