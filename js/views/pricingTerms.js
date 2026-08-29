@@ -220,41 +220,74 @@
   }
 
   /**
-   * One collapsible tree node. Branches and plans are built the first time
-   * they're opened; `leafRender` supplies whatever a terminal node in this
-   * particular tree opens onto (a service's rate grid, an accessorial's
-   * incentive table, ...) so the recursive shell stays shared.
+   * The first leaf (a node with no `children`) under a tree, depth-first,
+   * shaped like TreeSelectField's own leaf records so the initial plan shown
+   * before any selection reads the same as one chosen from the dropdown.
    */
-  function planNode(node, leafRender) {
+  function firstLeaf(nodes, ancestors) {
+    ancestors = ancestors || [];
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      if (!node.children) {
+        return { label: node.label, value: node.label, path: ancestors.concat(node.label) };
+      }
+      var found = firstLeaf(node.children, ancestors.concat(node.label));
+      if (found) return found;
+    }
+    return null;
+  }
+
+  /**
+   * Shared shell for Services and Accessorials: a single-select tree dropdown
+   * over `tree`, with the chosen leaf's plan (`leafRender`) shown below under
+   * its full breadcrumb. Replaces the old always-expanded nested accordions.
+   */
+  function planPicker(options) {
     var C = DA.components;
-    return C.Accordion({
-      title: node.label,
-      // The last level -- the one actually holding the table, not another
-      // branch to open -- gets its own class so only it, not every
-      // expanded level above it, picks up the "you're here" highlight.
-      className: 'accordion--plan' + (node.children ? '' : ' accordion--plan-leaf'),
-      expanded: Boolean(node.expanded),
-      renderContent: node.children
-        ? function () {
-            return node.children.map(function (child) { return planNode(child, leafRender); });
-          }
-        : function () { return [leafRender()]; }
+    var tree = options.tree;
+    var planSlot = el('div', {});
+
+    function showPlan(leaf) {
+      DA.dom.clear(planSlot).appendChild(
+        el('div', { className: 'plan-detail-panel' }, [
+          el('p', { className: 'plan-detail-panel__title', text: leaf.path.join(' / ') }),
+          options.leafRender()
+        ])
+      );
+    }
+
+    var defaultLeaf = firstLeaf(tree);
+    var select = C.TreeSelectField({
+      label: options.selectLabel,
+      tree: tree,
+      value: defaultLeaf && defaultLeaf.value,
+      onChange: function (value, leaf) { showPlan(leaf); }
     });
+
+    if (defaultLeaf) showPlan(defaultLeaf);
+
+    return el('div', {}, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: options.addHref } }, [
+          DA.icons.plusCircle(18),
+          el('span', { text: options.addLabel })
+        ])
+      ]),
+      el('div', { className: 'view-filters' }, [
+        el('div', { className: 'view-filters__field' }, [select])
+      ]),
+      planSlot
+    ]);
   }
 
   function servicesView() {
-    var el2 = el;
-    return el2('div', {}, [
-      el2('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el2('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
-          DA.icons.plusCircle(18),
-          el2('span', { text: 'Add Service Incentive Plan' })
-        ])
-      ]),
-      el2('div', { className: 'plan-tree' }, DA.data.pricingServiceTree.map(function (region) {
-        return planNode({ label: region.label, children: region.children, expanded: true }, servicePlan);
-      }))
-    ]);
+    return planPicker({
+      tree: DA.data.pricingServiceTree,
+      leafRender: servicePlan,
+      selectLabel: 'Choose Service',
+      addHref: '#add-plan',
+      addLabel: 'Add Service Incentive Plan'
+    });
   }
 
   /* ---- Accessorials -------------------------------------------------------- */
@@ -319,18 +352,13 @@
   }
 
   function accessorialsView() {
-    var el2 = el;
-    return el2('div', {}, [
-      el2('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el2('a', { className: 'link-with-icon', attrs: { href: '#add-accessorial-plan' } }, [
-          DA.icons.plusCircle(18),
-          el2('span', { text: 'Add Accessorial Incentive Plan' })
-        ])
-      ]),
-      el2('div', { className: 'plan-tree' }, DA.data.pricingAccessorialTree.map(function (node) {
-        return planNode(node, accessorialPlan);
-      }))
-    ]);
+    return planPicker({
+      tree: DA.data.pricingAccessorialTree,
+      leafRender: accessorialPlan,
+      selectLabel: 'Choose Accessorial',
+      addHref: '#add-accessorial-plan',
+      addLabel: 'Add Accessorial Incentive Plan'
+    });
   }
 
   /**
