@@ -337,23 +337,25 @@
   ];
 
   /**
-   * Rows behind Rate Charts: one line per core service/zone combination, the
-   * rate this scenario landed on for it. Flat -- a zone doesn't open onto
-   * anything further -- so the same core-service label repeats down the
-   * rows it covers, same as the accessorial and pricing-term tables do for
-   * their own repeating group columns.
+   * Rate Charts' Net-basis grid: a $ rate per zone/weight-tier cell, the same
+   * for every scenario in this demo (the reference screen shows Current and
+   * Scenario 1 landing on identical figures). Gross and Volume bases have no
+   * reference data yet -- the view's own empty state covers them.
    */
-  DA.data.packetRateCharts = [
-    { service: 'N-Next Day Air', zone: '102', volume: '2', grossRate: '$32.15', netRate: '$5.72', disc: '82.2%' },
-    { service: 'N-Next Day Air', zone: '103', volume: '2', grossRate: '$34.90', netRate: '$6.21', disc: '82.2%' },
-    { service: 'N-Next Day Air', zone: '104', volume: '48', grossRate: '$38.45', netRate: '$6.84', disc: '82.2%' },
-    { service: 'N-Next Day Air', zone: '105', volume: '160', grossRate: '$41.20', netRate: '$7.33', disc: '82.2%' },
-    { service: 'N-Next Day Air', zone: '106', volume: '317', grossRate: '$44.80', netRate: '$7.97', disc: '82.2%' },
-    { service: 'N-2nd Day Air', zone: '204', volume: '1,204', grossRate: '$21.35', netRate: '$4.33', disc: '79.7%' },
-    { service: 'N-3 Day Select', zone: '304', volume: '1', grossRate: '$17.90', netRate: '$4.19', disc: '76.6%' },
-    { service: 'N-Ground', zone: '5', volume: '14,926', grossRate: '$12.44', netRate: '$3.89', disc: '68.7%' },
-    { service: 'N-Ground Saver > 1 lbs', zone: '6', volume: '132,566', grossRate: '$9.85', netRate: '$3.78', disc: '61.6%' }
-  ];
+  DA.data.rateChartGrid = {
+    zones: ['051', '052', '053', '054'],
+    rows: [
+      { weight: '1', net: ['$15.14', '$15.21', '$15.28', '$20.20'] },
+      { weight: '2', net: ['$15.14', '$15.21', '$15.28', '$20.20'] },
+      { weight: '3', net: ['$15.14', '$15.21', '$15.28', '$20.20'] },
+      { weight: '4', net: ['$15.14', '$15.21', '$15.28', '$20.20'] },
+      { weight: '5', net: ['$15.14', '$15.21', '$15.28', '$20.20'] },
+      { weight: '6', net: ['$15.29', '$15.43', '$15.54', '$20.20'] },
+      { weight: '7', net: ['$15.99', '$16.14', '$16.25', '$20.20'] },
+      { weight: '8', net: ['$16.72', '$16.87', '$17.00', '$20.20'] },
+      { weight: '9', net: ['$17.41', '$17.57', '$17.70', '$20.23'] }
+    ]
+  };
 
   /**
    * Rows behind Other Terms > Dim Divisor. Published Fuel Surcharge has no

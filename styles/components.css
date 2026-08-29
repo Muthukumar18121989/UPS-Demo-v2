@@ -1341,6 +1341,81 @@
 }
 
 /* --------------------------------------------------------------------------
+   RadioGroup
+   -------------------------------------------------------------------------- */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.radio-group__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Same invisible-hit-target-over-a-visible-indicator mechanism as Checkbox,
+   just round and dot-filled instead of boxed and check-filled. */
+.radio-group__input {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  width: max(18px, var(--tap-target-min));
+  height: max(18px, var(--tap-target-min));
+  margin: 0;
+  cursor: pointer;
+}
+
+.radio-group__option {
+  position: relative;
+}
+
+.radio-group__dot {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  transition: background-color var(--duration-fast) var(--easing-standard),
+              border-color var(--duration-fast) var(--easing-standard);
+}
+
+.radio-group__dot::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin: auto;
+  background-color: var(--color-on-primary);
+  border-radius: var(--radius-pill);
+  transform: scale(0);
+  transition: transform var(--duration-fast) var(--easing-standard);
+}
+
+.radio-group__input:checked ~ .radio-group__dot {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.radio-group__input:checked ~ .radio-group__dot::after {
+  transform: scale(1);
+}
+
+.radio-group__input:focus-visible ~ .radio-group__dot {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.radio-group__label {
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
    Scenario block
    -------------------------------------------------------------------------- */
 .scenario {

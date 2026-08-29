@@ -628,24 +628,6 @@
       ]);
     }
 
-    /** Filter row shared by Rate Charts: a scenario picker plus a Filters button. */
-    function rateChartFilters() {
-      return el('div', { className: 'card' }, [
-        el('div', { className: 'view-filters' }, [
-          el('div', { className: 'view-filters__field' }, [
-            C.SelectField({
-              label: 'Choose Scenario',
-              value: scenarios[0] && scenarios[0].name,
-              options: scenarios.map(function (scenario) {
-                return { value: scenario.name, label: scenario.name };
-              })
-            })
-          ]),
-          C.Button({ label: 'Filters', variant: 'ghost', icon: DA.icons.filter(16) })
-        ])
-      ]);
-    }
-
     /** Filter row shared by Adjustments and Other Terms: scenario and bid pickers plus Reset. */
     function scenarioBidFilters() {
       return el('div', { className: 'card' }, [
@@ -681,27 +663,112 @@
       return { key: key, label: label, width: width || '150px', className: 'is-rowhead' };
     }
 
-    function rateChartsView() {
-      return el('div', {}, [
-        rateChartFilters(),
-        el('div', { className: 'card' }, [
-          C.DataTable({
-            caption: 'Rate charts',
-            embedded: true,
-            headerTone: 'warm',
-            tinted: true,
-            columns: [
-              flatLabelColumn('service', 'Core Service', '220px'),
-              numeric('zone', 'Zone', { width: '90px' }),
-              numeric('volume', 'Volume', { link: true, width: '110px' }),
-              numeric('grossRate', 'Gross Rate', { link: true, width: '120px' }),
-              numeric('netRate', 'Net Rate', { link: true, width: '120px' }),
-              numeric('disc', 'Disc', { width: '100px' })
-            ],
-            rows: DA.data.packetRateCharts
-          })
+    /** Filter row above a Rate Charts panel: bid and service group pickers, Export. */
+    function rateChartPanelFilters() {
+      var bid = 'P310041099 (SP- Stampin Up)';
+      var serviceGroup = 'UPS E-Standard to Canada';
+      return el('div', { className: 'card' }, [
+        el('div', { className: 'view-filters' }, [
+          el('div', { className: 'view-filters__field' }, [
+            C.SelectField({ label: 'Choose Bid', value: bid, options: [{ value: bid, label: bid }] })
+          ]),
+          el('div', { className: 'view-filters__field' }, [
+            C.SelectField({
+              label: 'Choose Service Group',
+              value: serviceGroup,
+              options: [{ value: serviceGroup, label: serviceGroup }]
+            })
+          ]),
+          C.Button({ label: 'Export', variant: 'ghost', icon: DA.icons.download(16) })
         ])
       ]);
+    }
+
+    /**
+     * One scenario's rate grid: zones across, weight tiers down, a $ figure
+     * per cell -- the same 2-row-header shape servicePlan()'s own weight
+     * break grid uses (a merged corner label over two matrix__rowhead
+     * columns, zone/weight-break headers spanning both header rows).
+     * Net is the only basis with reference data; Gross and Volume show the
+     * table's own empty state rather than invented figures.
+     */
+    function rateChartGrid(scenario, basis) {
+      var data = DA.data.rateChartGrid;
+      var zones = data.zones;
+
+      if (basis !== 'net') {
+        return el('p', { className: 'table-empty', text: 'No data available.' });
+      }
+
+      var head = el('thead', {}, [
+        el('tr', {}, [
+          el('th', { className: 'matrix__rowhead', attrs: { scope: 'col', colspan: 2 }, text: 'Zones' })
+        ].concat(zones.map(function (zone) {
+          return el('th', { attrs: { scope: 'col', rowspan: 2 }, text: zone });
+        }))),
+        el('tr', {}, [
+          el('th', { className: 'matrix__rowhead', attrs: { scope: 'col', colspan: 2 }, text: 'Weight' })
+        ])
+      ]);
+
+      var body = el('tbody', {}, data.rows.map(function (row) {
+        return el('tr', {}, [
+          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' } }),
+          el('td', { className: 'matrix__rowhead', text: row.weight })
+        ].concat(row.net.map(function (rate) {
+          return el('td', { className: 'matrix__cell', text: rate });
+        })));
+      }));
+
+      return el('div', { className: 'grid-scroll scroll-area' }, [
+        el('table', { className: 'matrix' }, [
+          el('caption', { className: 'u-visually-hidden', text: scenario.name + ' rate chart' }),
+          head,
+          body
+        ])
+      ]);
+    }
+
+    function rateChartPanel(scenario) {
+      var basis = 'net';
+      var gridMount = el('div', {});
+
+      function renderGrid() {
+        DA.dom.clear(gridMount).appendChild(rateChartGrid(scenario, basis));
+      }
+      renderGrid();
+
+      return el('div', {}, [
+        rateChartPanelFilters(),
+        el('div', { className: 'card' }, [
+          el('div', { className: 'card__body' }, [
+            el('p', { className: 'section-title', style: { margin: 0 }, text: scenario.name })
+          ])
+        ]),
+        el('div', { className: 'card' }, [
+          el('div', { className: 'card__body' }, [
+            C.RadioGroup({
+              ariaLabel: 'Rate basis for ' + scenario.name,
+              name: 'rate-basis-' + scenario.number,
+              value: basis,
+              items: [
+                { value: 'net', label: 'Net' },
+                { value: 'gross', label: 'Gross' },
+                { value: 'volume', label: 'Volume' }
+              ],
+              onChange: function (value) { basis = value; renderGrid(); }
+            }),
+            el('div', { style: { 'margin-top': 'var(--space-4)' } }, [gridMount])
+          ])
+        ])
+      ]);
+    }
+
+    /** Rate Charts: one panel per scenario, side by side. */
+    function rateChartsView() {
+      return el('div', { className: 'comparison-grid' },
+        scenarios.map(function (scenario) { return rateChartPanel(scenario); })
+      );
     }
 
     /**
