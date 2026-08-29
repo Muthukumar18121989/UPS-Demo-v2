@@ -230,20 +230,24 @@
     meta: [
       { label: 'Basis', value: 'Gross Revenue' },
       { label: 'Rolling Avg', value: '52 Weeks' },
-      { label: 'Modeled', value: '$2,207,875.71' }
+      { label: 'Modeled', value: '$481,401' }
     ],
     bands: [
-      { modeled: '0.0%', low: '$0.01', high: '$499,999.99', locked: true },
-      { modeled: '22.6%', low: '$500,000.00', high: '$749,999.99' },
-      { modeled: '34.0%', low: '$750,000.00', high: '$999,999.99' },
-      { modeled: '45.3%', low: '$1,000,000.00', high: '$1,249,999.99' },
-      { modeled: '56.6%', low: '$1,250,000.00', high: '$1,499,999.99' },
-      { modeled: '67.9%', low: '$1,500,000.00', high: '$9,999,999,999.99', target: true }
+      { modeled: '0.0%', low: '$0.01', high: '$249,999.99', locked: true },
+      { modeled: '51.9%', low: '$250,000.00', high: '$289,999.99' },
+      { modeled: '60.2%', low: '$290,000.00', high: '$329,999.99' },
+      // The two bands nearest the target, and the target itself, are still
+      // open for negotiation -- their service group rates stay editable.
+      { modeled: '68.6%', low: '$330,000.00', high: '$359,999.99', ratesEditable: true },
+      { modeled: '74.8%', low: '$360,000.00', high: '$444,999.99', ratesEditable: true },
+      { modeled: '92.4%', low: '$445,000.00', high: '$9,999,999,999.99', target: true, ratesEditable: true }
     ],
     serviceGroups: [
-      { name: 'UPS N-Next Day Air', variant: '.LTR', codes: 'P/C P/P N/S R/T T/P', rates: ['0.0%', '82.4%', '84.8%', '86.5%', '88.7%', '88.7%'] },
-      { name: 'UPS N-Next Day Air', variant: '.PKG', codes: 'P/C P/P N/S R/T T/P', rates: ['0.0%', '82.3%', '84.7%', '86.5%', '87.4%', '87.7%'] },
-      { name: 'UPS N-Next Day Air Saver', variant: '.LTR', codes: 'P/C P/P T/P', rates: ['0.0%', '82.0%', '84.6%', '86.0%', '86.1%', '86.4%'] }
+      { name: 'UPS N-Next Day Air', sublabel: '-LTR FC PP TP', rates: ['0.0%', '72.1%', '76.3%', '76.7%', '78.7%', '79.0%'] },
+      { name: 'UPS N-Next Day Air', sublabel: '-PKG-Hundredweight FC PP TP', rates: ['0.0%', '38.0%', '43.0%', '44.0%', '46.3%', '46.6%'] },
+      { name: 'UPS N-Next Day Air', sublabel: '-PKG FC PP RS TP', rates: ['0.0%', '72.8%', '76.8%', '77.3%', '81.7%', '82.2%'] },
+      { name: 'UPS N-Next Day Air Saver', sublabel: '-LTR FC PP TP', rates: ['0.0%', '72.9%', '77.0%', '77.4%', '79.4%', '79.6%'] },
+      { name: 'UPS N-Next Day Air Saver', sublabel: '-PKG-Hundredweight FC PP TP', rates: ['0.0%', '38.0%', '43.0%', '44.0%', '46.3%', '46.6%'] }
     ]
   };
 

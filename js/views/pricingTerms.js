@@ -73,18 +73,42 @@
       return el('tr', {}, [
         el('th', { className: 'matrix__label', attrs: { scope: 'row' } }, [
           el('span', { text: group.name }),
-          el('span', { className: 'matrix__label-sub', text: group.codes + '  ' + group.variant })
+          el('span', { className: 'matrix__label-sub', text: group.sublabel })
         ])
       ].concat(group.rates.map(function (rate, index) {
-        var target = tier.bands[index] && tier.bands[index].target;
-        return el('td', { className: 'matrix__cell' + (target ? ' is-target' : '') }, [
-          editableCell(rate)
+        var band = tier.bands[index];
+        return el('td', { className: 'matrix__cell' + (band && band.target ? ' is-target' : '') }, [
+          // Only the bands nearest the target stay open for negotiation --
+          // the ones already past are read-only, same as Low's own locked band.
+          editableCell(rate, { editable: Boolean(band && band.ratesEditable) })
         ]);
       })));
     })));
 
+    var grid = el('div', { className: 'data-table__viewport scroll-area data-table__viewport--auto' }, [
+      el('table', { className: 'matrix' }, [
+        el('caption', { className: 'u-visually-hidden', text: tier.tier + ' incentives' }),
+        head,
+        body
+      ])
+    ]);
+
+    var open = true;
+    var toggle = el('button', {
+      className: 'tier-header__toggle u-tap-target',
+      attrs: { type: 'button', 'aria-expanded': 'true', 'aria-label': 'Collapse ' + tier.tier }
+    }, [DA.icons.chevronDown(16)]);
+    toggle.addEventListener('click', function () {
+      open = !open;
+      grid.hidden = !open;
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', (open ? 'Collapse ' : 'Expand ') + tier.tier);
+      DA.dom.clear(toggle).appendChild(open ? DA.icons.chevronDown(16) : DA.icons.chevronRight(16, ''));
+    });
+
     return el('div', { className: 'card' }, [
       el('div', { className: 'tier-header' }, [
+        toggle,
         el('span', { className: 'tier-header__value', text: tier.tier }),
         el('div', { className: 'tier-header__meta' }, tier.meta.map(function (item) {
           return el('div', { className: 'tier-header__item' }, [
@@ -101,13 +125,7 @@
           })
         ])
       ]),
-      el('div', { className: 'data-table__viewport scroll-area data-table__viewport--auto' }, [
-        el('table', { className: 'matrix' }, [
-          el('caption', { className: 'u-visually-hidden', text: tier.tier + ' incentives' }),
-          head,
-          body
-        ])
-      ])
+      grid
     ]);
   }
 

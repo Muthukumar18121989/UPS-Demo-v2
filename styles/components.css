@@ -2920,6 +2920,24 @@
   margin-left: auto;
 }
 
+.tier-header__toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-xs);
+  color: var(--color-text-secondary);
+}
+
+.tier-header__toggle:hover {
+  color: var(--color-text-link);
+}
+
 .matrix__label {
   background-color: var(--color-surface-inverse-warm);
   color: var(--color-text-inverse);
