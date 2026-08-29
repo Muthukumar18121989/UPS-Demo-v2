@@ -2961,6 +2961,11 @@
   padding: var(--space-4);
 }
 
+.tier-header__icon {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+}
+
 .tier-header__meta {
   display: flex;
   flex-wrap: wrap;

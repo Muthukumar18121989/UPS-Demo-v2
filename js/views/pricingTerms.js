@@ -73,18 +73,19 @@
       return el('tr', {}, [
         el('th', { className: 'matrix__label', attrs: { scope: 'row' } }, [
           el('span', { text: group.name }),
-          el('span', { className: 'matrix__label-sub', text: group.codes + '  ' + group.variant })
+          el('span', { className: 'matrix__label-sub', text: group.variant + '  ' + group.codes })
         ])
       ].concat(group.rates.map(function (rate, index) {
-        var target = tier.bands[index] && tier.bands[index].target;
-        return el('td', { className: 'matrix__cell' + (target ? ' is-target' : '') }, [
-          editableCell(rate)
+        var band = tier.bands[index];
+        return el('td', { className: 'matrix__cell' + (band && band.target ? ' is-target' : '') }, [
+          editableCell(rate, { editable: !(band && band.locked) })
         ]);
       })));
     })));
 
     return el('div', { className: 'card' }, [
       el('div', { className: 'tier-header' }, [
+        DA.icons.chevronDown(16, 'tier-header__icon'),
         el('span', { className: 'tier-header__value', text: tier.tier }),
         el('div', { className: 'tier-header__meta' }, tier.meta.map(function (item) {
           return el('div', { className: 'tier-header__item' }, [
