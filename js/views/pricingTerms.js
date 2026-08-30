@@ -280,6 +280,7 @@
     ]);
   }
 
+  /** Option 2: the searchable single-select tree dropdown, current default. */
   function servicesView() {
     return planPicker({
       tree: DA.data.pricingServiceTree,
@@ -288,6 +289,78 @@
       addHref: '#add-plan',
       addLabel: 'Add Service Incentive Plan'
     });
+  }
+
+  /**
+   * One collapsible level of Option 1's tree. The last level -- the one
+   * actually holding the table, not another branch to open -- gets its own
+   * class so only it, not every expanded level above it, picks up the
+   * "you're here" highlight (see accordion--plan-leaf in components.css).
+   */
+  function planNode(node, leafRender) {
+    var C = DA.components;
+    return C.Accordion({
+      title: node.label,
+      className: 'accordion--plan' + (node.children ? '' : ' accordion--plan-leaf'),
+      expanded: Boolean(node.expanded),
+      renderContent: node.children
+        ? function () {
+            return node.children.map(function (child) { return planNode(child, leafRender); });
+          }
+        : function () { return [leafRender()]; }
+    });
+  }
+
+  /**
+   * Option 1: the earlier always-expanded nested-accordion hierarchy,
+   * predating the searchable dropdown planPicker() replaced it with. Kept
+   * alongside Option 2 (not discarded) so either can be pulled up live
+   * while presenting, the same choice the packet summary and comparison
+   * band already offer elsewhere on this page.
+   */
+  function servicesTreeView() {
+    return el('div', {}, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
+          DA.icons.plusCircle(18),
+          el('span', { text: 'Add Service Incentive Plan' })
+        ])
+      ]),
+      el('div', { className: 'plan-tree' }, DA.data.pricingServiceTree.map(function (region) {
+        return planNode({ label: region.label, children: region.children, expanded: true }, servicePlan);
+      }))
+    ]);
+  }
+
+  /** Services tab: Option 1 (tree) / Option 2 (dropdown), swapped live. */
+  function servicesViewSwitchable() {
+    var C = DA.components;
+    var option = 'option2';
+    var mount = el('div', { className: 'card' });
+
+    function render() {
+      DA.dom.clear(mount).appendChild(option === 'option1' ? servicesTreeView() : servicesView());
+    }
+
+    var switcher = C.SegmentedControl({
+      ariaLabel: 'Services view layout',
+      value: option,
+      items: [
+        { value: 'option1', label: 'Option 1' },
+        { value: 'option2', label: 'Option 2' }
+      ],
+      onChange: function (value) {
+        option = value;
+        render();
+      }
+    });
+
+    render();
+
+    return el('div', {}, [
+      el('div', { className: 'services-option-switch' }, [switcher]),
+      mount
+    ]);
   }
 
   /* ---- Accessorials -------------------------------------------------------- */
@@ -376,7 +449,7 @@
             return el('div', {}, [context.filters(), tierIncentivesView()]);
           } },
           { id: 'services', label: 'Services', render: function () {
-            return el('div', {}, [context.filters(), el('div', { className: 'card' }, [servicesView()])]);
+            return el('div', {}, [context.filters(), servicesViewSwitchable()]);
           } },
           { id: 'accessorials', label: 'Accessorials', render: function () {
             return el('div', {}, [context.filters(), el('div', { className: 'card' }, [accessorialsView()])]);

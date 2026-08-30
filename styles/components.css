@@ -3167,6 +3167,60 @@
   cursor: pointer;
 }
 
+/* Option 1's tree (see servicesTreeView()/planNode() in pricingTerms.js) --
+   restored alongside Option 2's dropdown rather than removed with it, so
+   both stay available to switch between live. */
+.plan-tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+/* Nested plan levels: each is a card, each level steps in. Padding is half
+   the usual accordion's (space-2 instead of space-4/space-5) -- Region >
+   Mode > Service nests three of these, and at the base size the reserved
+   space compounded three times over into a wide, mostly-empty margin
+   before reaching the actual content. */
+.accordion--plan > .accordion__trigger {
+  padding: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.accordion--plan > .accordion__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-2) var(--space-2) var(--space-2);
+}
+
+/*
+ * .accordion__panel[hidden] { display: none } and the rule above share the
+ * same specificity, and this one comes later in the file, so it was
+ * winning the tie and overriding display: none -- collapsing a plan-tree
+ * level updated aria-expanded and the hidden attribute correctly, but the
+ * panel never actually disappeared. The extra [hidden] here outweighs the
+ * rule above regardless of source order, so collapse now genuinely
+ * collapses instead of only reporting that it did.
+ */
+.accordion--plan > .accordion__panel[hidden] {
+  display: none;
+}
+
+/* The open leaf reads as the one you're actually looking at -- same blue
+   the rest of the app uses for a link, not just on hover like every other
+   level, but for as long as it stays expanded. */
+.accordion--plan-leaf > .accordion__trigger[aria-expanded="true"] {
+  color: var(--color-text-link);
+}
+
+.services-option-switch {
+  padding: var(--space-4) var(--space-4) 0;
+}
+
 /* The chosen leaf's incentive plan, under its full Domestic / Ground /
    Ground - Package breadcrumb. */
 .plan-detail-panel {
