@@ -21,48 +21,122 @@
 
     /* ---- Packet summary -------------------------------------------------- */
 
-    var summary = C.SummaryPanel({
-      ariaLabel: 'Analyzer packet summary',
-      headline: {
-        label: 'Analyzer Packet ID',
-        value: packet.packetId,
-        secondary: packet.customerName
-      },
-      sections: [
-        {
-          title: 'Packet Information',
-          columns: 3,
-          fields: [
-            { label: 'Analyzer Packet ID', value: packet.packetId },
-            { label: 'Customer Name', value: packet.customerName },
-            { label: 'Reference Number', value: packet.referenceNumber },
-            { label: 'Analyzer Packet Description', value: packet.description }
-          ]
-        },
-        {
-          title: 'Customer Information',
-          columns: 3,
-          fields: [
+    /** Both ends of the window on one line -- a range, not two fields.
+        Option 1 only: Option 2 lists From/To as their own fields. */
+    function shippingProfileRange() {
+      if (!packet.from && !packet.to) return null;
+      return (packet.from || '-') + '  –  ' + (packet.to || '-');
+    }
+
+    /** Two sparse, optional linked-record IDs -- paired rather than each
+        claiming a full row for what's usually just a dash. Option 1 only. */
+    function linkedRecords() {
+      return 'PQR ' + (packet.pqr || '-') + '   ·   OPPs ' + (packet.opps || '-');
+    }
+
+    /** Option 1: the panel's original flat layout, fields side by side. */
+    function flatSummary() {
+      return C.SummaryPanelFlat({
+        ariaLabel: 'Analyzer packet summary',
+        headline: [
+          { label: 'Analyzer Packet ID', value: packet.packetId },
+          { label: 'Customer Name', value: packet.customerName },
+          { label: 'Reference Number', value: packet.referenceNumber }
+        ],
+        columns: [
+          [
             { label: 'Customer Hierarchy', value: packet.hierarchy },
-            { label: 'Shipping Profile From', value: packet.from },
-            { label: 'Shipping Profile To', value: packet.to },
             { label: 'Industry', value: packet.industry },
-            { label: 'PQR', value: packet.pqr },
-            { label: 'OPPs', value: packet.opps }
-          ]
-        },
-        {
-          title: 'User Information',
-          columns: 4,
-          fields: [
+            { label: 'Linked Records', value: linkedRecords() },
+            { label: 'Shipping Profile', value: shippingProfileRange() }
+          ],
+          [
             { label: 'Owner', value: owner },
             { label: 'Created Date', value: packet.createdAt },
             { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
             { label: 'Last Modified Date', value: packet.lastModifiedAt }
           ]
-        }
-      ]
+        ],
+        rows: [
+          { label: 'Analyzer Packet Description', value: packet.description, wide: true }
+        ]
+      });
+    }
+
+    /** Option 2: fields grouped into titled Packet/Customer/User sections. */
+    function groupedSummary() {
+      return C.SummaryPanel({
+        ariaLabel: 'Analyzer packet summary',
+        headline: {
+          label: 'Analyzer Packet ID',
+          value: packet.packetId,
+          secondary: packet.customerName
+        },
+        sections: [
+          {
+            title: 'Packet Information',
+            columns: 3,
+            fields: [
+              { label: 'Analyzer Packet ID', value: packet.packetId },
+              { label: 'Customer Name', value: packet.customerName },
+              { label: 'Reference Number', value: packet.referenceNumber },
+              { label: 'Analyzer Packet Description', value: packet.description }
+            ]
+          },
+          {
+            title: 'Customer Information',
+            columns: 3,
+            fields: [
+              { label: 'Customer Hierarchy', value: packet.hierarchy },
+              { label: 'Shipping Profile From', value: packet.from },
+              { label: 'Shipping Profile To', value: packet.to },
+              { label: 'Industry', value: packet.industry },
+              { label: 'PQR', value: packet.pqr },
+              { label: 'OPPs', value: packet.opps }
+            ]
+          },
+          {
+            title: 'User Information',
+            columns: 4,
+            fields: [
+              { label: 'Owner', value: owner },
+              { label: 'Created Date', value: packet.createdAt },
+              { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
+              { label: 'Last Modified Date', value: packet.lastModifiedAt }
+            ]
+          }
+        ]
+      });
+    }
+
+    // Both layouts stay live side by side behind a switch -- not a decision
+    // made once and thrown away -- so either can be pulled up on demand
+    // while presenting, without a code change. Option 2 is the current
+    // default since it's what the page already showed before this switch
+    // existed.
+    var summaryMount = el('div', {});
+    var summaryOption = 'option2';
+
+    function renderSummary() {
+      DA.dom.clear(summaryMount).appendChild(
+        summaryOption === 'option1' ? flatSummary() : groupedSummary()
+      );
+    }
+
+    var summaryOptionSwitch = C.SegmentedControl({
+      ariaLabel: 'Packet summary layout',
+      value: summaryOption,
+      items: [
+        { value: 'option1', label: 'Option 1' },
+        { value: 'option2', label: 'Option 2' }
+      ],
+      onChange: function (value) {
+        summaryOption = value;
+        renderSummary();
+      }
     });
+
+    renderSummary();
 
     /* ---- Scenarios -------------------------------------------------------- */
 
@@ -157,7 +231,8 @@
 
     var panel = el('section', { className: 'panel panel--auto' }, [
       el('div', { className: 'panel__content' }, [
-        summary,
+        el('div', { className: 'summary-option-switch' }, [summaryOptionSwitch]),
+        summaryMount,
         C.Alert({ message: 'Active Bids sourced for existing customers' }),
         scenarioList,
         el('div', {}, [createScenarioButton])

@@ -1313,6 +1313,22 @@
   font-size: var(--font-size-sm);
 }
 
+/* Demo-only switch between the summary panel's two live layouts -- sits
+   above the panel it controls, same spacing rhythm as a filter row. */
+.summary-option-switch {
+  margin-bottom: var(--space-4);
+}
+
+/* SummaryPanelFlat's own header content: several fields inline instead of
+   the grouped panel's single title line. */
+.summary-panel__header-items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .summary-panel__title-value {
   color: var(--color-text-primary);
   font-weight: var(--font-weight-semibold);
@@ -1337,6 +1353,32 @@
      instead of the icon's width leaving them out of line. */
   padding: var(--space-4) var(--space-5) var(--space-5) calc(var(--space-5) + 16px + var(--space-3));
   border-top: 1px solid var(--color-border-subtle);
+}
+
+/* SummaryPanelFlat's own body layout: fields side by side in plain columns
+   instead of the grouped panel's stacked, titled sections. Same shared
+   padding/border-top above carries over unchanged -- only the internal
+   layout mode (grid vs flex-column) differs, so this only needs to
+   override `display` and add the grid's own columns/gap. */
+.summary-panel__body--flat {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
+}
+
+.summary-panel__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.summary-panel__divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background-color: var(--color-border-subtle);
 }
 
 .summary-panel__body[hidden] {

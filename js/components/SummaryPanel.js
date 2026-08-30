@@ -49,6 +49,65 @@
     ]);
   }
 
+  /**
+   * SummaryPanel's earlier layout -- fields side by side in plain columns,
+   * a headline of several fields rather than one title line, no section
+   * grouping. Kept alongside the grouped version (not replaced by it) so a
+   * page can offer both as a live-switchable "Option 1 / Option 2" demo
+   * choice rather than only ever showing one.
+   */
+  DA.components.SummaryPanelFlat = function SummaryPanelFlat(options) {
+    options = options || {};
+    uid += 1;
+    var bodyId = 'summary-panel-flat-' + uid;
+    var expanded = options.expanded !== false;
+
+    var columnNodes = (options.columns || []).map(function (column) {
+      return el('div', { className: 'summary-panel__column' }, column.map(function (item) {
+        return DA.components.Detail(item);
+      }));
+    });
+    var rowNodes = (options.rows || []).map(function (item) {
+      return DA.components.Detail(item);
+    });
+    var divider = columnNodes.length && rowNodes.length
+      ? [el('hr', { className: 'summary-panel__divider' })]
+      : [];
+
+    var body = el('div', {
+      className: 'summary-panel__body summary-panel__body--flat',
+      attrs: { id: bodyId, hidden: !expanded }
+    }, columnNodes.concat(divider, rowNodes));
+
+    var header = el('button', {
+      className: 'summary-panel__header',
+      attrs: {
+        type: 'button',
+        'aria-expanded': expanded ? 'true' : 'false',
+        'aria-controls': bodyId
+      },
+      on: {
+        click: function () {
+          expanded = !expanded;
+          header.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          body.hidden = !expanded;
+        }
+      }
+    }, [
+      DA.icons.chevronRight(16, 'summary-panel__icon'),
+      el('span', { className: 'summary-panel__header-items' },
+        (options.headline || []).map(function (item) {
+          return DA.components.Detail(item);
+        })
+      )
+    ]);
+
+    return el('section', {
+      className: 'summary-panel',
+      attrs: { 'aria-label': options.ariaLabel || 'Record summary' }
+    }, [header, body]);
+  };
+
   DA.components.SummaryPanel = function SummaryPanel(options) {
     options = options || {};
     uid += 1;
