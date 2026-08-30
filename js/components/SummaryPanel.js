@@ -50,11 +50,9 @@
   }
 
   /**
-   * SummaryPanel's earlier layout -- fields side by side in plain columns,
+   * A flat variant of SummaryPanel -- fields side by side in plain columns,
    * a headline of several fields rather than one title line, no section
-   * grouping. Kept alongside the grouped version (not replaced by it) so a
-   * page can offer both as a live-switchable "Option 1 / Option 2" demo
-   * choice rather than only ever showing one.
+   * grouping. Used by the Create Scenarios packet summary.
    */
   DA.components.SummaryPanelFlat = function SummaryPanelFlat(options) {
     options = options || {};
