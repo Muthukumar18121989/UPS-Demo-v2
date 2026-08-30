@@ -122,7 +122,7 @@
             shape: 'pill',
             onClick: function () {
               chosen = pending.slice();
-              renderComparisonBand();
+              renderComparisonView();
               comparisonSelector.setValue(chosen.join(', '));
               comparisonSelector.close();
             }
@@ -278,7 +278,158 @@
       DA.dom.clear(comparisonBand).appendChild(wrap);
     }
 
-    renderComparisonBand();
+    /** A stored delta's own sign, made explicit -- "27.2" reads as "+27.2". */
+    function signed(text) {
+      var n = DA.figures.toNumber(text);
+      if (n == null || n <= 0) return String(text);
+      return '+' + text;
+    }
+
+    /** A percentage-shaped delta reads as a point change, not a percent of
+        itself -- "-0.4%" becomes "-0.4 pp" wherever it's shown as a change. */
+    function asPointChange(text) {
+      var s = String(text);
+      return /%$/.test(s) ? s.replace(/%$/, ' pp') : s;
+    }
+
+    var PRIMARY_IMPACT_KEYS = [
+      { key: 'revenue', label: 'Revenue' },
+      { key: 'profit', label: 'Profit' }
+    ];
+    var DRIVER_KEYS = [
+      { key: 'adv', label: 'ADV' },
+      { key: 'baseFrtDisc', label: 'Base Frt Disc' },
+      { key: 'totalDisc', label: 'Total Disc' },
+      { key: 'rpp', label: 'RPP' },
+      { key: 'or', label: 'OR' }
+    ];
+
+    /**
+     * Option 2: the same comparison, read as always-visible cards instead
+     * of a table with a hover-triggered readout -- Primary Business Impact
+     * (Revenue, Profit) gets its own bigger card with a Current/Scenario
+     * bar pair; the rest are the same Key Scenario Driver card
+     * fillDriverCard() already builds for the hover card, just rendered in
+     * place in a grid instead of floated and hidden until hovered.
+     */
+    function renderImpactCards() {
+      var rows = comparisonRows();
+      var current = rows[0] || {};
+      var scenario = rows[1] || {};
+      var change = rows[rows.length - 1] || {};
+      var hasScenario = scenario.scenario && scenario.scenario !== '-';
+
+      if (!hasScenario) {
+        DA.dom.clear(comparisonBand).appendChild(
+          C.Alert({ plain: true, message: 'Add a scenario to the comparison to see its impact.' })
+        );
+        return;
+      }
+
+      function primaryCard(key, label) {
+        var currentNum = DA.figures.toNumber(current[key]);
+        var scenarioNum = DA.figures.toNumber(scenario[key]);
+        var deltaNum = DA.figures.toNumber(change[key]);
+        var dir = deltaDirection(change[key]);
+        var pct = currentNum ? (deltaNum / currentNum) * 100 : null;
+        var maxAbs = Math.max(Math.abs(currentNum || 0), Math.abs(scenarioNum || 0)) || 1;
+
+        function barRow(scenarioLabel, value, accent) {
+          var pctWidth = Math.abs(value || 0) / maxAbs * 100;
+          return el('div', { className: 'impact-card__bar-row' }, [
+            el('span', { className: 'impact-card__bar-label', text: scenarioLabel }),
+            el('div', { className: 'impact-bar' + (accent ? ' impact-bar--accent' : '') }, [
+              el('div', { className: 'impact-bar__fill', style: { width: pctWidth + '%' } })
+            ])
+          ]);
+        }
+
+        return el('div', { className: 'impact-card' }, [
+          el('p', { className: 'impact-card__label', text: label }),
+          el('p', { className: 'impact-card__values' }, [
+            el('span', { text: current[key] }),
+            el('span', { className: 'impact-card__arrow', text: '→' }),
+            el('span', { text: scenario[key] })
+          ]),
+          el('p', { className: 'impact-card__delta impact-card__delta--' + dir }, [
+            dir === 'down' ? DA.icons.chevronDown(14) : DA.icons.chevronUp(14),
+            el('span', { className: 'impact-card__delta-value', text: signed(change[key]) }),
+            pct != null
+              ? el('span', {
+                  className: 'impact-card__delta-pct',
+                  text: '(' + (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%)'
+                })
+              : null
+          ]),
+          el('div', { className: 'impact-card__bars' }, [
+            barRow(current.scenario, currentNum, false),
+            barRow(scenario.scenario, scenarioNum, true)
+          ])
+        ]);
+      }
+
+      function driverCard(key, label) {
+        var card = el('div', { className: 'driver-card' });
+        var dir = deltaDirection(change[key]);
+        card.appendChild(el('div', { className: 'driver-card__head' }, [
+          el('p', { className: 'col-driver-card__title', style: { margin: 0 }, text: label }),
+          el('span', { className: 'driver-card__trend driver-card__trend--' + dir }, [
+            dir === 'down' ? DA.icons.chevronDown(14) : DA.icons.chevronUp(14)
+          ])
+        ]));
+        card.appendChild(el('div', { className: 'col-driver-card__flow' }, [
+          el('div', { className: 'col-driver-card__step' }, [
+            el('span', { className: 'col-driver-card__scen', text: current.scenario }),
+            el('span', { className: 'col-driver-card__val', text: current[key] == null ? '-' : String(current[key]) })
+          ]),
+          el('span', { className: 'col-driver-card__arrow', text: '→' }),
+          el('div', { className: 'col-driver-card__step' }, [
+            el('span', { className: 'col-driver-card__scen', text: scenario.scenario }),
+            el('span', { className: 'col-driver-card__val', text: scenario[key] == null ? '-' : String(scenario[key]) })
+          ])
+        ]));
+        var delta = change[key];
+        if (delta != null && delta !== '-') {
+          card.appendChild(el('div', { className: 'col-driver-card__impact' }, [
+            dir === 'down' ? DA.icons.chevronDown(12) : DA.icons.chevronUp(12),
+            el('span', { className: 'col-driver-card__delta', text: signed(asPointChange(delta)) }),
+            el('span', { className: 'col-driver-card__impact-label', text: 'Scenario impact' })
+          ]));
+        }
+        return card;
+      }
+
+      DA.dom.clear(comparisonBand).appendChild(el('div', { className: 'impact-cards-panel' }, [
+        el('p', { className: 'impact-section-title', text: 'Primary Business Impact' }),
+        el('div', { className: 'impact-cards-grid' },
+          PRIMARY_IMPACT_KEYS.map(function (item) { return primaryCard(item.key, item.label); })),
+        el('p', { className: 'impact-section-title', text: 'Key Scenario Drivers' }),
+        el('div', { className: 'driver-cards-grid' },
+          DRIVER_KEYS.map(function (item) { return driverCard(item.key, item.label); }))
+      ]));
+    }
+
+    var comparisonOption = 'option1';
+
+    function renderComparisonView() {
+      if (comparisonOption === 'option2') renderImpactCards();
+      else renderComparisonBand();
+    }
+
+    var comparisonOptionSwitch = C.SegmentedControl({
+      ariaLabel: 'Scenario comparison layout',
+      value: comparisonOption,
+      items: [
+        { value: 'option1', label: 'Option 1' },
+        { value: 'option2', label: 'Option 2' }
+      ],
+      onChange: function (value) {
+        comparisonOption = value;
+        renderComparisonView();
+      }
+    });
+
+    renderComparisonView();
 
     /* ---- Summary tab ------------------------------------------------------ */
 
@@ -1066,6 +1217,7 @@
           })
         ])
       ]),
+      el('div', { className: 'comparison-option-switch' }, [comparisonOptionSwitch]),
       comparisonBand,
       el('div', { className: 'tabs--page' }, [
         C.Tabs({
