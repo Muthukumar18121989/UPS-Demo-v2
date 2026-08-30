@@ -358,7 +358,7 @@
     render();
 
     return el('div', {}, [
-      el('div', { className: 'services-option-switch' }, [switcher]),
+      el('div', { className: 'plan-view-option-switch' }, [switcher]),
       mount
     ]);
   }
@@ -424,6 +424,7 @@
     ]);
   }
 
+  /** Option 2: the searchable single-select tree dropdown, current default. */
   function accessorialsView() {
     return planPicker({
       tree: DA.data.pricingAccessorialTree,
@@ -432,6 +433,53 @@
       addHref: '#add-accessorial-plan',
       addLabel: 'Add Accessorial Incentive Plan'
     });
+  }
+
+  /** Option 1: the earlier always-expanded nested-accordion hierarchy,
+      restored alongside Option 2 the same way Services' was. */
+  function accessorialsTreeView() {
+    return el('div', {}, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-accessorial-plan' } }, [
+          DA.icons.plusCircle(18),
+          el('span', { text: 'Add Accessorial Incentive Plan' })
+        ])
+      ]),
+      el('div', { className: 'plan-tree' }, DA.data.pricingAccessorialTree.map(function (node) {
+        return planNode(node, accessorialPlan);
+      }))
+    ]);
+  }
+
+  /** Accessorials tab: Option 1 (tree) / Option 2 (dropdown), swapped live. */
+  function accessorialsViewSwitchable() {
+    var C = DA.components;
+    var option = 'option2';
+    var mount = el('div', { className: 'card' });
+
+    function render() {
+      DA.dom.clear(mount).appendChild(option === 'option1' ? accessorialsTreeView() : accessorialsView());
+    }
+
+    var switcher = C.SegmentedControl({
+      ariaLabel: 'Accessorials view layout',
+      value: option,
+      items: [
+        { value: 'option1', label: 'Option 1' },
+        { value: 'option2', label: 'Option 2' }
+      ],
+      onChange: function (value) {
+        option = value;
+        render();
+      }
+    });
+
+    render();
+
+    return el('div', {}, [
+      el('div', { className: 'plan-view-option-switch' }, [switcher]),
+      mount
+    ]);
   }
 
   /**
@@ -452,7 +500,7 @@
             return el('div', {}, [context.filters(), servicesViewSwitchable()]);
           } },
           { id: 'accessorials', label: 'Accessorials', render: function () {
-            return el('div', {}, [context.filters(), el('div', { className: 'card' }, [accessorialsView()])]);
+            return el('div', {}, [context.filters(), accessorialsViewSwitchable()]);
           } },
           { id: 'modifiers', label: 'Modifiers', render: function () {
             return el('div', {}, [context.filters(), context.emptyView('Modifier')()]);
