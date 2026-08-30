@@ -2508,6 +2508,16 @@
   color: var(--color-text-link);
 }
 
+.app-header__style-guide {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-link);
+  white-space: nowrap;
+}
+
+.app-header__style-guide:hover {
+  color: var(--color-text-link-hover);
+}
+
 /* --------------------------------------------------------------------------
    DataTable — plain header, tinted body
    -------------------------------------------------------------------------- */

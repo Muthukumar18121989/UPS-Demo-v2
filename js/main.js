@@ -94,11 +94,25 @@
           onBack: function () { navigate('create-scenarios'); }
         });
       }
+    },
+
+    'style-guide': {
+      // Reachable from the header on any screen, so it returns to whichever
+      // one that was rather than always landing back on the packets list.
+      render: function () {
+        return DA.pages.StyleGuidePage({ onBack: function () { navigate(lastViewName); } });
+      }
     }
   };
 
+  // The view style-guide should return to -- not itself, so revisiting the
+  // style guide from the style guide (unlikely, but a stray click away)
+  // doesn't get stuck pointing at its own route.
+  var lastViewName = 'packets';
+
   function navigate(name, params) {
     var view = views[name] || views.packets;
+    if (name !== 'style-guide') lastViewName = name;
     var header = view.header ? view.header() : {};
 
     DA.dom.clear(headerSlot).appendChild(
