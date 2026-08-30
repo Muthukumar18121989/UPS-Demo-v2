@@ -806,7 +806,13 @@
           el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' } }),
           el('td', { className: 'matrix__rowhead', text: row.weight })
         ].concat(row.net.map(function (rate) {
-          return el('td', { className: 'matrix__cell', text: rate });
+          // A plain <a> here, same as every other report table's linked
+          // figure -- it's what makes the value read as link-blue and
+          // pick up the hover highlight, both for free from the base `a`
+          // rule rather than a one-off color/hover rule just for this cell.
+          return el('td', { className: 'matrix__cell' }, [
+            el('a', { text: rate, attrs: { href: '#rate-detail', 'aria-label': 'Rate ' + rate } })
+          ]);
         })));
       }));
 
