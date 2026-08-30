@@ -1,5 +1,6 @@
 /**
- * Style Guide component catalog — Pass 1.
+ * Style Guide component catalog — Pass 1 (core controls) + Pass 2 (chrome,
+ * layout and the remaining composite fields).
  *
  * Each entry's `render()` calls the real DA.components.* factory the rest
  * of the app uses, not a redrawn mockup -- when a component changes, the
@@ -7,11 +8,6 @@
  * hand-copied examples. `tokens` lists the design tokens that component's
  * own CSS actually reads, so a reader can jump straight from a sample to
  * the exact Token Editor rows that would change it.
- *
- * Pass 2 (not yet catalogued here): AppHeader, Avatar, Breadcrumb,
- * ChipInput, Dropdown (as its own entry beyond SelectField), EmptyState,
- * FileUpload, FilterChips, Panel, ScenarioBlock, SearchField, StatRow,
- * SummaryPanel/SummaryPanelFlat, TreeSelectField.
  */
 (function (DA) {
   'use strict';
@@ -268,6 +264,236 @@
               { service: 'Ground', volume: '20,953.0' }
             ]
           }))
+        ]);
+      }
+    },
+    {
+      id: 'app-header',
+      name: 'AppHeader',
+      description: 'Product bar shared by every screen: brand mark + product name on the left, account utilities on the right. `backLink` adds a return path beneath the product name, for screens opened outside the main workflow.',
+      tokens: ['--app-header-height', '--color-surface', '--color-brand-shield', '--color-text-primary', '--color-text-link'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row style-guide__row--stack' }, [
+          variant('default', C.AppHeader({ productName: 'Digital Analyzer', user: { name: 'Alagulaxman Alagappan', initials: 'AA' } })),
+          variant('with back link', C.AppHeader({
+            productName: 'Digital Analyzer',
+            user: { name: 'Alagulaxman Alagappan', initials: 'AA' },
+            backLink: { label: 'Back to My Analyzers', onClick: noop }
+          }))
+        ]);
+      }
+    },
+    {
+      id: 'avatar',
+      name: 'Avatar',
+      description: 'Initials in a ringed circle. Acts as the account menu trigger.',
+      tokens: ['--avatar-size', '--color-primary', '--color-on-primary', '--font-weight-semibold'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('default', C.Avatar({ name: 'Alagulaxman Alagappan', initials: 'AA' }))
+        ]);
+      }
+    },
+    {
+      id: 'breadcrumb',
+      name: 'Breadcrumb',
+      description: 'The trail back up the record hierarchy. The last item is the current location and is not a link.',
+      tokens: ['--color-text-link', '--color-text-secondary', '--font-size-xs'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('default', C.Breadcrumb({
+            items: [
+              { label: 'Scenario 1', onClick: noop },
+              { label: 'Hormel 2024', onClick: noop },
+              { label: 'Account' }
+            ]
+          }))
+        ]);
+      }
+    },
+    {
+      id: 'chip-input',
+      name: 'ChipInput',
+      description: 'Free-text entries committed to removable chips. Space or Enter commits the current entry; pasting a delimited string commits every value in it.',
+      tokens: ['--color-field-border', '--color-field-label', '--color-surface-muted', '--radius-control'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('filled', C.ChipInput({ label: 'Enter OPP(s) to link to packet', values: ['OPP-1001', 'OPP-1002'], onChange: noop }))
+        ]);
+      }
+    },
+    {
+      id: 'dropdown',
+      name: 'Dropdown',
+      description: 'A trigger that opens a panel beneath it -- the popover mechanics every custom field (SelectField, TreeSelectField, the Comparison View picker) is built on. The caller owns what\'s inside the panel.',
+      tokens: ['--color-field-label', '--color-field-border', '--color-surface', '--shadow-sm', '--radius-control'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('default', C.Dropdown({
+            label: 'Comparison View',
+            value: 'Current',
+            content: [
+              el('div', { className: 'dropdown__option', text: 'Current' }),
+              el('div', { className: 'dropdown__option', text: 'Scenario 1' })
+            ]
+          }))
+        ]);
+      }
+    },
+    {
+      id: 'empty-state',
+      name: 'EmptyState',
+      description: 'Shown in place of table rows when a filter returns nothing.',
+      tokens: ['--color-text-muted', '--color-text-primary', '--font-size-sm'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('default', C.EmptyState({
+            title: 'No analyzer packets match your search',
+            description: 'Check the spelling or clear the search to see all packets.'
+          }))
+        ]);
+      }
+    },
+    {
+      id: 'file-upload',
+      name: 'FileDropzone / FileItem',
+      description: 'File selection by drop or browse, and the confirmation row for a file that has been attached.',
+      tokens: ['--color-border', '--color-surface-muted', '--color-primary', '--radius-container'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('dropzone', C.FileDropzone({ fileType: 'CSV', onFile: noop })),
+          variant('attached file', C.FileItem({ name: 'shipping-profile.csv', onRemove: noop }))
+        ]);
+      }
+    },
+    {
+      id: 'filter-chips',
+      name: 'FilterChips',
+      description: 'The filters currently applied, each removable.',
+      tokens: ['--color-surface-muted', '--color-text-primary', '--radius-pill'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('default', C.FilterChips({ values: ['Fuel Surcharge', 'Transportation Charges'], onChange: noop }))
+        ]);
+      }
+    },
+    {
+      id: 'panel',
+      name: 'Panel',
+      description: 'White content surface with an optional toolbar, body and footer. The toolbar keeps filters on the left and the primary action on the right.',
+      tokens: ['--color-surface', '--color-border', '--shadow-xs', '--radius-container'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('with toolbar', C.Panel({
+            ariaLabel: 'Sample panel',
+            toolbar: {
+              filters: [C.SearchField({ label: 'Search', placeholder: 'Search' })],
+              actions: [C.Button({ label: 'New', variant: 'primary', onClick: noop })]
+            },
+            body: [el('p', { text: 'Panel body content.' })]
+          }))
+        ]);
+      }
+    },
+    {
+      id: 'scenario-block',
+      name: 'ScenarioBlock',
+      description: 'One scenario on the Create Scenarios screen: its heading, summary row, and the bid table the row expands to reveal. The baseline scenario copied from sourcing is read-only; scenarios the user creates are editable, which adds account association, linked shipping profiles, bid simulation and a save action.',
+      tokens: ['--color-surface', '--color-border', '--color-text-primary', '--color-primary', '--radius-container'],
+      render: function () {
+        var C = DA.components;
+        var scenario = {
+          title: 'Scenario 1',
+          name: 'Scenario 1',
+          description: 'S0 Full Copy',
+          status: 'Analysis In Progress',
+          editable: true,
+          expanded: true,
+          included: true,
+          number: 1,
+          createdDate: '08-18-2026',
+          lastModified: '08-18-2026',
+          bids: [
+            { bidNumber: 'P080040662', bidName: 'UPSC|FLEX|1.00|3.00|100|READY', shippingProfile: 'S1-UPS-PLD-1', construct: 'Daily', selectable: true, selected: true }
+          ]
+        };
+        return el('div', { className: 'style-guide__row style-guide__row--stack' }, [
+          variant('editable, expanded', C.ScenarioBlock(scenario, { packet: { customerName: 'APPLEGATE FARMS' }, onOpenAccounts: noop }))
+        ]);
+      }
+    },
+    {
+      id: 'search-field',
+      name: 'SearchField',
+      description: 'Labelled search input with a leading icon. Input is debounced so filtering doesn\'t run on every keystroke. `clearable` adds a clear button once the field has text.',
+      tokens: ['--color-field-border', '--color-text-muted', '--radius-control'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('clearable', C.SearchField({ label: 'Search accounts', placeholder: 'Search Accounts', clearable: true }))
+        ]);
+      }
+    },
+    {
+      id: 'stat-row',
+      name: 'StatRow',
+      description: 'A row of counts summarising the records below it. Each tile carries an icon, the number, and a labelled help affordance.',
+      tokens: ['--color-text-primary', '--color-text-secondary', '--font-size-2xl', '--font-weight-semibold'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('default', C.StatRow({
+            ariaLabel: 'Sample counts',
+            items: [
+              { icon: DA.icons.box(26), value: 7, label: 'Total Accounts', help: 'Every account under this bid.' },
+              { icon: DA.icons.box(26), value: 6, label: 'UPS Accounts', help: 'Accounts held in the UPS account system.' }
+            ]
+          }))
+        ]);
+      }
+    },
+    {
+      id: 'summary-panel',
+      name: 'SummaryPanel / SummaryPanelFlat',
+      description: 'Collapsible record header. SummaryPanel groups its fields into titled sections (Packet/Customer/User Information); SummaryPanelFlat -- its earlier layout, kept alongside rather than replaced -- lays fields side by side in plain columns instead. See Create Scenarios\' Option 1 / Option 2 switch, which offers both live.',
+      tokens: ['--color-surface', '--color-border', '--shadow-xs', '--color-text-primary', '--color-text-secondary'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row style-guide__row--stack' }, [
+          variant('grouped (SummaryPanel)', C.SummaryPanel({
+            headline: { label: 'Analyzer Packet ID', value: '112002', secondary: 'APPLEGATE FARMS' },
+            sections: [
+              { title: 'Packet Information', columns: 2, fields: [
+                { label: 'Analyzer Packet ID', value: '112002' },
+                { label: 'Customer Name', value: 'APPLEGATE FARMS' }
+              ] }
+            ]
+          })),
+          variant('flat (SummaryPanelFlat)', C.SummaryPanelFlat({
+            headline: [{ label: 'Analyzer Packet ID', value: '112002' }, { label: 'Customer Name', value: 'APPLEGATE FARMS' }],
+            columns: [[{ label: 'Owner', value: 'Alagulaxman Alagappan' }]]
+          }))
+        ]);
+      }
+    },
+    {
+      id: 'tree-select-field',
+      name: 'TreeSelectField',
+      description: 'Single-select dropdown over a label/children tree, organized into collapsible groups instead of one flat list. Only a leaf is selectable; a search box filters leaves by label and auto-expands any group holding a match. This is Pricing Terms > Services\' Option 2.',
+      tokens: ['--color-field-label', '--color-field-border', '--color-surface', '--shadow-sm', '--color-primary'],
+      render: function () {
+        var C = DA.components;
+        return el('div', { className: 'style-guide__row' }, [
+          variant('default', C.TreeSelectField({ label: 'Choose Service', tree: DA.data.pricingServiceTree, onChange: noop }))
         ]);
       }
     }

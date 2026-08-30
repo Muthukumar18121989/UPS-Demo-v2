@@ -49,6 +49,17 @@
   gap: var(--space-6);
 }
 
+/* Full-width samples (AppHeader, ScenarioBlock, SummaryPanel) read as
+   cramped side by side -- stacked instead, each still labelled. */
+.style-guide__row--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.style-guide__row--stack .style-guide__variant-sample {
+  min-width: 0;
+}
+
 .style-guide__variant {
   display: flex;
   flex-direction: column;
