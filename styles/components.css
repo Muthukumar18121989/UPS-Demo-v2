@@ -633,6 +633,143 @@
   color: var(--color-text-secondary);
 }
 
+/* --------------------------------------------------------------------------
+   Scenario comparison — Option 2: always-visible impact/driver cards
+   -------------------------------------------------------------------------- */
+.comparison-option-switch {
+  padding: 0 var(--space-5);
+  margin-bottom: var(--space-4);
+}
+
+.impact-section-title {
+  margin: 0 0 var(--space-3);
+  padding: 0 var(--space-5);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.impact-cards-grid,
+.driver-cards-grid {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+.impact-cards-grid {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.driver-cards-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.impact-card,
+.driver-card {
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.impact-card__label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.impact-card__values {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.impact-card__arrow {
+  margin: 0 var(--space-2);
+  color: var(--color-text-secondary);
+}
+
+.impact-card__delta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-4);
+  color: var(--color-info);
+}
+
+.impact-card__delta-value {
+  font-weight: var(--font-weight-semibold);
+}
+
+.impact-card__delta-pct {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+.impact-card__bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.impact-card__bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.impact-card__bar-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.impact-bar {
+  height: 8px;
+  background-color: var(--color-surface-muted-strong);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.impact-bar__fill {
+  height: 100%;
+  background-color: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+/* The comparison scenario's own bar, set apart from the baseline's neutral
+   grey fill above -- same brand teal the rest of the app marks a selected
+   or active state with. */
+.impact-bar--accent .impact-bar__fill {
+  background-color: var(--color-primary);
+}
+
+.driver-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.driver-card__trend {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background-color: var(--color-surface-muted);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .col-driver-card {
     transition: left var(--duration-fast) var(--easing-standard);
