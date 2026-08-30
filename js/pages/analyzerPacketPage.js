@@ -399,7 +399,7 @@
         return card;
       }
 
-      DA.dom.clear(comparisonBand).appendChild(el('div', {}, [
+      DA.dom.clear(comparisonBand).appendChild(el('div', { className: 'impact-cards-panel' }, [
         el('p', { className: 'impact-section-title', text: 'Primary Business Impact' }),
         el('div', { className: 'impact-cards-grid' },
           PRIMARY_IMPACT_KEYS.map(function (item) { return primaryCard(item.key, item.label); })),

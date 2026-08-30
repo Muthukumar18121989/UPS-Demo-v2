@@ -641,6 +641,12 @@
   margin-bottom: var(--space-4);
 }
 
+/* Breathing room above "Primary Business Impact" -- without it the title
+   sits flush against the panel's own top edge. */
+.impact-cards-panel {
+  padding-top: var(--space-5);
+}
+
 .impact-section-title {
   margin: 0 0 var(--space-3);
   padding: 0 var(--space-5);
