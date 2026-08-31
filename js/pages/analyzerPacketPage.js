@@ -431,6 +431,27 @@
 
     renderComparisonView();
 
+    /**
+     * The Option switch and the band it controls collapse away together --
+     * with the band hidden, the switch has nothing left to switch between,
+     * so it goes with it rather than sitting there doing nothing. Freeing
+     * this whole block gives Analyzer / Pricing Terms / Other Terms /
+     * Adjustments / Rate Charts the full page height below the filters
+     * instead of losing a fixed chunk of it to the comparison by default.
+     */
+    var comparisonCollapsible = el('div', {}, [
+      el('div', { className: 'comparison-option-switch' }, [comparisonOptionSwitch]),
+      comparisonBand
+    ]);
+
+    var comparisonVisibilityToggle = C.Toggle({
+      checked: true,
+      label: 'Show Scenario Comparison',
+      onChange: function (checked) {
+        comparisonCollapsible.hidden = !checked;
+      }
+    });
+
     /* ---- Summary tab ------------------------------------------------------ */
 
     function summaryColumns() {
@@ -1217,8 +1238,8 @@
           })
         ])
       ]),
-      el('div', { className: 'comparison-option-switch' }, [comparisonOptionSwitch]),
-      comparisonBand,
+      el('div', { className: 'comparison-visibility-toggle' }, [comparisonVisibilityToggle]),
+      comparisonCollapsible,
       el('div', { className: 'tabs--page' }, [
         C.Tabs({
           ariaLabel: 'Report sections',

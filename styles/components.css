@@ -641,6 +641,18 @@
   margin-bottom: var(--space-4);
 }
 
+/* Lets the whole comparison band (Option switch + table/cards) collapse
+   away, so Analyzer / Pricing Terms / Other Terms / Adjustments / Rate
+   Charts below can use the freed vertical space -- a page-level display
+   preference, so it stays the standard full-size switch rather than the
+   compact variant scoped to Comparisons' own "sync scroll" toggle. */
+.comparison-visibility-toggle {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--space-5);
+  margin-bottom: var(--space-3);
+}
+
 /* Breathing room above "Primary Business Impact" -- without it the title
    sits flush against the panel's own top edge. */
 .impact-cards-panel {
