@@ -250,7 +250,7 @@
       var viewportEl = C.DataTable({
         caption: 'Scenario comparison',
         embedded: true,
-        headerTone: 'plain',
+        headerTone: 'warm',
         rowClassName: function (row) { return row.difference ? 'is-difference' : ''; },
         columns: [
           { key: 'scenario', label: 'Scenario', width: '150px' },
