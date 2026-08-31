@@ -3523,6 +3523,17 @@
   opacity: 0.85;
 }
 
+/* The qualifier codes after the billing type (LTR, PKG, PKG-Hundredweight)
+   render raised, same as any other superscript -- but not shrunk further
+   on top of it, since matrix__label-sub is already the smallest type size
+   in the table and the browser default (~0.83em) would make it hard to
+   read here. */
+.matrix__label-sub sup {
+  font-size: 0.92em;
+  vertical-align: super;
+  line-height: 0;
+}
+
 .matrix__section td {
   background-color: var(--color-surface);
   font-weight: var(--font-weight-medium);

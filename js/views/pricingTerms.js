@@ -27,6 +27,22 @@
 
   /* ---- Tier Incentives ---------------------------------------------------- */
 
+  /**
+   * A service group's sublabel pairs its billing type (LTR, PKG, or
+   * PKG-Hundredweight) with the qualifier codes that follow it (FC, PP,
+   * TP, RS...) -- the codes render as superscript, set off from the
+   * billing type they qualify instead of reading as one flat string.
+   */
+  function serviceGroupSublabel(sublabel) {
+    var match = /^(-(?:LTR|PKG(?:-Hundredweight)?))\s+(.+)$/.exec(sublabel || '');
+    if (!match) return [el('span', { text: sublabel })];
+    return [
+      el('span', { text: match[1] }),
+      ' ',
+      el('sup', { text: match[2] })
+    ];
+  }
+
   function tierIncentivesView() {
     var C = DA.components;
     var tier = DA.data.tierIncentive;
@@ -73,7 +89,7 @@
       return el('tr', {}, [
         el('th', { className: 'matrix__label', attrs: { scope: 'row' } }, [
           el('span', { text: group.name }),
-          el('span', { className: 'matrix__label-sub', text: group.sublabel })
+          el('span', { className: 'matrix__label-sub' }, serviceGroupSublabel(group.sublabel))
         ])
       ].concat(group.rates.map(function (rate, index) {
         var band = tier.bands[index];
