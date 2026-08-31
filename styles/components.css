@@ -26,9 +26,12 @@
   min-width: 0;
 }
 
+/* 49x60 matches the real shield's own ~0.816 aspect ratio (39.4 x 48.3
+   viewBox) -- the old 52x60 box belonged to the placeholder mark it
+   replaced and would stretch the real artwork slightly if kept. */
 .app-header__logo {
   display: block;
-  width: 52px;
+  width: 49px;
   height: 60px;
 }
 

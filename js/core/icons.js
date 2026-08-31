@@ -209,23 +209,26 @@
   }
 
   /**
-   * UPS shield mark — simplified in-code placeholder.
-   * Swap for the official brand asset before any external release.
+   * The real UPS shield mark (traced from the brand's own SVG, not the
+   * hand-built approximation this replaced), scaled to the header's
+   * previous 60px height at its native ~0.816 aspect ratio (39.4 x 48.3)
+   * instead of being stretched into the old placeholder's 52 x 60 box --
+   * see .app-header__logo in components.css for the matching width change.
+   * The two brand colors (#341b14 / #ffb406 in the source file) are wired
+   * to the same --color-brand-brown / --color-brand-shield tokens the old
+   * mark used, so the shield still follows the Style Guide's live Token
+   * Editor instead of carrying hardcoded colors of its own.
    */
   function upsShield() {
-    var node = DA.dom.svg('', { viewBox: '0 0 52 60', size: 0 });
-    node.setAttribute('width', '52');
+    var node = DA.dom.svg('', { viewBox: '0 0 39.4 48.3', size: 0 });
+    node.setAttribute('width', '49');
     node.setAttribute('height', '60');
     node.innerHTML =
-      '<path d="M8.5 3.5h35a6 6 0 0 1 6 6v23.9c0 12.2-9.4 19.9-23.5 24.2C11.9 53.3 2.5 45.6 2.5 33.4V9.5a6 6 0 0 1 6-6Z" ' +
-      'fill="var(--color-brand-shield)"/>' +
-      '<path d="M13.5 15.5c3.6-4.4 8-6.6 12.5-6.6s8.9 2.2 12.5 6.6" fill="none" ' +
-      'stroke="var(--color-brand-brown)" stroke-width="2.6" stroke-linecap="round"/>' +
-      '<path d="M26 8.9c-1.9 0-3.1 1.3-3.1 2.7 0 1.5 1.3 2.5 3.1 2.5s3.1-1 3.1-2.5c0-1.4-1.2-2.7-3.1-2.7Z" ' +
-      'fill="var(--color-brand-brown)"/>' +
-      '<text x="26" y="42.5" text-anchor="middle" fill="var(--color-brand-brown)" ' +
-      'font-family="var(--font-family-base)" font-size="20" font-weight="700" ' +
-      'letter-spacing="-0.5">ups</text>';
+      '<path fill="var(--color-brand-brown)" d="M19.7 46.5c.4-.2 10.8-4.7 14.1-7.4 3.4-2.8 5.2-6.8 5.2-11.6V5l-.3-.1C30.4.4 20.1.7 19.6.7 19.2.7 8.9.4.6 4.9L.4 5v22.6c0 4.8 1.8 8.8 5.2 11.6 3.3 2.7 13.7 7.2 14.1 7.3"/>' +
+      '<path fill="var(--color-brand-shield)" d="M19.7 47s-11-4.8-14.4-7.5C1.7 36.5 0 32.4 0 27.7V4.3C8.7-.4 19.7 0 19.7 0s11-.4 19.7 4.3v23.3c0 4.7-1.7 8.8-5.3 11.8-3.4 2.8-14.4 7.6-14.4 7.6M1.6 27.7c0 4.4 1.6 8 4.7 10.5 2.8 2.3 11.1 6 13.4 7 2.3-1 10.7-4.8 13.4-7 3.1-2.5 4.7-6.2 4.7-10.5v-23c-11.6-1.1-25.4-.5-36.2 9.5v13.5z"/>' +
+      '<path fill="var(--color-brand-shield)" d="M30.8 24.4c1.5.9 2.1 1.5 2.2 2.6 0 1.2-.8 1.9-2.1 1.9-1.1 0-2.4-.6-3.3-1.4v3.2c1.1.6 2.4 1.1 3.8 1.1 3.4 0 5-2.4 5-4.6.1-2-.5-3.6-3.4-5.3-1.3-.8-2.3-1.3-2.3-2.5s1.1-1.7 2-1.7c1.2 0 2.4.7 3.1 1.4v-3c-.6-.5-1.9-1.2-3.8-1.1-2.3.1-4.7 1.7-4.7 4.5.1 1.9.7 3.3 3.5 4.9M19 31.6c.3.1.8.2 1.6.2 3.9 0 6.1-3.5 6.1-8.5 0-5.1-2.3-8.2-6.4-8.2-1.9 0-3.4.4-4.7 1.2v22.6H19v-7.3zM19 18c.3-.1.8-.3 1.2-.3 2 0 2.8 1.6 2.8 5.5 0 3.8-1 5.6-3 5.6-.5 0-.9-.1-1.1-.2V18zM8.5 31.8c2.1 0 3.9-.5 5.2-1.4V15.3h-3.5v13.1c-.4.3-.9.4-1.6.4-1.6 0-1.8-1.5-1.8-2.4V15.3H3.3v10.9c0 3.7 1.8 5.6 5.2 5.6"/>' +
+      '<path fill="var(--color-brand-shield)" d="M31.8 45.3v2.3h.4v-.9h.1l.6.9h.5s-.6-.9-.7-1c.3-.1.5-.3.5-.6s-.2-.7-.8-.7h-.6zm.6.3c.3 0 .4.2.4.3 0 .2-.1.4-.5.4h-.1v-.7h.2z"/>' +
+      '<path fill="var(--color-brand-shield)" d="M34 46.4c0 .8-.7 1.5-1.5 1.5s-1.5-.7-1.5-1.5.7-1.5 1.5-1.5c.9 0 1.5.7 1.5 1.5m-1.5-1.9c-1 0-1.9.8-1.9 1.9 0 1 .8 1.9 1.9 1.9 1 0 1.9-.8 1.9-1.9 0-1-.9-1.9-1.9-1.9"/>';
     return node;
   }
 
