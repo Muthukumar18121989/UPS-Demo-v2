@@ -332,14 +332,138 @@
     ]);
   }
 
-  /** Services tab: Option 1 (tree) / Option 2 (dropdown), swapped live. */
+  /**
+   * Option 3: the same hierarchy Option 1 shows, but as a persistent
+   * left-hand pane instead of a stack of accordions -- built on the exact
+   * .dropdown__tree/.dropdown__option markup Option 2's popover tree
+   * already uses (so it looks like the same tree, just always open), next
+   * to the selected leaf's plan on the right. Lets the user see the whole
+   * structure and the open leaf at once, without opening a dropdown or
+   * scrolling past every collapsed sibling accordion first.
+   */
+  function planSidebar(options) {
+    var tree = options.tree;
+    var leafRows = []; // { row, leaf } across every leaf, for selection styling
+
+    var detailMount = el('div', { className: 'plan-sidebar__detail' });
+
+    function select(leaf) {
+      leafRows.forEach(function (entry) {
+        var selected = entry.leaf === leaf;
+        entry.row.classList.toggle('is-selected', selected);
+        entry.row.setAttribute('aria-selected', selected ? 'true' : 'false');
+      });
+      DA.dom.clear(detailMount).appendChild(
+        el('div', { className: 'plan-detail-panel' }, [
+          el('p', { className: 'plan-detail-panel__title', text: leaf.path.join(' / ') }),
+          options.leafRender()
+        ])
+      );
+    }
+
+    function buildLeaf(node, ancestors, depth) {
+      var value = node.value == null ? node.label : node.value;
+      var leaf = { label: node.label, value: value, path: ancestors.concat(node.label) };
+
+      var row = el('li', {
+        className: 'dropdown__option dropdown__option--select dropdown__tree-leaf',
+        attrs: { role: 'treeitem', tabindex: '0', 'aria-selected': 'false' },
+        style: { '--tree-depth': String(depth) },
+        on: {
+          click: function () { select(leaf); },
+          keydown: function (event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              select(leaf);
+            }
+          }
+        }
+      }, [
+        DA.icons.check(16, 'dropdown__option-check'),
+        el('span', { className: 'dropdown__option-label', text: node.label })
+      ]);
+
+      leafRows.push({ row: row, leaf: leaf });
+      return row;
+    }
+
+    function buildGroup(node, ancestors, depth) {
+      var childList = el('ul', { className: 'dropdown__tree-group', attrs: { role: 'group' } },
+        node.children.map(function (child) {
+          return child.children
+            ? buildGroup(child, ancestors.concat(node.label), depth + 1)
+            : buildLeaf(child, ancestors.concat(node.label), depth + 1);
+        })
+      );
+
+      var toggle = el('button', {
+        className: 'dropdown__tree-toggle',
+        attrs: { type: 'button', 'aria-expanded': 'true' },
+        style: { '--tree-depth': String(depth) },
+        on: {
+          click: function () {
+            var open = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+            childList.hidden = open;
+          }
+        }
+      }, [
+        DA.icons.chevronDown(14, 'dropdown__tree-chevron'),
+        el('span', { className: 'dropdown__tree-label', text: node.label })
+      ]);
+
+      return el('li', { className: 'dropdown__tree-node', attrs: { role: 'treeitem' } }, [toggle, childList]);
+    }
+
+    var treeList = el('ul', {
+      className: 'dropdown__tree',
+      attrs: { role: 'tree', 'aria-label': options.selectLabel }
+    }, tree.map(function (node) {
+      return node.children ? buildGroup(node, [], 0) : buildLeaf(node, [], 0);
+    }));
+
+    var defaultLeaf = firstLeaf(tree);
+    var defaultRow = defaultLeaf && leafRows.filter(function (entry) {
+      return entry.leaf.value === defaultLeaf.value;
+    })[0];
+    if (defaultRow) select(defaultRow.leaf);
+
+    return el('div', {}, [
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+        el('a', { className: 'link-with-icon', attrs: { href: options.addHref } }, [
+          DA.icons.plusCircle(18),
+          el('span', { text: options.addLabel })
+        ])
+      ]),
+      el('div', { className: 'plan-sidebar' }, [
+        el('nav', { className: 'plan-sidebar__nav', attrs: { 'aria-label': options.selectLabel } }, [treeList]),
+        detailMount
+      ])
+    ]);
+  }
+
+  function servicesSidebarView() {
+    return planSidebar({
+      tree: DA.data.pricingServiceTree,
+      leafRender: servicePlan,
+      selectLabel: 'Choose Service',
+      addHref: '#add-plan',
+      addLabel: 'Add Service Incentive Plan'
+    });
+  }
+
+  /** Services tab: Option 1 (tree) / Option 2 (dropdown) / Option 3 (left-pane hierarchy), swapped live. */
   function servicesViewSwitchable() {
     var C = DA.components;
     var option = 'option2';
     var mount = el('div', { className: 'card' });
 
     function render() {
-      DA.dom.clear(mount).appendChild(option === 'option1' ? servicesTreeView() : servicesView());
+      DA.dom.clear(mount).appendChild(
+        option === 'option1' ? servicesTreeView()
+          : option === 'option3' ? servicesSidebarView()
+          : servicesView()
+      );
     }
 
     var switcher = C.SegmentedControl({
@@ -347,7 +471,8 @@
       value: option,
       items: [
         { value: 'option1', label: 'Option 1' },
-        { value: 'option2', label: 'Option 2' }
+        { value: 'option2', label: 'Option 2' },
+        { value: 'option3', label: 'Option 3' }
       ],
       onChange: function (value) {
         option = value;
@@ -451,14 +576,28 @@
     ]);
   }
 
-  /** Accessorials tab: Option 1 (tree) / Option 2 (dropdown), swapped live. */
+  function accessorialsSidebarView() {
+    return planSidebar({
+      tree: DA.data.pricingAccessorialTree,
+      leafRender: accessorialPlan,
+      selectLabel: 'Choose Accessorial',
+      addHref: '#add-accessorial-plan',
+      addLabel: 'Add Accessorial Incentive Plan'
+    });
+  }
+
+  /** Accessorials tab: Option 1 (tree) / Option 2 (dropdown) / Option 3 (left-pane hierarchy), swapped live. */
   function accessorialsViewSwitchable() {
     var C = DA.components;
     var option = 'option2';
     var mount = el('div', { className: 'card' });
 
     function render() {
-      DA.dom.clear(mount).appendChild(option === 'option1' ? accessorialsTreeView() : accessorialsView());
+      DA.dom.clear(mount).appendChild(
+        option === 'option1' ? accessorialsTreeView()
+          : option === 'option3' ? accessorialsSidebarView()
+          : accessorialsView()
+      );
     }
 
     var switcher = C.SegmentedControl({
@@ -466,7 +605,8 @@
       value: option,
       items: [
         { value: 'option1', label: 'Option 1' },
-        { value: 'option2', label: 'Option 2' }
+        { value: 'option2', label: 'Option 2' },
+        { value: 'option3', label: 'Option 3' }
       ],
       onChange: function (value) {
         option = value;

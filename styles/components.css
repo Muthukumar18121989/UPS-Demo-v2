@@ -3228,7 +3228,41 @@
 }
 
 .plan-view-option-switch {
-  padding: var(--space-4) var(--space-4) 0;
+  padding: var(--space-4);
+}
+
+/* Option 3: a persistent left-hand hierarchy (built on the exact same
+   .dropdown__tree markup Option 2's popover tree already uses) beside the
+   selected leaf's plan on the right, so the whole structure and the open
+   leaf stay visible together instead of only one or the other. */
+.plan-sidebar {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.plan-sidebar__nav {
+  flex: 0 0 260px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+}
+
+.plan-sidebar__nav .dropdown__tree {
+  margin: var(--space-2) 0;
+}
+
+.plan-sidebar__detail {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The outer .plan-sidebar padding + gap already spaces the detail pane on
+   every side -- plan-detail-panel's own padding (meant for sitting directly
+   under the "Add..." link in Options 1/2) would just double it up here. */
+.plan-sidebar__detail .plan-detail-panel {
+  padding: 0;
 }
 
 /* The chosen leaf's incentive plan, under its full Domestic / Ground /
