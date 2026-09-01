@@ -67,11 +67,11 @@
     function groupedSummary() {
       return C.SummaryPanel({
         ariaLabel: 'Analyzer packet summary',
-        headline: {
-          label: 'Analyzer Packet ID',
-          value: packet.packetId,
-          secondary: packet.customerName
-        },
+        headline: [
+          { label: 'Analyzer Packet ID', value: packet.packetId },
+          { label: 'Customer Name', value: packet.customerName },
+          { label: 'Reference Number', value: packet.referenceNumber }
+        ],
         sections: [
           {
             title: 'Packet Information',

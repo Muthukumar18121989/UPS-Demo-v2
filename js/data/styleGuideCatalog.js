@@ -470,7 +470,11 @@
         var C = DA.components;
         return el('div', { className: 'style-guide__row style-guide__row--stack' }, [
           variant('grouped (SummaryPanel)', C.SummaryPanel({
-            headline: { label: 'Analyzer Packet ID', value: '112002', secondary: 'APPLEGATE FARMS' },
+            headline: [
+              { label: 'Analyzer Packet ID', value: '112002' },
+              { label: 'Customer Name', value: 'APPLEGATE FARMS' },
+              { label: 'Reference Number', value: '0000067577' }
+            ],
             sections: [
               { title: 'Packet Information', columns: 2, fields: [
                 { label: 'Analyzer Packet ID', value: '112002' },

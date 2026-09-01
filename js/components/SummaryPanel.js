@@ -113,22 +113,11 @@
     uid += 1;
     var bodyId = 'summary-panel-' + uid;
     var expanded = options.expanded !== false;
-    var headline = options.headline || {};
 
     var body = el('div', {
       className: 'summary-panel__body',
       attrs: { id: bodyId, hidden: !expanded }
     }, (options.sections || []).map(section));
-
-    var titleParts = [
-      el('span', { className: 'detail__label', text: headline.label + ':' }),
-      ' ',
-      el('span', { className: 'summary-panel__title-value', text: headline.value })
-    ];
-    if (headline.secondary) {
-      titleParts.push(' — ');
-      titleParts.push(el('span', { className: 'summary-panel__title-value', text: headline.secondary }));
-    }
 
     var header = el('button', {
       className: 'summary-panel__header',
@@ -146,7 +135,16 @@
       }
     }, [
       DA.icons.chevronRight(16, 'summary-panel__icon'),
-      el('span', { className: 'summary-panel__title' }, titleParts)
+      // Same header row SummaryPanelFlat's collapsed state uses -- Packet
+      // ID, Customer Name and Reference Number side by side in the same
+      // .summary-panel__header-items grid -- instead of one flat title
+      // string, so the collapsed header carries the same information
+      // regardless of which option is showing.
+      el('span', { className: 'summary-panel__header-items' },
+        (options.headline || []).map(function (item) {
+          return DA.components.Detail(item);
+        })
+      )
     ]);
 
     return el('section', {
