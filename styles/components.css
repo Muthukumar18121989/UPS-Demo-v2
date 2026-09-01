@@ -3289,20 +3289,85 @@
    leaf stay visible together instead of only one or the other. */
 .plan-sidebar {
   display: flex;
-  align-items: flex-start;
+  /* stretch (the default), not flex-start -- so the nav column's own
+     height always matches the detail column's, however tall its table
+     turns out to be, instead of stopping wherever the tree's own content
+     happens to end. */
+  align-items: stretch;
   gap: var(--space-4);
   padding: var(--space-4);
 }
 
 .plan-sidebar__nav {
+  display: flex;
+  flex-direction: column;
   flex: 0 0 260px;
   background-color: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-container);
+  overflow: hidden;
 }
 
-.plan-sidebar__nav .dropdown__tree {
+.plan-sidebar__nav-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.plan-sidebar__nav-title {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.plan-sidebar__nav-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The tree fills whatever height the stretched nav column ends up at and
+   scrolls internally, instead of capping at the popover's own 320px. */
+.plan-sidebar__nav-body .dropdown__tree {
+  flex: 1 1 auto;
+  max-height: none;
   margin: var(--space-2) 0;
+}
+
+/* The collapsed nav's replacement: a slim, always-reachable strip in the
+   same spot, the only way back in once the nav itself is hidden. Hidden
+   by default -- .is-collapsed below is what shows it. */
+.plan-sidebar__expand {
+  display: none;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.plan-sidebar__expand:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.plan-sidebar.is-collapsed .plan-sidebar__nav {
+  display: none;
+}
+
+.plan-sidebar.is-collapsed .plan-sidebar__expand {
+  display: flex;
 }
 
 .plan-sidebar__detail {

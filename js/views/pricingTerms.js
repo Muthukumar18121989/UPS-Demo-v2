@@ -444,6 +444,43 @@
     })[0];
     if (defaultRow) select(defaultRow.leaf);
 
+    // Collapsing the nav hides it outright rather than shrinking it, so
+    // the detail pane's table can use the full page width when the
+    // hierarchy isn't needed -- a slim expand strip stays in its place,
+    // the only part of the nav that stays visible, so there's always a
+    // way back in.
+    var collapseButton = el('button', {
+      className: 'icon-action u-tap-target',
+      attrs: { type: 'button', 'aria-label': 'Collapse hierarchy panel', 'aria-expanded': 'true' }
+    }, [DA.icons.chevronLeft(14)]);
+
+    var expandButton = el('button', {
+      className: 'plan-sidebar__expand',
+      attrs: { type: 'button', 'aria-label': 'Expand hierarchy panel' }
+    }, [DA.icons.chevronRight(14, '')]);
+
+    var wrap = el('div', { className: 'plan-sidebar' });
+
+    function setCollapsed(collapsed) {
+      wrap.classList.toggle('is-collapsed', collapsed);
+      collapseButton.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+
+    collapseButton.addEventListener('click', function () { setCollapsed(true); });
+    expandButton.addEventListener('click', function () { setCollapsed(false); });
+
+    DA.dom.append(wrap, [
+      el('nav', { className: 'plan-sidebar__nav', attrs: { 'aria-label': options.selectLabel } }, [
+        el('div', { className: 'plan-sidebar__nav-head' }, [
+          el('span', { className: 'plan-sidebar__nav-title', text: options.selectLabel }),
+          collapseButton
+        ]),
+        el('div', { className: 'plan-sidebar__nav-body' }, [treeList])
+      ]),
+      expandButton,
+      detailMount
+    ]);
+
     return el('div', {}, [
       el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
         el('a', { className: 'link-with-icon', attrs: { href: options.addHref } }, [
@@ -451,10 +488,7 @@
           el('span', { text: options.addLabel })
         ])
       ]),
-      el('div', { className: 'plan-sidebar' }, [
-        el('nav', { className: 'plan-sidebar__nav', attrs: { 'aria-label': options.selectLabel } }, [treeList]),
-        detailMount
-      ])
+      wrap
     ]);
   }
 
