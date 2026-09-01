@@ -44,6 +44,21 @@
     };
   }
 
+  /**
+   * The one-line expansion behind each comparison metric's abbreviation --
+   * shown under the metric name in the column-hover driver card, keyed by
+   * the same column keys renderComparisonBand()'s numeric() columns use.
+   */
+  var METRIC_DESCRIPTIONS = {
+    adv: 'Average Daily Volume',
+    baseFrtDisc: 'Base Freight Discount excluding Accessorials',
+    totalDisc: 'Total Discount including Accessorials',
+    rpp: 'Net Revenue per Piece',
+    or: 'Operating Ratio',
+    revenue: 'Total Net Revenue',
+    profit: 'Net Profit after Cost'
+  };
+
   /** A figure with an inline edit affordance -- the Adjustments dollar cell. */
   function editableCell(value) {
     return el('span', { className: 'cell-value' }, [
@@ -221,6 +236,9 @@
 
       DA.dom.clear(card);
       card.appendChild(el('p', { className: 'col-driver-card__title', text: label }));
+      if (METRIC_DESCRIPTIONS[key]) {
+        card.appendChild(el('p', { className: 'col-driver-card__desc', text: METRIC_DESCRIPTIONS[key] }));
+      }
 
       var flow = el('div', { className: 'col-driver-card__flow' }, [
         el('div', { className: 'col-driver-card__step' }, [
