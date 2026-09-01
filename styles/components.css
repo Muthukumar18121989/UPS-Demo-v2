@@ -389,6 +389,17 @@
   color: var(--color-neutral-badge);
 }
 
+/* Analyzer Packets list's Status column -- stretches the badge to fill
+   the cell so every row's pill is the same width, regardless of how long
+   its status text is ("Sourcing Data" vs "Error Occurred"). Scoped to
+   this column rather than .badge itself, since StatusBadge is also used
+   inline elsewhere (Scenario Block, Style Guide) where sizing to its own
+   text is correct. */
+.is-status .badge {
+  width: 100%;
+  justify-content: center;
+}
+
 /* --------------------------------------------------------------------------
    Data table
    -------------------------------------------------------------------------- */

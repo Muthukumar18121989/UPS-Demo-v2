@@ -36,6 +36,12 @@
         key: 'status',
         label: 'Status',
         width: '175px',
+        // The badge itself sizes to its own text (StatusBadge is used
+        // elsewhere as an inline label, where that's correct), so left
+        // alone "Sourcing Data" and "Error Occurred" come out different
+        // widths in the same column -- is-status stretches it to fill the
+        // cell here instead, so every row's pill lines up the same width.
+        className: 'is-status',
         render: function (row) { return C.StatusBadge(row.status); }
       },
       { key: 'createdDate', label: 'Created Date', width: '105px', className: 'is-numeric' },
