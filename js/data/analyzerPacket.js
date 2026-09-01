@@ -36,7 +36,7 @@
   DA.data.filterOptions = {
     revenueBasis: ['All', 'Freight Only', 'Accessorial Only', 'Net Revenue'],
     costBasis: ['Fully Allocated Cost', 'Marginal Cost', 'Direct Cost'],
-    incentiveMethod: ['Weight Break', 'Flat Incentive', 'Zone Based', 'Minimum Charge'],
+    incentiveMethod: ['Weight Break', 'Base/Zone', 'Custom Net Rate'],
     service: ['All', 'Next Day Air', 'Next Day Air Saver', '2nd Day Air', 'Ground', 'Ground Saver'],
     accessorial: ['All', 'Fuel Surcharge', 'Delivery Area', 'Additional Handling', 'Return Labels'],
     accountSuffix: ['MAIN', 'EAST', 'WEST']
@@ -200,12 +200,59 @@
   /** Zone columns and weight bands behind a service's incentive grid. */
   DA.data.rateZones = ['2', '3', '4', '5', '6', '7', '8', '44', '45', '46'];
 
+  /** The Weight Break method's own, smaller zone set (zero-padded, as the
+      reference screen shows them -- distinct from rateZones' un-padded
+      codes, which the Custom Net Rate method reuses instead). */
+  DA.data.weightBreakZones = ['002', '003', '004', '005', '006', '007', '008'];
+
   DA.data.weightBreaks = [
     { from: '1', to: '5', rate: '46.00%' },
     { from: '6', to: '10', rate: '47.00%' },
     { from: '11', to: '20', rate: '50.00%' },
-    { from: '21', to: '30', rate: '52.00%' },
-    { from: '31+', to: '', rate: '54.00%' }
+    { from: '21', to: '50', rate: '52.00%' },
+    { from: '51+', to: '9999999', rate: '54.00%' }
+  ];
+
+  /**
+   * Base/Zone method: a flat zone/ADV/incentive-amount table, no weight
+   * bands -- the incentive is set once per zone rather than varying by
+   * billable weight.
+   */
+  DA.data.baseZoneIncentives = [
+    { zone: '401', adv: '0.51', incentiveAmount: '25.00%' },
+    { zone: '402', adv: '0.00', incentiveAmount: '14.50%' },
+    { zone: '403', adv: '0.02', incentiveAmount: '4.50%' },
+    { zone: '404', adv: '0.38', incentiveAmount: '4.50%' },
+    { zone: '405', adv: '0.00', incentiveAmount: '4.50%' },
+    { zone: '406', adv: '0.00', incentiveAmount: '4.50%' },
+    { zone: '407', adv: '0.00', incentiveAmount: '4.50%' },
+    { zone: '409', adv: '0.00', incentiveAmount: '4.50%' },
+    { zone: '411', adv: '0.00', incentiveAmount: '4.50%' },
+    { zone: '412', adv: '0.03', incentiveAmount: '4.50%' },
+    { zone: '413', adv: '0.00', incentiveAmount: '4.50%' },
+    { zone: '420', adv: '0.00', incentiveAmount: '4.50%' },
+    { zone: '421', adv: '0.00', incentiveAmount: '4.50%' },
+    { zone: '481', adv: '5.31', incentiveAmount: '4.50%' },
+    { zone: '482', adv: '2.43', incentiveAmount: '4.50%' },
+    { zone: '484', adv: '0.00', incentiveAmount: '45.00%' }
+  ];
+
+  /**
+   * Custom Net Rate method: a $ rate per billable weight (1 lb at a time,
+   * not banded) and zone -- uploaded from a template rather than set as a
+   * percentage, so every cell is a flat, non-editable figure. Keyed by
+   * rateZones' own zone codes.
+   */
+  DA.data.customNetRateRows = [
+    { weight: '1', rates: { '2': '$6.22', '3': '$6.22', '4': '$6.22', '5': '$6.22', '6': '$6.22', '7': '$6.22', '8': '$6.22', '44': '$15.22', '45': '$15.18', '46': '$20.05' } },
+    { weight: '2', rates: { '2': '$0.00', '3': '$0.00', '4': '$0.00', '5': '$0.00', '6': '$0.00', '7': '$0.00', '8': '$0.00', '44': '$16.93', '45': '$17.00', '46': '$21.77' } },
+    { weight: '3', rates: { '2': '$0.00', '3': '$0.00', '4': '$0.00', '5': '$0.00', '6': '$6.25', '7': '$6.47', '8': '$6.79', '44': '$18.40', '45': '$19.38', '46': '$23.18' } },
+    { weight: '4', rates: { '2': '$0.00', '3': '$0.00', '4': '$0.00', '5': '$6.35', '6': '$6.51', '7': '$6.94', '8': '$7.28', '44': '$20.20', '45': '$20.65', '46': '$25.14' } },
+    { weight: '5', rates: { '2': '$0.00', '3': '$0.00', '4': '$0.00', '5': '$6.62', '6': '$6.90', '7': '$7.25', '8': '$7.70', '44': '$21.90', '45': '$22.41', '46': '$26.73' } },
+    { weight: '6', rates: { '2': '$0.00', '3': '$0.00', '4': '$0.00', '5': '$6.65', '6': '$0.00', '7': '$7.28', '8': '$0.00', '44': '$23.64', '45': '$23.87', '46': '$27.76' } },
+    { weight: '7', rates: { '2': '$0.00', '3': '$0.00', '4': '$6.33', '5': '$6.86', '6': '$7.03', '7': '$7.48', '8': '$7.99', '44': '$25.24', '45': '$25.69', '46': '$29.17' } },
+    { weight: '8', rates: { '2': '$0.00', '3': '$0.00', '4': '$6.54', '5': '$7.05', '6': '$7.30', '7': '$7.77', '8': '$8.35', '44': '$26.22', '45': '$27.04', '46': '$30.79' } },
+    { weight: '9', rates: { '2': '$0.00', '3': '$0.00', '4': '$6.57', '5': '$7.14', '6': '$7.47', '7': '$8.08', '8': '$8.79', '44': '$28.07', '45': '$28.91', '46': '$32.60' } }
   ];
 
   DA.data.flowThroughOptions = [

@@ -3430,6 +3430,41 @@
   width: 180px;
 }
 
+/* Custom Net Rate's Download Template / Upload Net Rate Values links --
+   pushed to the far end of the same row the Incentive Method field sits
+   in, rather than a row of their own. */
+.field-row__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-left: auto;
+}
+
+/* Without this, the class's own `display: flex` above outranks the
+   [hidden] attribute's UA-stylesheet `display: none` (author styles beat
+   UA styles regardless of the attribute selector's own specificity), so
+   toggling .hidden on the element alone silently did nothing. */
+.field-row__actions[hidden] {
+  display: none;
+}
+
+/* Base/Zone's Incentive Amount column header -- a static sort cue, same
+   chevron the field already uses elsewhere, not a real sort. */
+.th-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* The Base/Zone Incentive Amount figure reads as a flagged/override value,
+   not a routine one -- same weight the app already gives other emphasis
+   text, in the error token since that's the color the reference screen
+   itself uses for it. */
+.cell-value__text--alert {
+  color: var(--color-error);
+  font-weight: var(--font-weight-semibold);
+}
+
 /* --------------------------------------------------------------------------
    Rate grid  (weight breaks by zone)
    -------------------------------------------------------------------------- */

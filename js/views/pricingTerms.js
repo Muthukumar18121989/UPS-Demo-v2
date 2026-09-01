@@ -15,7 +15,10 @@
   function editableCell(value, options) {
     options = options || {};
     return el('span', { className: 'cell-value' }, [
-      el('span', { text: value }),
+      el('span', {
+        className: options.tone ? 'cell-value__text--' + options.tone : null,
+        text: value
+      }),
       options.editable === false
         ? null
         : el('button', {
@@ -147,10 +150,13 @@
 
   /* ---- Services ----------------------------------------------------------- */
 
-  /** The incentive settings for one service: options, method and rate grid. */
-  function servicePlan() {
-    var C = DA.components;
-    var zones = DA.data.rateZones;
+  /**
+   * Weight Break: a matrix grid, one row per weight band, rate an editable
+   * percent per zone -- the method's own smaller, zero-padded zone set
+   * (weightBreakZones), not the 10-zone set the other rate grids share.
+   */
+  function weightBreakGrid() {
+    var zones = DA.data.weightBreakZones;
 
     var grid = el('table', { className: 'matrix' }, [
       el('caption', { className: 'u-visually-hidden', text: 'Weight break incentives by zone' }),
@@ -159,7 +165,7 @@
           el('th', {
             className: 'matrix__rowhead',
             attrs: { scope: 'col', colspan: 2, rowspan: 2 },
-            text: 'Billable Weight (lbs)'
+            text: 'Billable Weight'
           }),
           el('th', { attrs: { scope: 'colgroup', colspan: zones.length }, text: 'Domestic' }),
           el('th', { attrs: { scope: 'col', rowspan: 2 }, text: '' })
@@ -170,8 +176,8 @@
       ]),
       el('tbody', {}, DA.data.weightBreaks.map(function (band) {
         return el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' }, text: band.from }),
-          el('td', { className: 'matrix__rowhead', text: band.to })
+          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' } }, [editableCell(band.from)]),
+          el('td', { className: 'matrix__rowhead' }, [editableCell(band.to)])
         ].concat(zones.map(function () {
           return el('td', { className: 'matrix__cell' }, [editableCell(band.rate)]);
         })).concat([
@@ -184,6 +190,146 @@
         ]));
       }))
     ]);
+
+    return el('div', { className: 'card' }, [
+      el('p', { className: 'rate-grid__caption', text: 'Zone Reference: Daily' }),
+      el('div', { className: 'grid-scroll scroll-area' }, [grid]),
+      el('div', { className: 'grid-footer' }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#add-weight-break' } }, [
+          DA.icons.plusCircle(18),
+          el('span', { text: 'Add weight break' })
+        ]),
+        el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
+          DA.icons.save(15),
+          el('span', { text: 'Save Changes' })
+        ])
+      ])
+    ]);
+  }
+
+  /**
+   * Base/Zone: no weight bands at all -- one incentive amount per zone,
+   * flat. A plain DataTable rather than a matrix grid, since there's no
+   * second axis (zone columns x weight rows) to lay out.
+   */
+  function baseZoneGrid() {
+    var C = DA.components;
+    return el('div', { className: 'card' }, [
+      C.DataTable({
+        caption: 'Base/Zone incentive amounts',
+        embedded: true,
+        headerTone: 'warm',
+        columns: [
+          {
+            key: 'zone', label: 'Zone', width: '160px',
+            render: function (row) {
+              return el('a', { text: row.zone, attrs: { href: '#zone-detail', 'aria-label': 'Zone ' + row.zone } });
+            }
+          },
+          { key: 'adv', label: 'ADV', width: '160px', className: 'is-numeric is-end', headerClassName: 'is-end' },
+          {
+            key: 'incentiveAmount', label: 'Incentive Amount', width: '180px',
+            className: 'is-numeric is-end', headerClassName: 'is-end',
+            // A static sort affordance, matching the reference screen --
+            // no other column in the app sorts yet, so this doesn't wire
+            // up a real sort either, just the same chevron cue.
+            renderHeader: function () {
+              return el('span', { className: 'th-with-icon' }, [
+                el('span', { text: 'Incentive Amount' }),
+                DA.icons.chevronDown(14)
+              ]);
+            },
+            render: function (row) { return editableCell(row.incentiveAmount, { tone: 'alert' }); }
+          }
+        ],
+        rows: DA.data.baseZoneIncentives
+      }),
+      el('div', { className: 'grid-footer' }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
+          DA.icons.save(15),
+          el('span', { text: 'Save Changes' })
+        ])
+      ])
+    ]);
+  }
+
+  /**
+   * Custom Net Rate: the same matrix shape Weight Break uses, but keyed by
+   * a single billable weight per row (not a from/to band) against
+   * rateZones' full 10-zone set, and every cell is a flat $ figure -- set
+   * by uploading a template, not edited cell by cell, so no pencil icons.
+   */
+  function customNetRateGrid() {
+    var zones = DA.data.rateZones;
+
+    var grid = el('table', { className: 'matrix' }, [
+      el('caption', { className: 'u-visually-hidden', text: 'Custom net rate by weight and zone' }),
+      el('thead', {}, [
+        el('tr', {}, [
+          el('th', {
+            className: 'matrix__rowhead',
+            attrs: { scope: 'col', rowspan: 2 },
+            text: 'Billable Weight (lbs)'
+          }),
+          el('th', { attrs: { scope: 'colgroup', colspan: zones.length }, text: 'Domestic' })
+        ]),
+        el('tr', {}, zones.map(function (zone) {
+          return el('th', { attrs: { scope: 'col' }, text: zone });
+        }))
+      ]),
+      el('tbody', {}, DA.data.customNetRateRows.map(function (row) {
+        return el('tr', {}, [
+          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' }, text: row.weight })
+        ].concat(zones.map(function (zone) {
+          return el('td', { className: 'matrix__cell' }, [el('span', { text: row.rates[zone] })]);
+        })));
+      }))
+    ]);
+
+    return el('div', { className: 'card' }, [
+      el('p', { className: 'rate-grid__caption', text: 'Zone Reference: Daily' }),
+      el('div', { className: 'grid-scroll scroll-area' }, [grid]),
+      el('div', { className: 'grid-footer' }, [
+        el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
+          DA.icons.save(15),
+          el('span', { text: 'Save Changes' })
+        ])
+      ])
+    ]);
+  }
+
+  /** The incentive settings for one service: options, method and rate grid --
+      which of the three (Weight Break, Base/Zone, Custom Net Rate) swaps
+      live with the Incentive Method dropdown, each its own table shape. */
+  function servicePlan() {
+    var C = DA.components;
+    var method = 'Weight Break';
+    var gridMount = el('div', {});
+
+    // Only Custom Net Rate is set by uploading a template rather than
+    // editing cells -- these stay out of the flow for the other two
+    // methods rather than sitting there disabled.
+    var templateActions = el('div', { className: 'field-row__actions' }, [
+      el('a', { className: 'link-with-icon', attrs: { href: '#download-template' } }, [
+        DA.icons.download(15),
+        el('span', { text: 'Download Template' })
+      ]),
+      el('a', { className: 'link-with-icon', attrs: { href: '#upload-net-rate' } }, [
+        DA.icons.upload(15),
+        el('span', { text: 'Upload Net Rate Values' })
+      ])
+    ]);
+
+    function renderMethod() {
+      DA.dom.clear(gridMount).appendChild(
+        method === 'Base/Zone' ? baseZoneGrid()
+          : method === 'Custom Net Rate' ? customNetRateGrid()
+          : weightBreakGrid()
+      );
+      templateActions.hidden = method !== 'Custom Net Rate';
+    }
+
+    renderMethod();
 
     return el('div', { className: 'plan-detail' }, [
       C.Tabs({
@@ -212,26 +358,18 @@
         C.SelectField({
           label: 'Incentive Method',
           hideLabel: true,
-          value: 'Weight Break',
+          value: method,
           options: DA.data.filterOptions.incentiveMethod.map(function (value) {
             return { value: value, label: value };
-          })
-        })
+          }),
+          onChange: function (value) {
+            method = value;
+            renderMethod();
+          }
+        }),
+        templateActions
       ]),
-      el('div', { className: 'card' }, [
-        el('p', { className: 'rate-grid__caption', text: 'Zone Reference: Daily' }),
-        el('div', { className: 'grid-scroll scroll-area' }, [grid]),
-        el('div', { className: 'grid-footer' }, [
-          el('a', { className: 'link-with-icon', attrs: { href: '#add-weight-break' } }, [
-            DA.icons.plusCircle(18),
-            el('span', { text: 'Add weight break' })
-          ]),
-          el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
-            DA.icons.save(15),
-            el('span', { text: 'Save Changes' })
-          ])
-        ])
-      ])
+      gridMount
     ]);
   }
 
