@@ -28,6 +28,27 @@
     ]);
   }
 
+  /**
+   * A Flow Through Option, shown as a toggleable chip -- a plain outlined
+   * pill, not a checkbox-and-label -- so the row reads as a set of picks
+   * rather than a form's checkbox list.
+   */
+  function flowThroughChip(label, checked) {
+    var selected = Boolean(checked);
+    var chip = el('button', {
+      className: 'flow-chip' + (selected ? ' is-selected' : ''),
+      attrs: { type: 'button', 'aria-pressed': selected ? 'true' : 'false' },
+      on: {
+        click: function () {
+          selected = !selected;
+          chip.classList.toggle('is-selected', selected);
+          chip.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        }
+      }
+    }, [el('span', { text: label })]);
+    return chip;
+  }
+
   /* ---- Tier Incentives ---------------------------------------------------- */
 
   /**
@@ -342,19 +363,18 @@
       }),
       el('p', { className: 'plan-detail__label', text: 'Flow Through Options' }),
       el('div', { className: 'checkbox-row' }, DA.data.flowThroughOptions.map(function (option) {
-        return C.Checkbox({ checked: true, label: option });
+        return flowThroughChip(option, false);
       })),
       C.SegmentedControl({
         ariaLabel: 'Incentive basis',
-        value: 'cell',
+        value: 'base',
         items: [
-          { value: 'base', label: 'Base/Zone' },
-          { value: 'cell', label: 'Cell by Cell/Customs' },
+          { value: 'base', label: 'Base Incentive' },
           { value: 'minimum', label: 'Minimum' }
         ]
       }),
       el('div', { className: 'field-row' }, [
-        el('span', { className: 'field-row__label', text: 'Incentive Method *' }),
+        el('span', { className: 'field-row__label', text: 'Incentive Method' }),
         C.SelectField({
           label: 'Incentive Method',
           hideLabel: true,
