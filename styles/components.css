@@ -408,6 +408,32 @@
   min-height: var(--table-min-height);
   overflow: auto;
   border-top: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+}
+
+/*
+ * The viewport's own border-radius clips the table's silhouette, but the
+ * header row is position: sticky -- ancestor overflow-clip doesn't
+ * reliably round a sticky element's own corners across browsers, so the
+ * outer 4 cells (wherever the table actually starts/ends, not necessarily
+ * <table> itself) get explicit corner radii too. Only the outermost
+ * cells round; every interior cell stays square, same as any bordered
+ * table with a rounded container.
+ */
+.data-table thead tr:first-child th:first-child {
+  border-top-left-radius: var(--radius-container);
+}
+
+.data-table thead tr:first-child th:last-child {
+  border-top-right-radius: var(--radius-container);
+}
+
+.data-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--radius-container);
+}
+
+.data-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-container);
 }
 
 .data-table {
@@ -3358,6 +3384,26 @@
   font-size: var(--font-size-sm);
 }
 
+/* Same corner-rounding convention as .data-table -- the outer 4 cells get
+   radius directly, since the header row is sticky and can't reliably be
+   rounded through ancestor overflow-clip alone. */
+.matrix thead tr:first-child th:first-child {
+  border-top-left-radius: var(--radius-container);
+}
+
+.matrix thead tr:first-child th:last-child {
+  border-top-right-radius: var(--radius-container);
+}
+
+.matrix tbody tr:last-child td:first-child,
+.matrix tbody tr:last-child th:first-child {
+  border-bottom-left-radius: var(--radius-container);
+}
+
+.matrix tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-container);
+}
+
 .matrix th,
 .matrix td {
   padding: var(--space-2) var(--space-3);
@@ -3455,6 +3501,7 @@
 .grid-scroll {
   max-height: 260px;
   overflow: auto;
+  border-radius: var(--radius-container);
 }
 
 /* --------------------------------------------------------------------------
