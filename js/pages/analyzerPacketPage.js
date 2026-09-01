@@ -178,10 +178,38 @@
     }
 
     /**
+     * Two horizontal bars comparing a metric's baseline and against value --
+     * the same visual language Option 2's Primary Business Impact cards
+     * already use for Revenue/Profit, reused here so the hover driver card
+     * reads as a graphic instead of a plain number pair.
+     */
+    function comparisonBars(baseLabel, baseValue, againstLabel, againstValue) {
+      var baseNum = DA.figures.toNumber(baseValue);
+      var againstNum = DA.figures.toNumber(againstValue);
+      var maxAbs = Math.max(Math.abs(baseNum || 0), Math.abs(againstNum || 0)) || 1;
+
+      function barRow(scenarioLabel, value, accent) {
+        var pctWidth = Math.abs(value || 0) / maxAbs * 100;
+        return el('div', { className: 'impact-card__bar-row' }, [
+          el('span', { className: 'impact-card__bar-label', text: scenarioLabel }),
+          el('div', { className: 'impact-bar' + (accent ? ' impact-bar--accent' : '') }, [
+            el('div', { className: 'impact-bar__fill', style: { width: pctWidth + '%' } })
+          ])
+        ]);
+      }
+
+      return el('div', { className: 'impact-card__bars', style: { 'margin-top': 'var(--space-3)' } }, [
+        barRow(baseLabel, baseNum, false),
+        barRow(againstLabel, againstNum, true)
+      ]);
+    }
+
+    /**
      * Fills the hovered column's driver card: the baseline figure, the figure
      * it's being compared against, and the recorded change as the "scenario
      * impact" -- the same story the Key Scenario Drivers card tells, scoped to
-     * one metric.
+     * one metric. The two figures also get a pair of comparisonBars() under
+     * them, so the readout isn't numbers alone.
      */
     function fillDriverCard(card, key, label) {
       var rows = bandRows || [];
@@ -219,6 +247,7 @@
           }),
           el('span', { className: 'col-driver-card__impact-label', text: 'Scenario impact' })
         ]));
+        card.appendChild(comparisonBars(base.scenario || 'Current', base[key], against.scenario, against[key]));
       } else {
         card.appendChild(el('p', {
           className: 'col-driver-card__hint',
