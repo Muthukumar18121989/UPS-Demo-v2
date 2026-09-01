@@ -111,11 +111,13 @@
 
     // Both layouts stay live side by side behind a switch -- not a decision
     // made once and thrown away -- so either can be pulled up on demand
-    // while presenting, without a code change. Option 2 is the current
-    // default since it's what the page already showed before this switch
-    // existed.
+    // while presenting, without a code change. Option 1 is the default:
+    // its collapsed header carries Packet ID, Customer Name and Reference
+    // Number together, where Option 2's collapsed header only carries
+    // Packet ID (plus Customer Name as a secondary) and drops Reference
+    // Number entirely.
     var summaryMount = el('div', {});
-    var summaryOption = 'option2';
+    var summaryOption = 'option1';
 
     function renderSummary() {
       DA.dom.clear(summaryMount).appendChild(
