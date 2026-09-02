@@ -208,6 +208,65 @@
     );
   }
 
+  /*
+   * Key Scenario Drivers' per-metric icons -- ADV already had a natural
+   * fit in `box` (shipping volume), so only the other 6 metrics needed a
+   * new glyph: a discount %, a discount tag, stacked coins, a rising
+   * trend line, a gauge (a ratio read at a glance) and a dollar figure.
+   */
+  function percent(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M18 6 6 18"/>' +
+      '<circle cx="7.5" cy="7.5" r="1.9" fill="currentColor"/>' +
+      '<circle cx="16.5" cy="16.5" r="1.9" fill="currentColor"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function tag(size, className) {
+    return svg(
+      '<path ' + STROKE +
+      ' d="M11.7 4.5H6.8a2.3 2.3 0 0 0-2.3 2.3v4.9c0 .4.16.78.44 1.06l8.6 8.6a1.5 1.5 0 0 0 2.12 0l4.9-4.9a1.5 1.5 0 0 0 0-2.12l-8.6-8.6a1.5 1.5 0 0 0-1.06-.44Z"/>' +
+      '<circle cx="8.3" cy="8.3" r="1.3" fill="currentColor"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function coins(size, className) {
+    return svg(
+      '<circle ' + STROKE + ' cx="9" cy="9" r="5"/>' +
+      '<circle ' + STROKE + ' cx="15.2" cy="15.2" r="5"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function trendingUp(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M4 16.5 9.8 10.7 13.2 14.1 20 7.3"/>' +
+      '<path ' + STROKE + ' d="M14.6 7.3H20v5.4"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function gauge(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M4 16.5a8 8 0 0 1 16 0"/>' +
+      '<path ' + STROKE + ' d="M12 16.5 15.3 11"/>' +
+      '<circle cx="12" cy="16.5" r="1.3" fill="currentColor"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function dollarCircle(size, className) {
+    return svg(
+      '<circle ' + STROKE + ' cx="12" cy="12" r="8.5"/>' +
+      '<path ' + STROKE + ' d="M12 6.8v10.4"/>' +
+      '<path ' + STROKE +
+      ' d="M14.6 9.4c0-1.05-1.16-1.9-2.6-1.9s-2.6.85-2.6 1.9c0 2.5 5.2 1.15 5.2 3.65 0 1.05-1.16 1.9-2.6 1.9s-2.6-.85-2.6-1.9"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
   /**
    * The real UPS shield mark (traced from the brand's own SVG, not the
    * hand-built approximation this replaced), scaled to the header's
@@ -259,6 +318,12 @@
     file: file,
     plus: plus,
     inbox: inbox,
+    percent: percent,
+    tag: tag,
+    coins: coins,
+    trendingUp: trendingUp,
+    gauge: gauge,
+    dollarCircle: dollarCircle,
     upsShield: upsShield
   };
 })(window.DA);

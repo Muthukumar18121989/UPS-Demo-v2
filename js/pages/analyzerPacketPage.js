@@ -59,6 +59,21 @@
     profit: 'Net Profit after Cost'
   };
 
+  /**
+   * A distinct icon per metric for Key Scenario Drivers' corner info
+   * button -- every card showed the same generic "?" regardless of which
+   * metric it was, keyed by the same column keys METRIC_DESCRIPTIONS is.
+   */
+  var METRIC_ICONS = {
+    adv: DA.icons.box,
+    baseFrtDisc: DA.icons.percent,
+    totalDisc: DA.icons.tag,
+    rpp: DA.icons.coins,
+    or: DA.icons.gauge,
+    revenue: DA.icons.trendingUp,
+    profit: DA.icons.dollarCircle
+  };
+
   /** A figure with an inline edit affordance -- the Adjustments dollar cell. */
   function editableCell(value) {
     return el('span', { className: 'cell-value' }, [
@@ -339,14 +354,12 @@
       return /%$/.test(s) ? s.replace(/%$/, ' pp') : s;
     }
 
-    var PRIMARY_IMPACT_KEYS = [
-      { key: 'revenue', label: 'Revenue' },
-      { key: 'profit', label: 'Profit' }
-    ];
-    // Same order the comparison table's own columns use (comparisonKeys) --
-    // Revenue and Profit included here too, alongside their own bigger
-    // Primary Business Impact cards above, so every metric gets the same
-    // driver-card comparison in one place.
+    // Same order the comparison table's own columns use (comparisonKeys).
+    // With Primary Business Impact removed, this is the whole comparison
+    // view -- 7 cards, 4 filling the top row and the remaining 3 the
+    // second (driver-cards-grid is a fixed 4-column grid, not
+    // auto-fit, so the wrap always lands there regardless of viewport
+    // width).
     var DRIVER_KEYS = [
       { key: 'adv', label: 'ADV' },
       { key: 'baseFrtDisc', label: 'Base Frt Disc' },
@@ -359,11 +372,13 @@
 
     /**
      * Option 2: the same comparison, read as always-visible cards instead
-     * of a table with a hover-triggered readout -- Primary Business Impact
-     * (Revenue, Profit) gets its own bigger card with a Current/Scenario
-     * bar pair; the rest are the same Key Scenario Driver card
-     * fillDriverCard() already builds for the hover card, just rendered in
-     * place in a grid instead of floated and hidden until hovered.
+     * of a table with a hover-triggered readout -- one Key Scenario
+     * Drivers grid covers all 7 metrics (Revenue/Profit included), the
+     * same card fillDriverCard() already builds for the hover card, just
+     * rendered in place instead of floated and hidden until hovered.
+     * Primary Business Impact's bigger, bar-chart cards for Revenue/Profit
+     * were dropped as a separate section now that those two live in this
+     * grid too -- keeping both was showing the same two metrics twice.
      */
     function renderImpactCards() {
       var rows = comparisonRows();
@@ -379,58 +394,24 @@
         return;
       }
 
-      function primaryCard(key, label) {
-        var currentNum = DA.figures.toNumber(current[key]);
-        var scenarioNum = DA.figures.toNumber(scenario[key]);
-        var deltaNum = DA.figures.toNumber(change[key]);
-        var dir = deltaDirection(change[key]);
-        var pct = currentNum ? (deltaNum / currentNum) * 100 : null;
-        var maxAbs = Math.max(Math.abs(currentNum || 0), Math.abs(scenarioNum || 0)) || 1;
-
-        function barRow(scenarioLabel, value, accent) {
-          var pctWidth = Math.abs(value || 0) / maxAbs * 100;
-          return el('div', { className: 'impact-card__bar-row' }, [
-            el('span', { className: 'impact-card__bar-label', text: scenarioLabel }),
-            el('div', { className: 'impact-bar' + (accent ? ' impact-bar--accent' : '') }, [
-              el('div', { className: 'impact-bar__fill', style: { width: pctWidth + '%' } })
-            ])
-          ]);
-        }
-
-        return el('div', { className: 'impact-card' }, [
-          el('p', { className: 'impact-card__label', text: label }),
-          el('p', { className: 'impact-card__values' }, [
-            el('span', { text: current[key] }),
-            el('span', { className: 'impact-card__arrow', text: '→' }),
-            el('span', { text: scenario[key] })
-          ]),
-          el('p', { className: 'impact-card__delta impact-card__delta--' + dir }, [
-            dir === 'down' ? DA.icons.chevronDown(14) : DA.icons.chevronUp(14),
-            el('span', { className: 'impact-card__delta-value', text: signed(change[key]) }),
-            pct != null
-              ? el('span', {
-                  className: 'impact-card__delta-pct',
-                  text: '(' + (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%)'
-                })
-              : null
-          ]),
-          el('div', { className: 'impact-card__bars' }, [
-            barRow(current.scenario, currentNum, false),
-            barRow(scenario.scenario, scenarioNum, true)
-          ])
-        ]);
-      }
-
       function driverCard(key, label) {
         var card = el('div', { className: 'driver-card' });
         var dir = deltaDirection(change[key]);
         // The corner used to repeat the same up/down chevron the Scenario
-        // impact line already shows below -- replaced with an info icon
-        // (the metric's own description, same wording the column-hover
-        // tooltip uses) instead of a second copy of the same arrow.
+        // impact line already shows below -- replaced with an info button
+        // carrying the metric's own icon (not the generic "?" HelpButton
+        // otherwise uses) and its description as the tooltip, so the
+        // corner both reads as "this card" at a glance and adds
+        // information instead of repeating the arrow.
+        var iconFn = METRIC_ICONS[key] || DA.icons.info;
         card.appendChild(el('div', { className: 'driver-card__head' }, [
           el('p', { className: 'col-driver-card__title', style: { margin: 0 }, text: label }),
-          METRIC_DESCRIPTIONS[key] ? DA.components.HelpButton(METRIC_DESCRIPTIONS[key]) : null
+          METRIC_DESCRIPTIONS[key]
+            ? el('button', {
+                className: 'help-button u-tap-target',
+                attrs: { type: 'button', 'aria-label': METRIC_DESCRIPTIONS[key], title: METRIC_DESCRIPTIONS[key] }
+              }, [iconFn(16)])
+            : null
         ]));
         card.appendChild(el('div', { className: 'col-driver-card__flow' }, [
           el('div', { className: 'col-driver-card__step' }, [
@@ -457,9 +438,6 @@
       }
 
       DA.dom.clear(comparisonBand).appendChild(el('div', { className: 'impact-cards-panel' }, [
-        el('p', { className: 'impact-section-title', text: 'Primary Business Impact' }),
-        el('div', { className: 'impact-cards-grid' },
-          PRIMARY_IMPACT_KEYS.map(function (item) { return primaryCard(item.key, item.label); })),
         el('p', { className: 'impact-section-title', text: 'Key Scenario Drivers' }),
         el('div', { className: 'driver-cards-grid' },
           DRIVER_KEYS.map(function (item) { return driverCard(item.key, item.label); }))
