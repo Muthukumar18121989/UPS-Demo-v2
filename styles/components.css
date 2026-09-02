@@ -3107,16 +3107,38 @@
   padding-top: var(--space-4);
 }
 
-/* Row-label column, held visually apart from the figures beside it. */
+/* Row-label column, held visually apart from the figures beside it --
+   lighter than the rest of the table's own greys (surface-muted, not
+   surface-muted-strong) so it reads as a soft label column, not a heavy
+   block. Hover shifts to the shade this used to rest at (still lighter
+   than the old --color-border-strong hover it replaces) rather than
+   darkening past the resting color. */
 .data-table td.is-rowhead,
 .data-table th.is-rowhead {
-  background-color: var(--color-surface-muted-strong);
+  background-color: var(--color-surface-muted);
   color: var(--color-text-primary);
 }
 
 .data-table tbody tr:hover td.is-rowhead,
 .data-table tbody tr:focus-within td.is-rowhead {
-  background-color: var(--color-border-strong);
+  background-color: var(--color-surface-muted-strong);
+}
+
+/* Table values read as drill-down figures, not plain text -- the app's
+   brand teal (not the general link blue every other <a> in the product
+   uses) marks them apart, since these are numbers to inspect, not
+   navigation. Excludes the row-label column itself, which stays plain
+   text on its own grey background. */
+.data-table td:not(.is-rowhead) a,
+.matrix td a,
+.matrix th a {
+  color: var(--color-primary);
+}
+
+.data-table td:not(.is-rowhead) a:hover,
+.matrix td a:hover,
+.matrix th a:hover {
+  color: var(--color-primary-hover);
 }
 
 .tree-cell {
