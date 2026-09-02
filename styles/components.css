@@ -882,10 +882,10 @@
   overflow: hidden;
 }
 
-/* The baseline every other scenario is measured against, same treatment
-   Option 3's card gets for it. */
-.comparison-detail-panel--current {
-  border-color: var(--color-primary);
+/* The panel that carries the deltas is the one worth calling out, not
+   the baseline it's measured against. */
+.comparison-detail-panel--change {
+  border-color: var(--color-success);
 }
 
 .comparison-detail-panel__header {

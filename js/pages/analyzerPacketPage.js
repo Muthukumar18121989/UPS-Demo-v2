@@ -447,9 +447,8 @@
       }
 
       var panels = rows.map(function (row) {
-        var isCurrent = row.scenario === 'Current';
         return el('div', {
-          className: 'comparison-detail-panel' + (isCurrent ? ' comparison-detail-panel--current' : '')
+          className: 'comparison-detail-panel' + (row.difference ? ' comparison-detail-panel--change' : '')
         }, [
           el('div', { className: 'comparison-detail-panel__header' }, [
             DA.icons.file(17),
