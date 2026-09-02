@@ -3159,6 +3159,25 @@
   color: var(--color-text-link-hover);
 }
 
+/*
+ * Analyzer Packets list is the other explicit exception: plain text for
+ * every column except Analyzer Packet ID (RecordLink), which keeps the
+ * original link blue -- not teal, not the plain text every other column
+ * on this page uses. Same scoped-ancestor approach as Create Scenarios
+ * above (.page__panel is exclusive to this page's Panel).
+ */
+.page__panel .data-table tbody td:not(.is-rowhead) {
+  color: var(--color-text-primary);
+}
+
+.page__panel .data-table td:not(.is-rowhead) a.record-link {
+  color: var(--color-text-link);
+}
+
+.page__panel .data-table td:not(.is-rowhead) a.record-link:hover {
+  color: var(--color-text-link-hover);
+}
+
 .tree-cell {
   display: flex;
   align-items: center;
