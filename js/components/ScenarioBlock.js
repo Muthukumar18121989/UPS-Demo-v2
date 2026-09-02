@@ -70,9 +70,13 @@
             });
           }
         },
-        { key: 'bidNumber', label: 'Bid Number', width: '125px' },
+        // Bid Number, Bid Name and Construct are plain attributes of the
+        // bid, not values to inspect or follow -- only Shipping Profile
+        // (opens a dialog) and, for editable scenarios, Account
+        // Association stay on the table's link-blue.
+        { key: 'bidNumber', label: 'Bid Number', width: '125px', className: 'is-plain' },
         // Bid Name is left unsized so it absorbs the remaining width.
-        { key: 'bidName', label: 'Bid Name' },
+        { key: 'bidName', label: 'Bid Name', className: 'is-plain' },
         {
           key: 'shippingProfile',
           label: 'Shipping Profile',
@@ -94,9 +98,6 @@
               }
             : null
         },
-        // Construct reads as a plain attribute of the bid, not a value to
-        // inspect or follow -- stays on the table's default text color
-        // rather than the link blue every other column in this table uses.
         { key: 'construct', label: 'Construct', width: '110px', className: 'is-plain' }
       ];
 
