@@ -3143,6 +3143,22 @@
   color: var(--color-primary-hover);
 }
 
+/*
+ * Create Scenarios' bid table (ScenarioBlock, inside .scenario__panel) is
+ * the one explicit exception to the teal-values rule above -- kept on the
+ * original link blue rather than picking up the app-wide retint, by
+ * explicit request. Higher specificity than the plain .data-table rule
+ * (an extra ancestor class) wins regardless of source order.
+ */
+.scenario__panel .data-table tbody td:not(.is-rowhead),
+.scenario__panel .data-table tbody td:not(.is-rowhead) a {
+  color: var(--color-text-link);
+}
+
+.scenario__panel .data-table tbody td:not(.is-rowhead) a:hover {
+  color: var(--color-text-link-hover);
+}
+
 .tree-cell {
   display: flex;
   align-items: center;
