@@ -583,6 +583,14 @@
         }
       }, [
         DA.icons.chevronDown(14, 'dropdown__tree-chevron'),
+        // A top-level group ("Domestic", "Transportation Charges") gets a
+        // category icon alongside its chevron, matching the Accounts
+        // page's own box icon -- so it still reads as "this is an
+        // expandable group" at a glance, collapsed or not, rather than
+        // relying on the chevron alone. Nested levels (Air, Ground -
+        // Package) skip it -- the icon marks the main header, not every
+        // level down.
+        depth === 0 ? DA.icons.box(16) : null,
         el('span', { className: 'dropdown__tree-label', text: node.label })
       ]);
 
