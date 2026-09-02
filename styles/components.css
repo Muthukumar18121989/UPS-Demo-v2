@@ -2747,8 +2747,12 @@
   border-right-color: rgba(255, 255, 255, 0.25);
 }
 
+/* "Tinted" no longer means "grey body cells" -- value columns stay plain
+   white now, same as an untinted table; only the row-header column (its
+   own, more specific is-rowhead rule, unaffected by this) still carries
+   any shading. */
 .data-table--tinted tbody td {
-  background-color: var(--color-surface-muted);
+  background-color: var(--color-surface);
   border-bottom-color: var(--color-border);
 }
 
@@ -3124,11 +3128,30 @@
   background-color: var(--color-surface-muted-strong);
 }
 
-/* Table values read as drill-down figures, not plain text -- the app's
-   brand teal (not the general link blue every other <a> in the product
-   uses) marks them apart, since these are numbers to inspect, not
-   navigation. Excludes the row-label column itself, which stays plain
-   text on its own grey background. */
+/*
+ * Every table value reads in the app's brand teal, not just the ones
+ * already rendered as links -- a plain figure with no drill-down (Disc,
+ * a Tier Incentives % cell) gets the same color as one that does, so a
+ * row doesn't read as part-teal, part-black depending on which columns
+ * happen to be clickable. Excludes the row-label column (is-rowhead /
+ * matrix__rowhead / matrix__label), which stays plain text on its own
+ * grey background, and is scoped to tbody so the (already white-on-dark)
+ * header row is untouched.
+ *
+ * The <a> rules stay alongside the broader td/th one: an anchor carries
+ * its own explicit color (base.css's a{}), which an ancestor's color
+ * does not override by inheritance, however specific that ancestor rule
+ * is -- so linked values still need retinting in their own right.
+ */
+.data-table tbody td:not(.is-rowhead) {
+  color: var(--color-primary);
+}
+
+.matrix tbody td:not(.matrix__rowhead),
+.matrix tbody th:not(.matrix__rowhead):not(.matrix__label) {
+  color: var(--color-primary);
+}
+
 .data-table td:not(.is-rowhead) a,
 .matrix td a,
 .matrix th a {
