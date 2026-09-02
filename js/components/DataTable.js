@@ -68,7 +68,15 @@
           var frozen = frozenStyle(index);
           return el('th', {
             text: custom ? null : column.label,
-            attrs: { scope: 'col', 'aria-label': column.ariaLabel || false },
+            // A native tooltip -- the column's own one-line description,
+            // when a caller supplies one -- rather than any bespoke hover
+            // popover; the browser's own title attribute already does
+            // exactly this, so no custom hover machinery is needed for it.
+            attrs: {
+              scope: 'col',
+              'aria-label': column.ariaLabel || false,
+              title: column.headerTitle || false
+            },
             className: (column.headerClassName || '') + (frozen ? ' ' + frozen.className : ''),
             style: frozen ? { position: frozen.position, left: frozen.left } : {}
           }, custom ? [custom] : null);
