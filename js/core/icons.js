@@ -267,6 +267,18 @@
     );
   }
 
+  /* A column-header sort affordance -- up chevron over down chevron,
+     the same "unsorted, but sortable" glyph most data grids use. Purely
+     decorative here (no column in this app actually sorts yet), matching
+     the same convention Base/Zone's Incentive Amount header already set. */
+  function sort(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M6 9.5 9 6.5 12 9.5"/>' +
+      '<path ' + STROKE + ' d="M6 12.5 9 15.5 12 12.5"/>',
+      { size: size || 14, className: className || '' }
+    );
+  }
+
   /**
    * The real UPS shield mark (traced from the brand's own SVG, not the
    * hand-built approximation this replaced), scaled to the header's
@@ -324,6 +336,7 @@
     trendingUp: trendingUp,
     gauge: gauge,
     dollarCircle: dollarCircle,
+    sort: sort,
     upsShield: upsShield
   };
 })(window.DA);

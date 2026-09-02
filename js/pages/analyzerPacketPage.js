@@ -204,15 +204,27 @@
     }
 
     /**
+     * An arrow + green/red span for a difference figure -- shared by
+     * comparisonNumeric() (Option 1's Change row) and renderComparisonCards()
+     * (Option 3), reusing driverCard()'s own col-driver-card__delta styling
+     * rather than a one-off pair just for the Scenario comparison view.
+     */
+    function comparisonDelta(value) {
+      var dir = deltaDirection(value);
+      return el('span', { className: 'col-driver-card__delta col-driver-card__delta--' + dir }, [
+        dir === 'up' ? DA.icons.chevronUp(12) : dir === 'down' ? DA.icons.chevronDown(12) : null,
+        el('span', { text: String(value) })
+      ]);
+    }
+
+    /**
      * A comparison-table numeric column, wrapping numeric()'s own render so
-     * the Change row's figure comes with a direction arrow and the same
-     * green-up/red-down coloring Key Scenario Drivers uses (reusing its
-     * col-driver-card__delta classes directly, not a one-off pair just for
-     * this table) -- every other row renders exactly as numeric() already
-     * does. headerTitle carries the metric's description as a native
-     * tooltip on the column header, replacing the old hover-triggered
-     * driver-card popup entirely: no custom hover graphic, just the
-     * browser's own title attribute.
+     * the Change row's figure comes with a direction arrow and color
+     * (comparisonDelta()) -- every other row renders exactly as numeric()
+     * already does. headerTitle carries the metric's description as a
+     * native tooltip on the column header, replacing the old
+     * hover-triggered driver-card popup entirely: no custom hover graphic,
+     * just the browser's own title attribute.
      */
     function comparisonNumeric(key, label, options) {
       var column = numeric(key, label, options);
@@ -221,12 +233,7 @@
       column.render = function (row) {
         if (!row.difference) return plainRender(row);
         var value = row[key];
-        if (value == null || value === '-') return '-';
-        var dir = deltaDirection(value);
-        return el('span', { className: 'col-driver-card__delta col-driver-card__delta--' + dir }, [
-          dir === 'up' ? DA.icons.chevronUp(12) : dir === 'down' ? DA.icons.chevronDown(12) : null,
-          el('span', { text: String(value) })
-        ]);
+        return value == null || value === '-' ? '-' : comparisonDelta(value);
       };
       return column;
     }
@@ -357,10 +364,82 @@
       ]));
     }
 
+    /** First-name-plus-surname-style initials for a scenario's card badge --
+        "Scenario 1" -> "S1", "Current" -> "CU", falls back to the first two
+        letters when there's only one word. */
+    function scenarioInitials(name) {
+      var words = (name || '').trim().split(/\s+/).filter(Boolean);
+      if (words.length === 0) return '--';
+      if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+      return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+    }
+
+    /**
+     * Option 3: a card-list layout for the same comparison -- one row per
+     * scenario as its own bordered card on a soft cream surface, an
+     * initials badge standing in for the row, instead of a grid table.
+     * Current gets a gold outline (the baseline the others are measured
+     * against), the same way a "you are here" row would be marked in any
+     * list. Column headers carry a static sort glyph -- decorative, like
+     * Base/Zone's own sort chevron elsewhere in the app; nothing in this
+     * product actually sorts yet.
+     */
+    function renderComparisonCards() {
+      var rows = comparisonRows();
+
+      function headerCell(label, isFirst) {
+        return el('div', { className: 'comparison-cards__header-cell', attrs: { role: 'columnheader' } }, [
+          el('span', { text: label }),
+          isFirst ? DA.icons.chevronDown(12) : DA.icons.sort(12)
+        ]);
+      }
+
+      var header = el('div', {
+        className: 'comparison-cards__header',
+        attrs: { role: 'row' }
+      }, [
+        headerCell('Scenario', true)
+      ].concat(DRIVER_KEYS.map(function (item) { return headerCell(item.label, false); })).concat([
+        el('div', { attrs: { role: 'columnheader', 'aria-hidden': 'true' } })
+      ]));
+
+      var cards = rows.map(function (row) {
+        var isCurrent = row.scenario === 'Current';
+        return el('div', {
+          className: 'comparison-card' + (row.difference ? ' comparison-card--difference' : '') +
+            (isCurrent ? ' comparison-card--current' : ''),
+          attrs: { role: 'row' }
+        }, [
+          el('span', { className: 'comparison-card__avatar', text: scenarioInitials(row.scenario) }),
+          el('div', { className: 'comparison-card__field comparison-card__field--scenario', attrs: { role: 'cell' } }, [
+            el('span', { text: row.scenario })
+          ])
+        ].concat(DRIVER_KEYS.map(function (item) {
+          var value = row[item.key];
+          var content = row.difference && value != null && value !== '-'
+            ? comparisonDelta(value)
+            : el('span', { text: value == null ? '-' : String(value) });
+          return el('div', { className: 'comparison-card__field', attrs: { role: 'cell' } }, [content]);
+        })).concat([
+          el('span', { className: 'comparison-card__chevron', attrs: { 'aria-hidden': 'true' } }, [
+            DA.icons.chevronRight(16, '')
+          ])
+        ]));
+      });
+
+      DA.dom.clear(comparisonBand).appendChild(
+        el('div', {
+          className: 'comparison-cards scroll-area',
+          attrs: { role: 'table', 'aria-label': 'Scenario comparison' }
+        }, [header].concat(cards))
+      );
+    }
+
     var comparisonOption = 'option1';
 
     function renderComparisonView() {
       if (comparisonOption === 'option2') renderImpactCards();
+      else if (comparisonOption === 'option3') renderComparisonCards();
       else renderComparisonBand();
     }
 
@@ -369,7 +448,8 @@
       value: comparisonOption,
       items: [
         { value: 'option1', label: 'Option 1' },
-        { value: 'option2', label: 'Option 2' }
+        { value: 'option2', label: 'Option 2' },
+        { value: 'option3', label: 'Option 3' }
       ],
       onChange: function (value) {
         comparisonOption = value;
