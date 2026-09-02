@@ -955,11 +955,6 @@
       ]);
     }
 
-    /** Label column shared by the flat (non-expanding) rate/adjustment tables. */
-    function flatLabelColumn(key, label, width) {
-      return { key: key, label: label, width: width || '150px', className: 'is-rowhead' };
-    }
-
     /** Filter row above a Rate Charts panel: bid and service group pickers, Export. */
     function rateChartPanelFilters() {
       var bid = 'P310041099 (SP- Stampin Up)';
@@ -1130,11 +1125,24 @@
             embedded: true,
             headerTone: 'warm',
             tinted: true,
-            freezeColumns: 3,
+            // Single Core Service column now, so nothing left to freeze as
+            // a group.
+            freezeColumns: 1,
             columns: [
-              flatLabelColumn('movement', 'Movement', '120px'),
-              flatLabelColumn('mode', 'Mode', '110px'),
-              flatLabelColumn('serviceGroup', 'Service Group', '190px'),
+              {
+                // Movement, Mode and Service Group joined into one label --
+                // the same "Core Service" pattern Analyzer's Cost Details/
+                // Zones tables use (profileKeyColumns()), rather than three
+                // separate frozen columns for what reads as a single line
+                // identifying the row.
+                key: 'coreService',
+                label: 'Core Service',
+                width: '280px',
+                className: 'is-rowhead',
+                render: function (row) {
+                  return [row.movement, row.mode, row.serviceGroup].join('-');
+                }
+              },
               { key: 'incentiveType', label: 'Incentive Type', width: '150px' },
               {
                 key: 'incentiveAmount',

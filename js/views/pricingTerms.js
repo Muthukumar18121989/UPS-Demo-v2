@@ -706,10 +706,6 @@
   function accessorialPlan() {
     var C = DA.components;
 
-    function labelColumn(key, label, width) {
-      return { key: key, label: label, width: width || '140px', className: 'is-rowhead' };
-    }
-
     function editableColumn(key, label, width) {
       return {
         key: key,
@@ -727,14 +723,24 @@
         embedded: true,
         headerTone: 'warm',
         tinted: true,
-        // Movement, Mode, Service Group and Core Service together identify
-        // the line -- frozen as a group, same as Adjustments.
-        freezeColumns: 4,
+        // Single Core Service column now, so nothing left to freeze as a
+        // group -- the row-header column freezes on its own regardless.
+        freezeColumns: 1,
         columns: [
-          labelColumn('movement', 'Movement', '110px'),
-          labelColumn('mode', 'Mode', '90px'),
-          labelColumn('serviceGroup', 'Service Group', '130px'),
-          labelColumn('service', 'Core Service', '170px'),
+          {
+            // Movement, Mode, Service Group and the leaf's own name joined
+            // into one label -- the same "Core Service" pattern Analyzer's
+            // Cost Details/Zones tables use (profileKeyColumns()), rather
+            // than four separate frozen columns for what reads as a single
+            // line identifying the row.
+            key: 'coreService',
+            label: 'Core Service',
+            width: '280px',
+            className: 'is-rowhead',
+            render: function (row) {
+              return [row.movement, row.mode, row.serviceGroup, row.service].join('-');
+            }
+          },
           {
             key: 'adu', label: 'ADU', width: '90px',
             className: 'is-numeric is-end', headerClassName: 'is-end'
