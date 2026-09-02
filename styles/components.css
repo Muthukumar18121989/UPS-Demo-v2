@@ -3121,9 +3121,19 @@
  * its own explicit color (base.css's a{}), which an ancestor's color
  * does not override by inheritance, however specific that ancestor rule
  * is -- so linked values still need retinting in their own right.
+ *
+ * .is-plain opts a cell out entirely (Construct in ScenarioBlock's bid
+ * table, say) -- a plain attribute of the row, not a value to inspect --
+ * so it isn't just excluded from teal here but also given its own
+ * explicit plain-text color, rather than falling through to whatever a
+ * less specific rule elsewhere happens to set.
  */
-.data-table tbody td:not(.is-rowhead) {
+.data-table tbody td:not(.is-rowhead):not(.is-plain) {
   color: var(--color-primary);
+}
+
+.data-table tbody td.is-plain {
+  color: var(--color-text-primary);
 }
 
 .matrix tbody td:not(.matrix__rowhead),
@@ -3148,14 +3158,17 @@
  * the one explicit exception to the teal-values rule above -- kept on the
  * original link blue rather than picking up the app-wide retint, by
  * explicit request. Higher specificity than the plain .data-table rule
- * (an extra ancestor class) wins regardless of source order.
+ * (an extra ancestor class) wins regardless of source order. Construct
+ * (.is-plain) is its own exception within this exception -- a plain
+ * attribute of the bid, not a value to inspect, so it stays on the
+ * table's default text color rather than picking up the blue too.
  */
-.scenario__panel .data-table tbody td:not(.is-rowhead),
-.scenario__panel .data-table tbody td:not(.is-rowhead) a {
+.scenario__panel .data-table tbody td:not(.is-rowhead):not(.is-plain),
+.scenario__panel .data-table tbody td:not(.is-rowhead):not(.is-plain) a {
   color: var(--color-text-link);
 }
 
-.scenario__panel .data-table tbody td:not(.is-rowhead) a:hover {
+.scenario__panel .data-table tbody td:not(.is-rowhead):not(.is-plain) a:hover {
   color: var(--color-text-link-hover);
 }
 

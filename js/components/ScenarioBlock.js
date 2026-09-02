@@ -94,7 +94,10 @@
               }
             : null
         },
-        { key: 'construct', label: 'Construct', width: '110px' }
+        // Construct reads as a plain attribute of the bid, not a value to
+        // inspect or follow -- stays on the table's default text color
+        // rather than the link blue every other column in this table uses.
+        { key: 'construct', label: 'Construct', width: '110px', className: 'is-plain' }
       ];
 
       if (scenario.editable) {
