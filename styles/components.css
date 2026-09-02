@@ -3538,13 +3538,19 @@
 
 /* The collapsed nav's replacement: a slim, always-reachable strip in the
    same spot, the only way back in once the nav itself is hidden. Hidden
-   by default -- .is-collapsed below is what shows it. */
+   by default -- .is-collapsed below is what shows it. The chevron sits
+   at the top, in the same corner the nav-head's own collapse chevron
+   occupies when expanded, with the tree's category icon stacked under
+   it -- so collapsing reads as the same panel narrowing, not a swap to
+   an unrelated bare arrow. */
 .plan-sidebar__expand {
   display: none;
-  flex: 0 0 28px;
+  flex: 0 0 32px;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: var(--space-3);
   align-self: stretch;
+  padding-top: var(--space-3);
   background-color: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-container);
@@ -3555,6 +3561,10 @@
 .plan-sidebar__expand:hover {
   background-color: var(--color-surface-hover);
   color: var(--color-text-primary);
+}
+
+.plan-sidebar__expand-chevron {
+  flex: 0 0 auto;
 }
 
 .plan-sidebar.is-collapsed .plan-sidebar__nav {

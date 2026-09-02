@@ -623,7 +623,14 @@
     var expandButton = el('button', {
       className: 'plan-sidebar__expand',
       attrs: { type: 'button', 'aria-label': 'Expand hierarchy panel' }
-    }, [DA.icons.chevronRight(14, '')]);
+    }, [
+      DA.icons.chevronRight(14, 'plan-sidebar__expand-chevron'),
+      // Echoes the category icon a top-level group (buildGroup, depth 0)
+      // carries in the expanded tree, so the collapsed strip still reads
+      // as "the same hierarchy panel, just narrowed" instead of turning
+      // into an unrelated bare arrow.
+      DA.icons.box(16)
+    ]);
 
     var wrap = el('div', { className: 'plan-sidebar' });
 
