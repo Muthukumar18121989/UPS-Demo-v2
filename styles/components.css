@@ -667,9 +667,26 @@
 }
 
 .col-driver-card__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-info);
+}
+
+/* Color carries the direction -- green for an improvement, red for a
+   decline -- rather than every delta reading the same neutral blue
+   regardless of which way the number moved. */
+.col-driver-card__delta--up {
+  color: var(--color-success);
+}
+
+.col-driver-card__delta--down {
+  color: var(--color-error);
+}
+
+.col-driver-card__delta--flat {
+  color: var(--color-text-secondary);
 }
 
 .col-driver-card__impact-label {
@@ -768,7 +785,19 @@
   align-items: center;
   gap: var(--space-1);
   margin: 0 0 var(--space-4);
-  color: var(--color-info);
+}
+
+/* Same green-up / red-down convention the driver cards use. */
+.impact-card__delta--up {
+  color: var(--color-success);
+}
+
+.impact-card__delta--down {
+  color: var(--color-error);
+}
+
+.impact-card__delta--flat {
+  color: var(--color-text-secondary);
 }
 
 .impact-card__delta-value {
@@ -826,16 +855,12 @@
   margin-bottom: var(--space-3);
 }
 
-.driver-card__trend {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  background-color: var(--color-surface-muted);
-  border-radius: var(--radius-pill);
-  color: var(--color-text-secondary);
+/* driver-card__head's corner control is now the metric's HelpButton
+   (a description tooltip), not a repeated up/down arrow -- Field's own
+   .help-button already centers itself beside a field's first line, which
+   doesn't apply in a card header, so it's reset to sit inline instead. */
+.driver-card__head .help-button {
+  margin-top: 0;
 }
 
 @media (prefers-reduced-motion: no-preference) {

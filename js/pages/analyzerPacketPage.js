@@ -343,12 +343,18 @@
       { key: 'revenue', label: 'Revenue' },
       { key: 'profit', label: 'Profit' }
     ];
+    // Same order the comparison table's own columns use (comparisonKeys) --
+    // Revenue and Profit included here too, alongside their own bigger
+    // Primary Business Impact cards above, so every metric gets the same
+    // driver-card comparison in one place.
     var DRIVER_KEYS = [
       { key: 'adv', label: 'ADV' },
       { key: 'baseFrtDisc', label: 'Base Frt Disc' },
       { key: 'totalDisc', label: 'Total Disc' },
       { key: 'rpp', label: 'RPP' },
-      { key: 'or', label: 'OR' }
+      { key: 'revenue', label: 'Revenue' },
+      { key: 'or', label: 'OR' },
+      { key: 'profit', label: 'Profit' }
     ];
 
     /**
@@ -418,11 +424,13 @@
       function driverCard(key, label) {
         var card = el('div', { className: 'driver-card' });
         var dir = deltaDirection(change[key]);
+        // The corner used to repeat the same up/down chevron the Scenario
+        // impact line already shows below -- replaced with an info icon
+        // (the metric's own description, same wording the column-hover
+        // tooltip uses) instead of a second copy of the same arrow.
         card.appendChild(el('div', { className: 'driver-card__head' }, [
           el('p', { className: 'col-driver-card__title', style: { margin: 0 }, text: label }),
-          el('span', { className: 'driver-card__trend driver-card__trend--' + dir }, [
-            dir === 'down' ? DA.icons.chevronDown(14) : DA.icons.chevronUp(14)
-          ])
+          METRIC_DESCRIPTIONS[key] ? DA.components.HelpButton(METRIC_DESCRIPTIONS[key]) : null
         ]));
         card.appendChild(el('div', { className: 'col-driver-card__flow' }, [
           el('div', { className: 'col-driver-card__step' }, [
@@ -438,8 +446,10 @@
         var delta = change[key];
         if (delta != null && delta !== '-') {
           card.appendChild(el('div', { className: 'col-driver-card__impact' }, [
-            dir === 'down' ? DA.icons.chevronDown(12) : DA.icons.chevronUp(12),
-            el('span', { className: 'col-driver-card__delta', text: signed(asPointChange(delta)) }),
+            el('span', { className: 'col-driver-card__delta col-driver-card__delta--' + dir }, [
+              dir === 'down' ? DA.icons.chevronDown(12) : DA.icons.chevronUp(12),
+              el('span', { text: signed(asPointChange(delta)) })
+            ]),
             el('span', { className: 'col-driver-card__impact-label', text: 'Scenario impact' })
           ]));
         }
