@@ -435,11 +435,63 @@
       );
     }
 
+    /**
+     * Option 4: a bordered detail panel per scenario, laid out side by
+     * side -- an icon + all-caps title heading each panel, then every
+     * metric as its own icon + label : value row underneath, the same
+     * "icon-labelled fields, colon-separated" pattern a record-summary
+     * panel (a bill, an admission record) uses. Each metric's own icon
+     * (METRIC_ICONS, already built for Key Scenario Drivers) sits beside
+     * its label here too, per the explicit ask -- not just once on the
+     * panel header the way the reference shows it.
+     */
+    function renderComparisonDetailPanels() {
+      var rows = comparisonRows();
+
+      function detailRow(item) {
+        return function (row) {
+          var value = row[item.key];
+          var valueNode = row.difference && value != null && value !== '-'
+            ? comparisonDelta(value)
+            : el('span', { className: 'comparison-detail-panel__value', text: value == null ? '-' : String(value) });
+          var iconFn = METRIC_ICONS[item.key] || DA.icons.info;
+          return el('div', { className: 'comparison-detail-panel__row' }, [
+            el('span', { className: 'comparison-detail-panel__row-label' }, [
+              iconFn(15),
+              el('span', { text: item.label })
+            ]),
+            el('span', { className: 'comparison-detail-panel__row-colon', text: ':' }),
+            valueNode
+          ]);
+        };
+      }
+
+      var panels = rows.map(function (row) {
+        var isCurrent = row.scenario === 'Current';
+        return el('div', {
+          className: 'comparison-detail-panel' + (isCurrent ? ' comparison-detail-panel--current' : '')
+        }, [
+          el('div', { className: 'comparison-detail-panel__header' }, [
+            DA.icons.file(17),
+            el('span', { text: (row.scenario || '').toUpperCase() })
+          ]),
+          el('div', { className: 'comparison-detail-panel__body' }, DRIVER_KEYS.map(function (item) {
+            return detailRow(item)(row);
+          }))
+        ]);
+      });
+
+      DA.dom.clear(comparisonBand).appendChild(
+        el('div', { className: 'comparison-detail-panels' }, panels)
+      );
+    }
+
     var comparisonOption = 'option1';
 
     function renderComparisonView() {
       if (comparisonOption === 'option2') renderImpactCards();
       else if (comparisonOption === 'option3') renderComparisonCards();
+      else if (comparisonOption === 'option4') renderComparisonDetailPanels();
       else renderComparisonBand();
     }
 
@@ -449,7 +501,8 @@
       items: [
         { value: 'option1', label: 'Option 1' },
         { value: 'option2', label: 'Option 2' },
-        { value: 'option3', label: 'Option 3' }
+        { value: 'option3', label: 'Option 3' },
+        { value: 'option4', label: 'Option 4' }
       ],
       onChange: function (value) {
         comparisonOption = value;
