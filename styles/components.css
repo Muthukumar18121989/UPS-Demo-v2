@@ -2514,6 +2514,28 @@
   margin-top: var(--space-5);
 }
 
+/* Add Accessorial Incentive Plan's own filter row: Search Table takes the
+   rest of the row, Filter stays a fixed width beside it -- matching the
+   reference screen's proportions rather than the generic filter-grid's
+   equal-width columns. */
+.accessorial-picker__filters {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.accessorial-picker__search {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.accessorial-picker__note {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
 /* --------------------------------------------------------------------------
    Tabs
    -------------------------------------------------------------------------- */

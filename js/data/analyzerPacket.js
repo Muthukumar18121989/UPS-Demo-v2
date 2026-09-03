@@ -307,6 +307,36 @@
   ];
 
   /**
+   * The full accessorial catalog "Add Accessorial Incentive Plan" opens
+   * onto -- every chargeable line a plan could be built from, Product and
+   * Non-Product types mixed together the way the reference screen shows
+   * them (Customs Brokerage's own charge lines are all Non-Product; the
+   * surcharge-style lines below them are Product).
+   */
+  DA.data.accessorialCatalog = [
+    { accessorialType: 'Customs Brokerage', productType: 'Non-Product', group: 'Complex Entries', detail: 'Complex Entry - Entry Status Upgrade' },
+    { accessorialType: 'Customs Brokerage', productType: 'Non-Product', group: 'Complex Entries', detail: 'Complex Entry - US Goods Return' },
+    { accessorialType: 'Customs Brokerage', productType: 'Non-Product', group: 'Complex Entries', detail: 'Live Entry Fee' },
+    { accessorialType: 'Customs Brokerage', productType: 'Non-Product', group: 'Entry Preparation', detail: 'Document Fee' },
+    { accessorialType: 'Customs Brokerage', productType: 'Non-Product', group: 'Other Brokerage Charges', detail: '1st Refund Charge' },
+    { accessorialType: 'Customs Brokerage', productType: 'Non-Product', group: 'Other Brokerage Charges', detail: '3299 Personal Effects' },
+    { accessorialType: 'Customs Brokerage', productType: 'Non-Product', group: 'Other Brokerage Charges', detail: 'Additional Entry Preparation Fee' },
+    { accessorialType: 'Fuel Surcharge', productType: 'Product', group: 'Fuel', detail: 'Fuel Surcharge - Domestic' },
+    { accessorialType: 'Fuel Surcharge', productType: 'Product', group: 'Fuel', detail: 'Fuel Surcharge - International' },
+    { accessorialType: 'Delivery Area Surcharge', productType: 'Product', group: 'Delivery Area', detail: 'Delivery Area Commercial' },
+    { accessorialType: 'Delivery Area Surcharge', productType: 'Product', group: 'Delivery Area', detail: 'Delivery Area Residential' },
+    { accessorialType: 'Additional Handling', productType: 'Product', group: 'Additional Handling', detail: 'Additional Handling - Weight' },
+    { accessorialType: 'Additional Handling', productType: 'Product', group: 'Additional Handling', detail: 'Additional Handling - Dimension' },
+    { accessorialType: 'Additional Handling', productType: 'Product', group: 'Additional Handling', detail: 'Additional Handling - Packaging' },
+    { accessorialType: 'Residential Surcharge', productType: 'Product', group: 'Residential', detail: 'Residential Surcharge' },
+    { accessorialType: 'Large Package Surcharge', productType: 'Product', group: 'Large Package', detail: 'Large Package Surcharge' },
+    { accessorialType: 'Signature Required', productType: 'Product', group: 'Delivery Confirmation', detail: 'Direct Signature Required' },
+    { accessorialType: 'Signature Required', productType: 'Product', group: 'Delivery Confirmation', detail: 'Adult Signature Required' },
+    { accessorialType: 'Address Correction', productType: 'Non-Product', group: 'Address Correction', detail: 'Address Correction Fee' },
+    { accessorialType: 'Return Service', productType: 'Non-Product', group: 'Returns', detail: 'UPS Return Service' }
+  ];
+
+  /**
    * The incentive plan every accessorial leaf opens onto -- one shared
    * table, same as servicePlan()'s weight-break grid is shared across every
    * service leaf regardless of which one opened it.

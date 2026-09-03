@@ -430,13 +430,22 @@
 
     if (defaultLeaf) showPlan(defaultLeaf);
 
+    // A real dialog when the caller wired one up (Accessorials); otherwise
+    // the link just follows its placeholder href, as it always has
+    // (Services has no picker dialog behind it yet).
+    var addLink = el('a', {
+      className: 'link-with-icon',
+      attrs: { href: options.addHref },
+      on: options.onAddClick
+        ? { click: function (event) { event.preventDefault(); options.onAddClick(); } }
+        : {}
+    }, [
+      DA.icons.plusCircle(18),
+      el('span', { text: options.addLabel })
+    ]);
+
     return el('div', {}, [
-      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el('a', { className: 'link-with-icon', attrs: { href: options.addHref } }, [
-          DA.icons.plusCircle(18),
-          el('span', { text: options.addLabel })
-        ])
-      ]),
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [addLink]),
       el('div', { className: 'view-filters' }, [
         el('div', { className: 'view-filters__field' }, [select])
       ]),
@@ -644,13 +653,19 @@
       detailMount
     ]);
 
+    var addLink = el('a', {
+      className: 'link-with-icon',
+      attrs: { href: options.addHref },
+      on: options.onAddClick
+        ? { click: function (event) { event.preventDefault(); options.onAddClick(); } }
+        : {}
+    }, [
+      DA.icons.plusCircle(18),
+      el('span', { text: options.addLabel })
+    ]);
+
     return el('div', {}, [
-      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el('a', { className: 'link-with-icon', attrs: { href: options.addHref } }, [
-          DA.icons.plusCircle(18),
-          el('span', { text: options.addLabel })
-        ])
-      ]),
+      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [addLink]),
       wrap
     ]);
   }
@@ -768,6 +783,11 @@
     ]);
   }
 
+  /** Shared by all three Accessorials layouts -- same trigger, same dialog. */
+  function openAddAccessorialPlanDialog() {
+    DA.dialogs.AddAccessorialIncentivePlanDialog().open();
+  }
+
   /** Option 2: the searchable single-select tree dropdown, current default. */
   function accessorialsView() {
     return planPicker({
@@ -775,7 +795,8 @@
       leafRender: accessorialPlan,
       selectLabel: 'Choose Accessorial',
       addHref: '#add-accessorial-plan',
-      addLabel: 'Add Accessorial Incentive Plan'
+      addLabel: 'Add Accessorial Incentive Plan',
+      onAddClick: openAddAccessorialPlanDialog
     });
   }
 
@@ -784,7 +805,11 @@
   function accessorialsTreeView() {
     return el('div', {}, [
       el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el('a', { className: 'link-with-icon', attrs: { href: '#add-accessorial-plan' } }, [
+        el('a', {
+          className: 'link-with-icon',
+          attrs: { href: '#add-accessorial-plan' },
+          on: { click: function (event) { event.preventDefault(); openAddAccessorialPlanDialog(); } }
+        }, [
           DA.icons.plusCircle(18),
           el('span', { text: 'Add Accessorial Incentive Plan' })
         ])
@@ -801,7 +826,8 @@
       leafRender: accessorialPlan,
       selectLabel: 'Choose Accessorial',
       addHref: '#add-accessorial-plan',
-      addLabel: 'Add Accessorial Incentive Plan'
+      addLabel: 'Add Accessorial Incentive Plan',
+      onAddClick: openAddAccessorialPlanDialog
     });
   }
 
