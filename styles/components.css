@@ -797,6 +797,10 @@
  * (--color-surface-muted), rather than white-on-white with only a border
  * telling them apart. Horizontal scroll (scroll-area for the scrollbar
  * styling, overflow-x here) since 8 columns doesn't fit most viewports.
+ * Border + radius match .accordion's own outer frame (used just below,
+ * for the Current/Scenario summary panels) -- without a border the
+ * same --radius-container corner had nothing to outline it against the
+ * page, so it read as barely rounded at all.
  */
 .comparison-cards {
   display: flex;
@@ -805,6 +809,7 @@
   padding: var(--space-5);
   overflow-x: auto;
   background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-container);
 }
 
