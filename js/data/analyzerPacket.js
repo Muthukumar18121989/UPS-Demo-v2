@@ -36,7 +36,7 @@
   DA.data.filterOptions = {
     revenueBasis: ['All', 'Freight Only', 'Accessorial Only', 'Net Revenue'],
     costBasis: ['Fully Allocated Cost', 'Marginal Cost', 'Direct Cost'],
-    incentiveMethod: ['Weight Break', 'Base/Zone', 'Custom Net Rate'],
+    incentiveMethod: ['Cell-by-cell', 'Base/Zone', 'Custom Net Rate'],
     service: ['All', 'Next Day Air', 'Next Day Air Saver', '2nd Day Air', 'Ground', 'Ground Saver'],
     accessorial: ['All', 'Fuel Surcharge', 'Delivery Area', 'Additional Handling', 'Return Labels'],
     accountSuffix: ['MAIN', 'EAST', 'WEST']
@@ -200,7 +200,7 @@
   /** Zone columns and weight bands behind a service's incentive grid. */
   DA.data.rateZones = ['2', '3', '4', '5', '6', '7', '8', '44', '45', '46'];
 
-  /** The Weight Break method's own, smaller zone set (zero-padded, as the
+  /** The Cell-by-cell method's own, smaller zone set (zero-padded, as the
       reference screen shows them -- distinct from rateZones' un-padded
       codes, which the Custom Net Rate method reuses instead). */
   DA.data.weightBreakZones = ['002', '003', '004', '005', '006', '007', '008'];

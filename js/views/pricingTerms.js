@@ -29,24 +29,14 @@
   }
 
   /**
-   * A Flow Through Option, shown as a toggleable chip -- a plain outlined
-   * pill, not a checkbox-and-label -- so the row reads as a set of picks
-   * rather than a form's checkbox list.
+   * A Flow Through Option, shown as a plain outlined pill -- informational
+   * only (which flow types this incentive plan can apply to), not a
+   * pick list. Nothing here is actually selectable, so it's a plain
+   * <span>, not a <button>: no click handler, no pressed state, no
+   * affordance implying it can be toggled.
    */
-  function flowThroughChip(label, checked) {
-    var selected = Boolean(checked);
-    var chip = el('button', {
-      className: 'flow-chip' + (selected ? ' is-selected' : ''),
-      attrs: { type: 'button', 'aria-pressed': selected ? 'true' : 'false' },
-      on: {
-        click: function () {
-          selected = !selected;
-          chip.classList.toggle('is-selected', selected);
-          chip.setAttribute('aria-pressed', selected ? 'true' : 'false');
-        }
-      }
-    }, [el('span', { text: label })]);
-    return chip;
+  function flowThroughChip(label) {
+    return el('span', { className: 'flow-chip' }, [el('span', { text: label })]);
   }
 
   /* ---- Tier Incentives ---------------------------------------------------- */
@@ -172,7 +162,7 @@
   /* ---- Services ----------------------------------------------------------- */
 
   /**
-   * Weight Break: a matrix grid, one row per weight band, rate an editable
+   * Cell-by-cell: a matrix grid, one row per weight band, rate an editable
    * percent per zone -- the method's own smaller, zero-padded zone set
    * (weightBreakZones), not the 10-zone set the other rate grids share.
    */
@@ -275,7 +265,7 @@
   }
 
   /**
-   * Custom Net Rate: the same matrix shape Weight Break uses, but keyed by
+   * Custom Net Rate: the same matrix shape Cell-by-cell uses, but keyed by
    * a single billable weight per row (not a from/to band) against
    * rateZones' full 10-zone set, and every cell is a flat $ figure -- set
    * by uploading a template, not edited cell by cell, so no pencil icons.
@@ -320,11 +310,11 @@
   }
 
   /** The incentive settings for one service: options, method and rate grid --
-      which of the three (Weight Break, Base/Zone, Custom Net Rate) swaps
+      which of the three (Cell-by-cell, Base/Zone, Custom Net Rate) swaps
       live with the Incentive Method dropdown, each its own table shape. */
   function servicePlan() {
     var C = DA.components;
-    var method = 'Weight Break';
+    var method = 'Cell-by-cell';
     var gridMount = el('div', {});
 
     // Only Custom Net Rate is set by uploading a template rather than
@@ -363,7 +353,7 @@
       }),
       el('p', { className: 'plan-detail__label', text: 'Flow Through Options' }),
       el('div', { className: 'checkbox-row' }, DA.data.flowThroughOptions.map(function (option) {
-        return flowThroughChip(option, false);
+        return flowThroughChip(option);
       })),
       C.SegmentedControl({
         ariaLabel: 'Incentive basis',
