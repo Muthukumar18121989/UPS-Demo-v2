@@ -369,15 +369,23 @@
      * scenario as its own bordered card on a white surface, instead of a
      * grid table. No row is singled out permanently; the gold outline is
      * a hover state any row picks up, not a fixed marker on Current.
-     * Column headers carry a static sort glyph -- decorative, like
+     * Metric columns carry the same METRIC_ICONS glyph Options 2 and 4
+     * use for that metric, plus a static sort glyph -- decorative, like
      * Base/Zone's own sort chevron elsewhere in the app; nothing in this
-     * product actually sorts yet.
+     * product actually sorts yet. Metric headers and values are right-
+     * aligned (numbers read right-to-left for comparison); the leading
+     * "Scenario" column stays left-aligned since it's a row label, not a
+     * figure.
      */
     function renderComparisonCards() {
       var rows = comparisonRows();
 
-      function headerCell(label, isFirst) {
-        return el('div', { className: 'comparison-cards__header-cell', attrs: { role: 'columnheader' } }, [
+      function headerCell(label, isFirst, iconFn) {
+        return el('div', {
+          className: 'comparison-cards__header-cell' + (isFirst ? '' : ' comparison-cards__header-cell--metric'),
+          attrs: { role: 'columnheader' }
+        }, [
+          iconFn ? iconFn(13) : null,
           el('span', { text: label }),
           isFirst ? DA.icons.chevronDown(12) : DA.icons.sort(12)
         ]);
@@ -387,8 +395,10 @@
         className: 'comparison-cards__header',
         attrs: { role: 'row' }
       }, [
-        headerCell('Scenario', true)
-      ].concat(DRIVER_KEYS.map(function (item) { return headerCell(item.label, false); })));
+        headerCell('Scenario', true, null)
+      ].concat(DRIVER_KEYS.map(function (item) {
+        return headerCell(item.label, false, METRIC_ICONS[item.key]);
+      })));
 
       var cards = rows.map(function (row) {
         return el('div', {
@@ -403,7 +413,7 @@
           var content = row.difference && value != null && value !== '-'
             ? comparisonDelta(value)
             : el('span', { text: value == null ? '-' : String(value) });
-          return el('div', { className: 'comparison-card__field', attrs: { role: 'cell' } }, [content]);
+          return el('div', { className: 'comparison-card__field comparison-card__field--metric', attrs: { role: 'cell' } }, [content]);
         })));
       });
 

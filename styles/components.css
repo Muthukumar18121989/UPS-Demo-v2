@@ -832,6 +832,19 @@
   color: var(--color-text-secondary);
 }
 
+.comparison-cards__header-cell svg {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+}
+
+/* Metric columns read right-to-left for comparison, so their headers --
+   icon, label, sort glyph -- and the values beneath them both line up
+   against the same right edge. The leading Scenario column is a row
+   label, not a figure, and stays left-aligned. */
+.comparison-cards__header-cell--metric {
+  justify-content: flex-end;
+}
+
 .comparison-card {
   padding: var(--space-3) var(--space-4);
   background-color: var(--color-surface-muted);
@@ -853,6 +866,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.comparison-card__field--metric {
+  text-align: right;
 }
 
 .comparison-card__field--scenario {
