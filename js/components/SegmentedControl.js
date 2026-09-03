@@ -40,22 +40,28 @@
 
     items.forEach(function (item) {
       var selected = String(item.value) === String(value);
+      // An icon-only option (item.icon) carries no visible text -- its
+      // label still becomes the button's accessible name (aria-label)
+      // and a native tooltip (title), same as any other icon-only
+      // control in the app.
       buttons.push(
         el('button', {
-          className: 'segmented__option',
-          text: item.label,
+          className: 'segmented__option' + (item.icon ? ' segmented__option--icon' : ''),
+          text: item.icon ? null : item.label,
           dataset: { value: item.value },
           attrs: {
             type: 'button',
             role: 'radio',
             'aria-checked': selected ? 'true' : 'false',
+            'aria-label': item.icon ? item.label : false,
+            title: item.icon ? item.label : false,
             tabindex: selected ? 0 : -1
           },
           on: {
             click: function () { setValue(item.value, false); },
             keydown: onKeydown
           }
-        })
+        }, item.icon ? [item.icon(16)] : null)
       );
     });
 

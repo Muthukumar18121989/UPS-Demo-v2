@@ -219,6 +219,15 @@
   color: var(--color-text-primary);
 }
 
+/* An icon-only option (Scenario Comparison's Tile view / Table view
+   switch) needs a square tap target, not the wide text-label padding --
+   the icon carries the meaning, its accessible name and native tooltip
+   come from aria-label/title instead of visible text. */
+.segmented__option--icon {
+  min-width: var(--control-height-sm);
+  padding: 0 var(--space-3);
+}
+
 .segmented__option[aria-checked="true"] {
   background-color: var(--color-primary);
   color: var(--color-on-primary);
@@ -301,6 +310,15 @@
   border-radius: var(--radius-surface);
   box-shadow: var(--shadow-xs);
   overflow: hidden;
+}
+
+/* .panel's own `display: flex` beats the [hidden] attribute's native
+   `display: none` (author styles win regardless of the attribute
+   selector's own specificity) -- without this, a hidden panel (e.g.
+   Scenario Comparison's band, toggled off via "Show Scenario
+   Comparison") stays visible and just as tall as ever. */
+.panel[hidden] {
+  display: none;
 }
 
 .panel__toolbar {
@@ -672,17 +690,26 @@
 }
 
 /* --------------------------------------------------------------------------
-   Scenario comparison — header (title + Tile/Table view switch)
+   Scenario comparison — header (title + view switch + show/hide toggle)
    -------------------------------------------------------------------------- */
-/* Title and view switch sit together on the left, not spread across the
-   row or centered -- one control cluster owning this band, the same way
-   a panel's own title sits at its own left edge elsewhere in the app. */
+/* Title and view switch sit together on the left; the show/hide toggle
+   -- a page-level display preference, not part of "what to show" the
+   way the view switch is -- sits on its own at the right edge. Always
+   visible regardless of whether the band below is showing, so it's
+   also the only way back in once that band is hidden. */
 .comparison-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-4);
   padding: 0 var(--space-5);
   margin-bottom: var(--space-4);
+}
+
+.comparison-header__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
 }
 
 .comparison-header__title {
@@ -690,18 +717,6 @@
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-}
-
-/* Lets the whole comparison band (header + table/cards) collapse away,
-   so Analyzer / Pricing Terms / Other Terms / Adjustments / Rate Charts
-   below can use the freed vertical space -- a page-level display
-   preference, so it stays the standard full-size switch rather than the
-   compact variant scoped to Comparisons' own "sync scroll" toggle. */
-.comparison-visibility-toggle {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0 var(--space-5);
-  margin-bottom: var(--space-3);
 }
 
 /* Breathing room above "Primary Business Impact" -- without it the title

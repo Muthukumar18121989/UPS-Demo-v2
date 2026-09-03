@@ -389,8 +389,8 @@
       ariaLabel: 'Scenario comparison view',
       value: comparisonOption,
       items: [
-        { value: 'tile', label: 'Tile view' },
-        { value: 'table', label: 'Table view' }
+        { value: 'tile', label: 'Tile view', icon: DA.icons.gridView },
+        { value: 'table', label: 'Table view', icon: DA.icons.tableViewIcon }
       ],
       onChange: function (value) {
         comparisonOption = value;
@@ -401,29 +401,28 @@
     renderComparisonView();
 
     /**
-     * The header (title + view switch) and the band it controls collapse
-     * away together -- with the band hidden, the switch has nothing left
-     * to switch between, so it goes with it rather than sitting there
-     * doing nothing. Freeing this whole block gives Analyzer / Pricing
-     * Terms / Other Terms / Adjustments / Rate Charts the full page
-     * height below the filters instead of losing a fixed chunk of it to
-     * the comparison by default.
+     * Only the band collapses -- the header (title, view switch, and the
+     * show/hide toggle itself) stays put as an always-visible accordion
+     * header, the only way back in once the band is hidden. Freeing the
+     * band gives Analyzer / Pricing Terms / Other Terms / Adjustments /
+     * Rate Charts the full page height below the filters instead of
+     * losing a fixed chunk of it to the comparison by default.
      */
-    var comparisonCollapsible = el('div', {}, [
-      el('div', { className: 'comparison-header' }, [
-        el('h3', { className: 'comparison-header__title', text: 'Scenario Comparison' }),
-        comparisonOptionSwitch
-      ]),
-      comparisonBand
-    ]);
-
     var comparisonVisibilityToggle = C.Toggle({
       checked: true,
       label: 'Show Scenario Comparison',
       onChange: function (checked) {
-        comparisonCollapsible.hidden = !checked;
+        comparisonBand.hidden = !checked;
       }
     });
+
+    var comparisonHeader = el('div', { className: 'comparison-header' }, [
+      el('div', { className: 'comparison-header__left' }, [
+        el('h3', { className: 'comparison-header__title', text: 'Scenario Comparison' }),
+        comparisonOptionSwitch
+      ]),
+      comparisonVisibilityToggle
+    ]);
 
     /* ---- Summary tab ------------------------------------------------------ */
 
@@ -1219,8 +1218,8 @@
           })
         ])
       ]),
-      el('div', { className: 'comparison-visibility-toggle' }, [comparisonVisibilityToggle]),
-      comparisonCollapsible,
+      comparisonHeader,
+      comparisonBand,
       el('div', { className: 'tabs--page' }, [
         C.Tabs({
           ariaLabel: 'Report sections',

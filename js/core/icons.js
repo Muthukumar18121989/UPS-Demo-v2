@@ -279,6 +279,28 @@
     );
   }
 
+  /* Four squares in a 2x2 grid -- the "tile" half of a Tile view /
+     Table view icon toggle. */
+  function gridView(size, className) {
+    return svg(
+      '<rect ' + STROKE + ' x="3.5" y="3.5" width="7.5" height="7.5" rx="1.2"/>' +
+      '<rect ' + STROKE + ' x="13" y="3.5" width="7.5" height="7.5" rx="1.2"/>' +
+      '<rect ' + STROKE + ' x="3.5" y="13" width="7.5" height="7.5" rx="1.2"/>' +
+      '<rect ' + STROKE + ' x="13" y="13" width="7.5" height="7.5" rx="1.2"/>',
+      { size: size || 16, className: className || '' }
+    );
+  }
+
+  /* A bordered grid with one row and one column divider -- the "table"
+     half of the same toggle. */
+  function tableViewIcon(size, className) {
+    return svg(
+      '<rect ' + STROKE + ' x="3.5" y="4.5" width="17" height="15" rx="1.5"/>' +
+      '<path ' + STROKE + ' d="M3.5 9.7h17M9.3 9.7v9.8"/>',
+      { size: size || 16, className: className || '' }
+    );
+  }
+
   /**
    * The real UPS shield mark (traced from the brand's own SVG, not the
    * hand-built approximation this replaced), scaled to the header's
@@ -337,6 +359,8 @@
     gauge: gauge,
     dollarCircle: dollarCircle,
     sort: sort,
+    gridView: gridView,
+    tableViewIcon: tableViewIcon,
     upsShield: upsShield
   };
 })(window.DA);
