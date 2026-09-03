@@ -847,10 +847,12 @@
   border-right: none;
 }
 
-/* var(--color-text-muted) against the card's --color-surface-muted
-   background measures ~4.7:1 -- comfortably past the 3:1 floor. */
+/* var(--color-text-muted) read as too heavy a line against the card's
+   own fill -- var(--color-border-strong) is the next step down, still
+   clearly visible against --color-surface-muted without reading as a
+   stroke instead of a hairline. */
 .comparison-card__field {
-  border-right-color: var(--color-text-muted);
+  border-right-color: var(--color-border-strong);
 }
 
 .comparison-cards__header-cell {
