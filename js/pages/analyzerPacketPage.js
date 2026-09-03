@@ -370,12 +370,13 @@
      * grid table. No row is singled out permanently; the gold outline is
      * a hover state any row picks up, not a fixed marker on Current.
      * Metric columns carry the same METRIC_ICONS glyph Options 2 and 4
-     * use for that metric, plus a static sort glyph -- decorative, like
-     * Base/Zone's own sort chevron elsewhere in the app; nothing in this
-     * product actually sorts yet. Metric headers and values are right-
-     * aligned (numbers read right-to-left for comparison); the leading
+     * use for that metric. Metric headers and values are right-aligned
+     * (numbers read right-to-left for comparison); the leading
      * "Scenario" column stays left-aligned since it's a row label, not a
-     * figure.
+     * figure. No sort affordance -- nothing in this product actually
+     * sorts yet, and the decorative sort glyph this column header used
+     * to carry was dropped as noise rather than left in as a false
+     * promise.
      */
     function renderComparisonCards() {
       var rows = comparisonRows();
@@ -386,8 +387,7 @@
           attrs: { role: 'columnheader' }
         }, [
           iconFn ? iconFn(13) : null,
-          el('span', { text: label }),
-          isFirst ? DA.icons.chevronDown(12) : DA.icons.sort(12)
+          el('span', { text: label })
         ]);
       }
 

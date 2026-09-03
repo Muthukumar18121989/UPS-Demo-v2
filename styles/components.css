@@ -812,7 +812,12 @@
 .comparison-card {
   display: grid;
   grid-template-columns: 170px repeat(7, minmax(108px, 1fr));
-  align-items: center;
+  /* stretch (the default), not center -- so every cell's box fills the
+     row's full height and the divider on its right edge always runs
+     the row's full height too, instead of only as tall as that one
+     cell's own content (e.g. "Base Frt Disc" wrapping to two lines
+     while its neighbors stay on one). */
+  align-items: stretch;
   gap: var(--space-4);
   min-width: 1080px;
 }
@@ -824,7 +829,12 @@
 /* A hairline between columns, thin enough to read as a divider rather
    than a grid -- it sits on each cell's own right edge, inset from the
    next column by the grid gap, so it never touches the text on either
-   side. The last column has nothing after it to divide from. */
+   side. The last column has nothing after it to divide from. The
+   header sits on white (.comparison-cards' own background) where the
+   subtle border token already reads fine; row dividers get their own,
+   darker color below since --color-border-subtle (#ebebeb) is nearly
+   indistinguishable from the card's own grey (#f0f0f0) -- under 1.1:1
+   contrast, well short of the 3:1 WCAG floor for a UI divider. */
 .comparison-cards__header-cell,
 .comparison-card__field {
   padding-right: var(--space-3);
@@ -835,6 +845,12 @@
 .comparison-card__field:last-child {
   padding-right: 0;
   border-right: none;
+}
+
+/* var(--color-text-muted) against the card's --color-surface-muted
+   background measures ~4.7:1 -- comfortably past the 3:1 floor. */
+.comparison-card__field {
+  border-right-color: var(--color-text-muted);
 }
 
 .comparison-cards__header-cell {
@@ -854,9 +870,9 @@
 }
 
 /* Metric columns read right-to-left for comparison, so their headers --
-   icon, label, sort glyph -- and the values beneath them both line up
-   against the same right edge. The leading Scenario column is a row
-   label, not a figure, and stays left-aligned. */
+   icon plus label -- and the values beneath them both line up against
+   the same right edge. The leading Scenario column is a row label,
+   not a figure, and stays left-aligned. */
 .comparison-cards__header-cell--metric {
   justify-content: flex-end;
 }
