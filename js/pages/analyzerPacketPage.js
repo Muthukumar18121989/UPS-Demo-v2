@@ -750,6 +750,25 @@
       ]);
     }
 
+    /**
+     * A top-level service renders as its plain name; a package-type child
+     * (packageBreakdown's Commercial/Residential rows) renders as two
+     * lines instead -- "UPS " + the service name, then "-Pkg " + the
+     * package type with its product/rate codes in superscript beside it,
+     * matching the reference screen exactly rather than reusing the
+     * single-line Zone-child label.
+     */
+    function serviceLabel(row) {
+      if (!row.pkgType) return row.service;
+      return el('span', { className: 'service-pkg' }, [
+        el('span', { className: 'service-pkg__line', text: 'UPS ' + row.service }),
+        el('span', { className: 'service-pkg__meta' }, [
+          el('span', { text: '-Pkg ' + row.pkgType }),
+          el('sup', { className: 'service-pkg__codes', text: ' ' + row.pkgCodes })
+        ])
+      ]);
+    }
+
     function serviceView() {
       return el('div', {}, [
         profileFilters(),
@@ -761,10 +780,10 @@
             tinted: true,
             expandKey: 'service',
             getChildren: function (row) {
-              return DA.data.zoneBreakdown(row, 'service', DA.data.additive.service);
+              return DA.data.packageBreakdown(row, 'service', DA.data.additive.service);
             },
             columns: [
-              { key: 'service', label: 'Core Service', width: '250px', className: 'is-rowhead' },
+              { key: 'service', label: 'Core Service', width: '250px', className: 'is-rowhead', render: serviceLabel },
               numeric('volume', 'Volume', { link: true, width: '95px' }),
               numeric('adv', 'ADV', { link: true, width: '80px' }),
               numeric('avgZone', 'Avg Zone', { link: true, width: '100px' }),

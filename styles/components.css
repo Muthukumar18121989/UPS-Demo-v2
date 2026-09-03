@@ -3242,6 +3242,32 @@
   background-color: var(--color-surface-muted-strong);
 }
 
+/* A package-type child row's two-line label (Services > a service's
+   Commercial/Residential breakdown) -- "UPS <service>" over "-Pkg
+   <type>" with its product/rate codes in superscript beside it.
+   white-space: normal overrides .data-table td's own nowrap so the
+   two lines actually stack instead of collapsing onto one. */
+.service-pkg {
+  display: block;
+  white-space: normal;
+  line-height: var(--line-height-tight);
+}
+
+.service-pkg__line {
+  display: block;
+}
+
+.service-pkg__meta {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.service-pkg__codes {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-3xs);
+}
+
 /*
  * Every table value reads in the app's brand teal, not just the ones
  * already rendered as links -- a plain figure with no drill-down (Disc,
