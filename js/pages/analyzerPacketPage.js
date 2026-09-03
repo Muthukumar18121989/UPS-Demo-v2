@@ -330,18 +330,18 @@
             ? el('button', {
                 className: 'help-button u-tap-target',
                 attrs: { type: 'button', 'aria-label': METRIC_DESCRIPTIONS[key], title: METRIC_DESCRIPTIONS[key] }
-              }, [iconFn(16)])
+              }, [iconFn(18)])
             : null
         ]));
         card.appendChild(el('div', { className: 'col-driver-card__flow' }, [
           el('div', { className: 'col-driver-card__step' }, [
             el('span', { className: 'col-driver-card__scen', text: current.scenario }),
-            el('span', { className: 'col-driver-card__val', text: current[key] == null ? '-' : String(current[key]) })
+            el('span', { className: 'col-driver-card__val', text: current[key] == null ? '-' : DA.figures.compact(current[key]) })
           ]),
           el('span', { className: 'col-driver-card__arrow', text: '→' }),
           el('div', { className: 'col-driver-card__step' }, [
             el('span', { className: 'col-driver-card__scen', text: scenario.scenario }),
-            el('span', { className: 'col-driver-card__val', text: scenario[key] == null ? '-' : String(scenario[key]) })
+            el('span', { className: 'col-driver-card__val', text: scenario[key] == null ? '-' : DA.figures.compact(scenario[key]) })
           ])
         ]));
         var delta = change[key];

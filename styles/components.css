@@ -716,15 +716,19 @@
  * .impact-bar* stay: comparisonBars() (the column-hover driver card's
  * graphic) still builds on them.
  *
- * Fixed at 4 columns, not auto-fit -- 7 cards land 4 over 3 regardless
- * of viewport width, the explicit two-row layout asked for, rather than
- * however many happen to fit per row at a given width.
+ * Fixed at 7 columns, not auto-fit -- all 7 metrics land in a single
+ * row regardless of viewport width, rather than wrapping to a second
+ * row. Each column has a floor (minmax) so a card's own label/value
+ * never gets squeezed into wrapping on a narrower screen; the row
+ * scrolls horizontally past that floor instead, the same trade-off
+ * Option 3's comparison table makes for the same reason.
  */
 .driver-cards-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(7, minmax(160px, 1fr));
   gap: var(--space-4);
   padding: 0 var(--space-5) var(--space-5);
+  overflow-x: auto;
 }
 
 .driver-card {
@@ -783,9 +787,20 @@
 /* driver-card__head's corner control is now the metric's HelpButton
    (a description tooltip), not a repeated up/down arrow -- Field's own
    .help-button already centers itself beside a field's first line, which
-   doesn't apply in a card header, so it's reset to sit inline instead. */
+   doesn't apply in a card header, so it's reset to sit inline instead.
+   Its color is reset too: .help-button's default link-blue reads as a
+   clickable link here, when it's really just this metric's own icon --
+   var(--color-text-muted) matches how the same METRIC_ICONS glyph is
+   already colored everywhere else it appears (Option 3's header cells,
+   Option 4's detail-panel rows). */
 .driver-card__head .help-button {
   margin-top: 0;
+  color: var(--color-text-muted);
+}
+
+.driver-card__head .help-button:hover,
+.driver-card__head .help-button:active {
+  color: var(--color-text-secondary);
 }
 
 /* --------------------------------------------------------------------------
