@@ -608,7 +608,7 @@
 .col-driver-card__flow {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-1);
 }
 
 .col-driver-card__step {
@@ -621,6 +621,7 @@
 .col-driver-card__scen {
   font-size: var(--font-size-3xs);
   color: var(--color-text-secondary);
+  white-space: nowrap;
 }
 
 .col-driver-card__val {
@@ -732,7 +733,7 @@
 }
 
 .driver-card {
-  padding: var(--space-4);
+  padding: var(--space-3);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
