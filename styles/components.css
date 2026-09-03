@@ -3274,13 +3274,16 @@
 }
 
 /* The whole row, not just its label cell, reads as a sub row -- the
-   same light grey the label cell (.is-rowhead) already rests on,
-   carried across the figure columns too so Commercial/Residential
-   reads as one shaded band under its parent service. is-rowhead is
-   excluded since it already carries that shade (and its own hover
-   rule) on its own. */
+   figure columns get a lighter tint than .is-rowhead's own
+   --color-surface-muted, one step up the same neutral scale
+   (--color-surface-sunken, otherwise used for a settled/inactive
+   surface), so Commercial/Residential still reads as one shaded band
+   under its parent service, with the row-header column staying the
+   visibly darker of the two rather than matching it exactly.
+   is-rowhead is excluded since it already carries its own shade (and
+   hover rule). */
 .data-table tbody tr.is-child-row td:not(.is-rowhead) {
-  background-color: var(--color-surface-muted);
+  background-color: var(--color-surface-sunken);
 }
 
 /*
