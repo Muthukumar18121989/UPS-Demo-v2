@@ -811,14 +811,30 @@
 .comparison-cards__header,
 .comparison-card {
   display: grid;
-  grid-template-columns: 170px repeat(7, minmax(90px, 1fr));
+  grid-template-columns: 170px repeat(7, minmax(108px, 1fr));
   align-items: center;
-  gap: var(--space-3);
-  min-width: 1000px;
+  gap: var(--space-4);
+  min-width: 1080px;
 }
 
 .comparison-cards__header {
   padding: 0 var(--space-4);
+}
+
+/* A hairline between columns, thin enough to read as a divider rather
+   than a grid -- it sits on each cell's own right edge, inset from the
+   next column by the grid gap, so it never touches the text on either
+   side. The last column has nothing after it to divide from. */
+.comparison-cards__header-cell,
+.comparison-card__field {
+  padding-right: var(--space-3);
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.comparison-cards__header-cell:last-child,
+.comparison-card__field:last-child {
+  padding-right: 0;
+  border-right: none;
 }
 
 .comparison-cards__header-cell {
