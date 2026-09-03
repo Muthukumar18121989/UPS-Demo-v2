@@ -3246,7 +3246,11 @@
    Commercial/Residential breakdown) -- "UPS <service>" over "-Pkg
    <type>" with its product/rate codes in superscript beside it.
    white-space: normal overrides .data-table td's own nowrap so the
-   two lines actually stack instead of collapsing onto one. */
+   two lines actually stack instead of collapsing onto one. Sized down
+   a step from the row's own --table-row-height (32px, fixed) so the
+   two-line stack no longer nearly fills it -- vertical-align: middle
+   on the cell then centers the shorter block with real breathing room
+   above and below instead of the text sitting edge to edge. */
 .service-pkg {
   display: block;
   white-space: normal;
@@ -3255,17 +3259,28 @@
 
 .service-pkg__line {
   display: block;
+  font-size: var(--font-size-2xs);
 }
 
 .service-pkg__meta {
   display: block;
   color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-3xs);
 }
 
 .service-pkg__codes {
   color: var(--color-text-muted);
-  font-size: var(--font-size-3xs);
+  font-size: 0.85em;
+}
+
+/* The whole row, not just its label cell, reads as a sub row -- the
+   same light grey the label cell (.is-rowhead) already rests on,
+   carried across the figure columns too so Commercial/Residential
+   reads as one shaded band under its parent service. is-rowhead is
+   excluded since it already carries that shade (and its own hover
+   rule) on its own. */
+.data-table tbody tr.is-child-row td:not(.is-rowhead) {
+  background-color: var(--color-surface-muted);
 }
 
 /*
