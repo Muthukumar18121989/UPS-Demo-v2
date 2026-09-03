@@ -46,8 +46,8 @@
 
   /**
    * The one-line expansion behind each comparison metric's abbreviation --
-   * shown under the metric name in the column-hover driver card, keyed by
-   * the same column keys renderComparisonBand()'s numeric() columns use.
+   * shown as a native tooltip in both comparison views, keyed by the same
+   * column keys DRIVER_KEYS uses.
    */
   var METRIC_DESCRIPTIONS = {
     adv: 'Average Daily Volume',
@@ -204,10 +204,11 @@
     }
 
     /**
-     * An arrow + green/red span for a difference figure -- shared by
-     * comparisonNumeric() (Option 1's Change row) and renderComparisonCards()
-     * (Option 3), reusing driverCard()'s own col-driver-card__delta styling
-     * rather than a one-off pair just for the Scenario comparison view.
+     * An arrow + green/red span for a difference figure -- shared by the
+     * Tile view's driverCard() (its own "Scenario impact" line) and the
+     * Table view's renderComparisonCards() (its Change row), reusing
+     * driverCard()'s own col-driver-card__delta styling rather than a
+     * one-off pair just for the Scenario comparison view.
      */
     function comparisonDelta(value) {
       var dir = deltaDirection(value);
@@ -215,51 +216,6 @@
         dir === 'up' ? DA.icons.chevronUp(12) : dir === 'down' ? DA.icons.chevronDown(12) : null,
         el('span', { text: String(value) })
       ]);
-    }
-
-    /**
-     * A comparison-table numeric column, wrapping numeric()'s own render so
-     * the Change row's figure comes with a direction arrow and color
-     * (comparisonDelta()) -- every other row renders exactly as numeric()
-     * already does. headerTitle carries the metric's description as a
-     * native tooltip on the column header, replacing the old
-     * hover-triggered driver-card popup entirely: no custom hover graphic,
-     * just the browser's own title attribute.
-     */
-    function comparisonNumeric(key, label, options) {
-      var column = numeric(key, label, options);
-      var plainRender = column.render;
-      column.headerTitle = METRIC_DESCRIPTIONS[key] || null;
-      column.render = function (row) {
-        if (!row.difference) return plainRender(row);
-        var value = row[key];
-        return value == null || value === '-' ? '-' : comparisonDelta(value);
-      };
-      return column;
-    }
-
-    function renderComparisonBand() {
-      var viewportEl = C.DataTable({
-        caption: 'Scenario comparison',
-        embedded: true,
-        headerTone: 'warm',
-        rowClassName: function (row) { return row.difference ? 'is-difference' : ''; },
-        columns: [
-          // Grey row-label background, matching every other table's own
-          // first column, rather than reading as just another data value.
-          { key: 'scenario', label: 'Scenario', width: '150px', className: 'is-rowhead' },
-          comparisonNumeric('adv', 'ADV'),
-          comparisonNumeric('baseFrtDisc', 'Base Frt Disc'),
-          comparisonNumeric('totalDisc', 'Total Disc'),
-          comparisonNumeric('rpp', 'RPP'),
-          comparisonNumeric('revenue', 'Revenue', { width: '150px' }),
-          comparisonNumeric('or', 'OR'),
-          comparisonNumeric('profit', 'Profit', { width: '130px' })
-        ],
-        rows: comparisonRows()
-      });
-
-      DA.dom.clear(comparisonBand).appendChild(viewportEl);
     }
 
     /** A stored delta's own sign, made explicit -- "27.2" reads as "+27.2". */
@@ -276,12 +232,8 @@
       return /%$/.test(s) ? s.replace(/%$/, ' pp') : s;
     }
 
-    // Same order the comparison table's own columns use (comparisonKeys).
-    // With Primary Business Impact removed, this is the whole comparison
-    // view -- 7 cards, 4 filling the top row and the remaining 3 the
-    // second (driver-cards-grid is a fixed 4-column grid, not
-    // auto-fit, so the wrap always lands there regardless of viewport
-    // width).
+    // Same order the comparison table's own columns use (comparisonKeys),
+    // shared by both comparison views (Tile and Table).
     var DRIVER_KEYS = [
       { key: 'adv', label: 'ADV' },
       { key: 'baseFrtDisc', label: 'Base Frt Disc' },
@@ -293,12 +245,9 @@
     ];
 
     /**
-     * Option 2: the same comparison, read as always-visible cards instead
-     * of a table -- one Key Scenario Drivers grid covers all 7 metrics
-     * (Revenue/Profit included). Primary Business Impact's bigger,
-     * bar-chart cards for Revenue/Profit were dropped as a separate
-     * section now that those two live in this grid too -- keeping both
-     * was showing the same two metrics twice.
+     * Tile view: the comparison read as always-visible cards instead of a
+     * table -- one Key Scenario Drivers grid covers all 7 metrics
+     * (Revenue/Profit included), all seven in a single row.
      */
     function renderImpactCards() {
       var rows = comparisonRows();
@@ -365,12 +314,13 @@
     }
 
     /**
-     * Option 3: a card-list layout for the same comparison -- one row per
-     * scenario as its own bordered card on a white surface, instead of a
-     * grid table. No row is singled out permanently; the gold outline is
-     * a hover state any row picks up, not a fixed marker on Current.
-     * Metric columns carry the same METRIC_ICONS glyph Options 2 and 4
-     * use for that metric. Metric headers and values are right-aligned
+     * Table view: a card-per-row layout for the same comparison -- one
+     * row per scenario as its own bordered card on a white surface,
+     * instead of a plain grid table, so it can carry the row hover state
+     * below. No row is singled out permanently; the gold outline is a
+     * hover state any row picks up, not a fixed marker on Current.
+     * Metric columns carry the same METRIC_ICONS glyph the Tile view
+     * uses for that metric. Metric headers and values are right-aligned
      * (numbers read right-to-left for comparison); the leading
      * "Scenario" column stays left-aligned since it's a row label, not a
      * figure. No sort affordance -- nothing in this product actually
@@ -425,73 +375,22 @@
       );
     }
 
-    /**
-     * Option 4: a bordered detail panel per scenario, laid out side by
-     * side -- an icon + all-caps title heading each panel, then every
-     * metric as its own icon + label : value row underneath, the same
-     * "icon-labelled fields, colon-separated" pattern a record-summary
-     * panel (a bill, an admission record) uses. Each metric's own icon
-     * (METRIC_ICONS, already built for Key Scenario Drivers) sits beside
-     * its label here too, per the explicit ask -- not just once on the
-     * panel header the way the reference shows it.
-     */
-    function renderComparisonDetailPanels() {
-      var rows = comparisonRows();
-
-      function detailRow(item) {
-        return function (row) {
-          var value = row[item.key];
-          var valueNode = row.difference && value != null && value !== '-'
-            ? comparisonDelta(value)
-            : el('span', { className: 'comparison-detail-panel__value', text: value == null ? '-' : String(value) });
-          var iconFn = METRIC_ICONS[item.key] || DA.icons.info;
-          return el('div', { className: 'comparison-detail-panel__row' }, [
-            el('span', { className: 'comparison-detail-panel__row-label' }, [
-              iconFn(15),
-              el('span', { text: item.label })
-            ]),
-            el('span', { className: 'comparison-detail-panel__row-colon', text: ':' }),
-            valueNode
-          ]);
-        };
-      }
-
-      var panels = rows.map(function (row) {
-        return el('div', {
-          className: 'comparison-detail-panel' + (row.difference ? ' comparison-detail-panel--change' : '')
-        }, [
-          el('div', { className: 'comparison-detail-panel__header' }, [
-            DA.icons.file(17),
-            el('span', { text: (row.scenario || '').toUpperCase() })
-          ]),
-          el('div', { className: 'comparison-detail-panel__body' }, DRIVER_KEYS.map(function (item) {
-            return detailRow(item)(row);
-          }))
-        ]);
-      });
-
-      DA.dom.clear(comparisonBand).appendChild(
-        el('div', { className: 'comparison-detail-panels' }, panels)
-      );
-    }
-
-    var comparisonOption = 'option1';
+    // Table view is the default -- the fuller, more scannable read of the
+    // comparison; Tile view is the alternate for someone who wants each
+    // metric called out as its own card instead.
+    var comparisonOption = 'table';
 
     function renderComparisonView() {
-      if (comparisonOption === 'option2') renderImpactCards();
-      else if (comparisonOption === 'option3') renderComparisonCards();
-      else if (comparisonOption === 'option4') renderComparisonDetailPanels();
-      else renderComparisonBand();
+      if (comparisonOption === 'tile') renderImpactCards();
+      else renderComparisonCards();
     }
 
     var comparisonOptionSwitch = C.SegmentedControl({
-      ariaLabel: 'Scenario comparison layout',
+      ariaLabel: 'Scenario comparison view',
       value: comparisonOption,
       items: [
-        { value: 'option1', label: 'Option 1' },
-        { value: 'option2', label: 'Option 2' },
-        { value: 'option3', label: 'Option 3' },
-        { value: 'option4', label: 'Option 4' }
+        { value: 'tile', label: 'Tile view' },
+        { value: 'table', label: 'Table view' }
       ],
       onChange: function (value) {
         comparisonOption = value;
@@ -502,15 +401,19 @@
     renderComparisonView();
 
     /**
-     * The Option switch and the band it controls collapse away together --
-     * with the band hidden, the switch has nothing left to switch between,
-     * so it goes with it rather than sitting there doing nothing. Freeing
-     * this whole block gives Analyzer / Pricing Terms / Other Terms /
-     * Adjustments / Rate Charts the full page height below the filters
-     * instead of losing a fixed chunk of it to the comparison by default.
+     * The header (title + view switch) and the band it controls collapse
+     * away together -- with the band hidden, the switch has nothing left
+     * to switch between, so it goes with it rather than sitting there
+     * doing nothing. Freeing this whole block gives Analyzer / Pricing
+     * Terms / Other Terms / Adjustments / Rate Charts the full page
+     * height below the filters instead of losing a fixed chunk of it to
+     * the comparison by default.
      */
     var comparisonCollapsible = el('div', {}, [
-      el('div', { className: 'comparison-option-switch' }, [comparisonOptionSwitch]),
+      el('div', { className: 'comparison-header' }, [
+        el('h3', { className: 'comparison-header__title', text: 'Scenario Comparison' }),
+        comparisonOptionSwitch
+      ]),
       comparisonBand
     ]);
 

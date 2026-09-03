@@ -577,8 +577,7 @@
   box-shadow: none;
 }
 
-.data-table td.is-col-highlight,
-.data-table tbody tr.is-difference td.is-col-highlight {
+.data-table td.is-col-highlight {
   background-color: var(--color-primary-subtle);
 }
 
@@ -592,8 +591,8 @@
  * [hidden] rule) was dropped along with fillDriverCard() -- the Scenario
  * comparison table no longer has any hover machinery, just a native
  * title-attribute tooltip on each header. The __title through __delta*
- * pieces below stay: driverCard() (Option 2's Key Scenario Drivers cards)
- * still builds on them, as does comparisonNumeric()'s reuse of
+ * pieces below stay: driverCard() (the Tile view's Key Scenario Drivers
+ * cards) still builds on them, as does the Table view's own reuse of
  * __delta/__delta--up/--down for the Change row's own arrow + color.
  */
 .col-driver-card__title {
@@ -673,16 +672,29 @@
 }
 
 /* --------------------------------------------------------------------------
-   Scenario comparison — Option 2: always-visible impact/driver cards
+   Scenario comparison — header (title + Tile/Table view switch)
    -------------------------------------------------------------------------- */
-.comparison-option-switch {
+/* Title and view switch sit together on the left, not spread across the
+   row or centered -- one control cluster owning this band, the same way
+   a panel's own title sits at its own left edge elsewhere in the app. */
+.comparison-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
   padding: 0 var(--space-5);
   margin-bottom: var(--space-4);
 }
 
-/* Lets the whole comparison band (Option switch + table/cards) collapse
-   away, so Analyzer / Pricing Terms / Other Terms / Adjustments / Rate
-   Charts below can use the freed vertical space -- a page-level display
+.comparison-header__title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+/* Lets the whole comparison band (header + table/cards) collapse away,
+   so Analyzer / Pricing Terms / Other Terms / Adjustments / Rate Charts
+   below can use the freed vertical space -- a page-level display
    preference, so it stays the standard full-size switch rather than the
    compact variant scoped to Comparisons' own "sync scroll" toggle. */
 .comparison-visibility-toggle {
@@ -722,7 +734,7 @@
  * row. Each column has a floor (minmax) so a card's own label/value
  * never gets squeezed into wrapping on a narrower screen; the row
  * scrolls horizontally past that floor instead, the same trade-off
- * Option 3's comparison table makes for the same reason.
+ * the Table view's own comparison table makes for the same reason.
  */
 .driver-cards-grid {
   display: grid;
@@ -792,8 +804,8 @@
    Its color is reset too: .help-button's default link-blue reads as a
    clickable link here, when it's really just this metric's own icon --
    var(--color-text-muted) matches how the same METRIC_ICONS glyph is
-   already colored everywhere else it appears (Option 3's header cells,
-   Option 4's detail-panel rows). */
+   already colored everywhere else it appears (the Table view's own
+   header cells). */
 .driver-card__head .help-button {
   margin-top: 0;
   color: var(--color-text-muted);
@@ -805,7 +817,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Scenario comparison — Option 3: card-list layout
+   Scenario comparison — Table view: card-per-row layout
    -------------------------------------------------------------------------- */
 /*
  * A plain white tray behind the cards; each card itself carries the same
@@ -929,83 +941,6 @@
 
 .comparison-card__field--scenario {
   font-weight: var(--font-weight-semibold);
-}
-
-/* --------------------------------------------------------------------------
-   Scenario comparison — Option 4: icon-labelled detail panels
-   -------------------------------------------------------------------------- */
-/* One bordered panel per scenario, side by side -- a record-summary
-   pattern (a bill, an admission record): an icon + all-caps title
-   heading the panel, every field below it as its own icon + label :
-   value row. */
-.comparison-detail-panels {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-  padding: var(--space-5);
-}
-
-.comparison-detail-panel {
-  flex: 1 1 260px;
-  min-width: 240px;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-container);
-  overflow: hidden;
-}
-
-/* The panel that carries the deltas is the one worth calling out, not
-   the baseline it's measured against. */
-.comparison-detail-panel--change {
-  border-color: var(--color-success);
-}
-
-.comparison-detail-panel__header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  background-color: var(--color-primary-subtle);
-  color: var(--color-primary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.comparison-detail-panel__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-}
-
-.comparison-detail-panel__row {
-  display: grid;
-  grid-template-columns: 150px 10px 1fr;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.comparison-detail-panel__row-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-}
-
-.comparison-detail-panel__row-label svg {
-  flex: 0 0 auto;
-  color: var(--color-text-muted);
-}
-
-.comparison-detail-panel__row-colon {
-  color: var(--color-text-muted);
-}
-
-.comparison-detail-panel__value {
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
 }
 
 /*
@@ -4018,13 +3953,6 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
-}
-
-/* The difference between two compared scenarios, set apart from the figures
-   it was derived from. */
-.data-table tr.is-difference td {
-  color: var(--color-primary-text);
-  font-weight: var(--font-weight-medium);
 }
 
 /* --------------------------------------------------------------------------
