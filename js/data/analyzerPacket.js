@@ -371,16 +371,41 @@
     }
   ];
 
-  /** Rows behind Shipping Profiles > Service. */
+  /**
+   * Rows behind Analyzer > Services. Reference screen order: 2nd Day Air,
+   * 3 Day Select, Next Day Air, Next Day Air Saver, Ground (its own
+   * volume/ADV/Avg Zone/Billable Wt lifted directly from that screen).
+   * N-2nd Day Air, N-Next Day Air, and N-Next Day Air Saver share the
+   * same volume/ADV with their packetWeightCube rows below -- the same
+   * packet's shipments, just organized by a different breakdown -- so
+   * their revenue figures are carried over unchanged rather than
+   * re-invented. N-Ground is expanded by default, matching the
+   * reference. The remaining domestic and international services round
+   * the list out past 20 rows.
+   */
   DA.data.packetServices = [
-    { service: 'N-2nd Day Air', volume: '128', adv: '1.1', avgZone: '204.9', billableWt: '3.1', pps: '1.0', baseGrossRev: '$5,975', baseNetRev: '$5,975', disc: '0.0%', baseRpp: '$46.68', baseProfit: '$3,836', baseOr: '0.36' },
-    { service: 'N-2nd Day Air A.M.', volume: '24', adv: '0.2', avgZone: '245.0', billableWt: '21.2', pps: '1.0', baseGrossRev: '$3,588', baseNetRev: '$3,588', disc: '0.0%', baseRpp: '$149.51', baseProfit: '$2,750', baseOr: '0.23' },
-    { service: 'N-Ground', volume: '300', adv: '2.5', avgZone: '4.3', billableWt: '8.6', pps: '1.0', baseGrossRev: '$5,802', baseNetRev: '$4,678', disc: '19.4%', baseRpp: '$15.59', baseProfit: '$485', baseOr: '0.90' },
-    { service: 'N-Next Day Air', volume: '168', adv: '1.4', avgZone: '105.2', billableWt: '11.2', pps: '1.0', baseGrossRev: '$26,597', baseNetRev: '$26,597', disc: '0.0%', baseRpp: '$158.31', baseProfit: '$19,592', baseOr: '0.26' },
-    { service: 'N-Next Day Air Early', volume: '4', adv: '0.0', avgZone: '105.0', billableWt: '0.0', pps: '1.0', baseGrossRev: '$362', baseNetRev: '$362', disc: '0.0%', baseRpp: '$90.46', baseProfit: '$299', baseOr: '0.17' },
-    { service: 'N-Next Day Air Saver', volume: '44', adv: '0.4', avgZone: '134.4', billableWt: '10.8', pps: '1.0', baseGrossRev: '$6,853', baseNetRev: '$6,853', disc: '0.0%', baseRpp: '$155.74', baseProfit: '$5,145', baseOr: '0.25' },
+    { service: 'N-2nd Day Air', volume: '4203', adv: '64.7', avgZone: '206.3', billableWt: '8.5', pps: '1.0', baseGrossRev: '$407,142', baseNetRev: '$82,709', disc: '79.7%', baseRpp: '$19.68', baseProfit: '$ -341', baseOr: '0.52' },
+    { service: 'N-3 Day Select', volume: '741', adv: '11.4', avgZone: '307.1', billableWt: '6.4', pps: '1.0', baseGrossRev: '$62,480', baseNetRev: '$14,213', disc: '77.3%', baseRpp: '$19.18', baseProfit: '$2,046', baseOr: '0.86' },
+    { service: 'N-Next Day Air', volume: '890', adv: '13.7', avgZone: '106.3', billableWt: '8.8', pps: '1.0', baseGrossRev: '$164,299', baseNetRev: '$29,249', disc: '82.2%', baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50' },
+    { service: 'N-Next Day Air Saver', volume: '1', adv: '0.0', avgZone: '136.0', billableWt: '0.0', pps: '1.0', baseGrossRev: '$59', baseNetRev: '$12', disc: '79.6%', baseRpp: '$11.98', baseProfit: '$0', baseOr: '0.99' },
+    { service: 'N-Ground', volume: '14926', adv: '229.6', avgZone: '5.9', billableWt: '12.6', pps: '1.0', baseGrossRev: '$298,940', baseNetRev: '$131,835', disc: '55.9%', baseRpp: '$8.83', baseProfit: '$18,213', baseOr: '0.86', expanded: true },
+    { service: 'N-2nd Day Air A.M.', volume: '186', adv: '2.9', avgZone: '245.0', billableWt: '21.2', pps: '1.0', baseGrossRev: '$27,830', baseNetRev: '$16,984', disc: '39.0%', baseRpp: '$91.31', baseProfit: '$6,412', baseOr: '0.62' },
+    { service: 'N-Next Day Air Early', volume: '54', adv: '0.8', avgZone: '105.0', billableWt: '9.6', pps: '1.0', baseGrossRev: '$9,845', baseNetRev: '$5,712', disc: '42.0%', baseRpp: '$105.78', baseProfit: '$2,014', baseOr: '0.65' },
+    { service: 'N-Ground Saver', volume: '3812', adv: '58.6', avgZone: '5.4', billableWt: '4.1', pps: '1.0', baseGrossRev: '$41,230', baseNetRev: '$28,842', disc: '30.1%', baseRpp: '$7.57', baseProfit: '$2,105', baseOr: '0.93' },
+    { service: 'N-SurePost Under 1 lb', volume: '2960', adv: '45.5', avgZone: '4.9', billableWt: '0.9', pps: '1.0', baseGrossRev: '$12,470', baseNetRev: '$8,724', disc: '30.0%', baseRpp: '$2.95', baseProfit: '$ -612', baseOr: '1.07' },
+    { service: 'N-SurePost 1 lb & Over', volume: '1548', adv: '23.8', avgZone: '5.2', billableWt: '2.6', pps: '1.0', baseGrossRev: '$18,920', baseNetRev: '$13,244', disc: '30.0%', baseRpp: '$8.55', baseProfit: '$890', baseOr: '0.93' },
     { service: 'E-Worldwide Expedited', volume: '4', adv: '0.0', avgZone: '71.0', billableWt: '7.0', pps: '1.0', baseGrossRev: '$697', baseNetRev: '$334', disc: '52.1%', baseRpp: '$83.44', baseProfit: '$233', baseOr: '0.30' },
-    { service: 'E-Worldwide Express Saver', volume: '4', adv: '0.0', avgZone: '481.0', billableWt: '10.0', pps: '1.0', baseGrossRev: '$787', baseNetRev: '$326', disc: '58.5%', baseRpp: '$81.61', baseProfit: '$213', baseOr: '0.35' }
+    { service: 'E-Worldwide Express Saver', volume: '4', adv: '0.0', avgZone: '481.0', billableWt: '10.0', pps: '1.0', baseGrossRev: '$787', baseNetRev: '$326', disc: '58.5%', baseRpp: '$81.61', baseProfit: '$213', baseOr: '0.35' },
+    { service: 'E-Worldwide Express', volume: '62', adv: '0.5', avgZone: '512.0', billableWt: '9.4', pps: '1.0', baseGrossRev: '$18,940', baseNetRev: '$9,845', disc: '48.0%', baseRpp: '$158.79', baseProfit: '$6,102', baseOr: '0.38' },
+    { service: 'E-Worldwide Express Plus', volume: '11', adv: '0.1', avgZone: '512.0', billableWt: '14.1', pps: '1.0', baseGrossRev: '$4,982', baseNetRev: '$2,610', disc: '47.6%', baseRpp: '$237.30', baseProfit: '$1,540', baseOr: '0.41' },
+    { service: 'E-Worldwide Saver', volume: '38', adv: '0.3', avgZone: '498.0', billableWt: '8.2', pps: '1.0', baseGrossRev: '$7,214', baseNetRev: '$3,802', disc: '47.3%', baseRpp: '$100.05', baseProfit: '$2,046', baseOr: '0.46' },
+    { service: 'E-Worldwide Economy DDU', volume: '26', adv: '0.2', avgZone: '512.0', billableWt: '6.7', pps: '1.0', baseGrossRev: '$2,984', baseNetRev: '$1,712', disc: '42.6%', baseRpp: '$65.85', baseProfit: '$612', baseOr: '0.64' },
+    { service: 'E-Worldwide Economy DDP', volume: '19', adv: '0.2', avgZone: '512.0', billableWt: '7.9', pps: '1.0', baseGrossRev: '$3,127', baseNetRev: '$1,896', disc: '39.4%', baseRpp: '$99.79', baseProfit: '$701', baseOr: '0.63' },
+    { service: 'E-Standard', volume: '84', adv: '0.7', avgZone: '12.4', billableWt: '5.3', pps: '1.0', baseGrossRev: '$5,612', baseNetRev: '$4,215', disc: '24.9%', baseRpp: '$50.18', baseProfit: '$1,890', baseOr: '0.55' },
+    { service: 'E-Import Express', volume: '9', adv: '0.1', avgZone: '498.0', billableWt: '8.8', pps: '1.0', baseGrossRev: '$3,845', baseNetRev: '$2,014', disc: '47.6%', baseRpp: '$223.78', baseProfit: '$1,102', baseOr: '0.45' },
+    { service: 'E-Import Express Saver', volume: '7', adv: '0.1', avgZone: '481.0', billableWt: '7.5', pps: '1.0', baseGrossRev: '$2,690', baseNetRev: '$1,412', disc: '47.5%', baseRpp: '$201.71', baseProfit: '$780', baseOr: '0.45' },
+    { service: 'E-Worldwide Express Freight', volume: '3', adv: '0.0', avgZone: '512.0', billableWt: '412.0', pps: '1.0', baseGrossRev: '$8,940', baseNetRev: '$5,203', disc: '41.8%', baseRpp: '$1,734.33', baseProfit: '$2,014', baseOr: '0.61' },
+    { service: 'E-Worldwide Express Freight Midday', volume: '2', adv: '0.0', avgZone: '512.0', billableWt: '398.0', pps: '1.0', baseGrossRev: '$6,214', baseNetRev: '$3,618', disc: '41.8%', baseRpp: '$1,809.00', baseProfit: '$1,402', baseOr: '0.61' }
   ];
 
   /**
