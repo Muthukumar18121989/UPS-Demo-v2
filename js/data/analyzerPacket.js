@@ -61,50 +61,54 @@
 
   /* ---- Summary tab -------------------------------------------------------- */
 
-  var SERVICE_ROWS = [
-    { label: '1DA', adv: '130.4', baseFrt: '49.1%', totalDisc: '52.2%', rpp: '$ 99.76', annRev: '$ 65,024' },
-    { label: '1DM', adv: '3.0', baseFrt: '0.0%', totalDisc: '0.8%', rpp: '$ 326.80', annRev: '$ 4,902' },
-    { label: '1DP', adv: '13.6', baseFrt: '61.7%', totalDisc: '63.8%', rpp: '$ 72.58', annRev: '$ 4,933' },
-    { label: '2DA', adv: '43.6', baseFrt: '56.7%', totalDisc: '58.8%', rpp: '$ 28.21', annRev: '$ 6,148' },
-    { label: '2DM', adv: '1.8', baseFrt: '18.9%', totalDisc: '24.9%', rpp: '$ 68.63', annRev: '$ 617' },
-    { label: '3DS', adv: '71.4', baseFrt: '59.4%', totalDisc: '60.9%', rpp: '$ 31.36', annRev: '$ 11,193' },
-    { label: 'GND', adv: '4190.6', baseFrt: '58.0%', totalDisc: '61.9%', rpp: '$ 13.33', annRev: '$ 279,251' },
-    { label: 'USG', adv: '12559.2', baseFrt: '48.9%', totalDisc: '53.6%', rpp: '$ 10.92', annRev: '$ 685,610' },
-    { label: 'USL', adv: '299.4', baseFrt: '37.8%', totalDisc: '44.8%', rpp: '$ 11.06', annRev: '$ 16,614' }
-  ];
-
-  function accountBlock() {
-    return [{
-      label: '{customer} MAIN',
-      expanded: true,
-      adv: '17313.0',
-      baseFrt: '51.3%',
-      totalDisc: '56.0%',
-      rpp: '$ 12.41',
-      annRev: '$ 1,074,292',
-      children: [
-        { label: 'Sub total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 12.41', annRev: '$ 1,074,292' }
-      ].concat(SERVICE_ROWS)
-    }];
+  /**
+   * Analyzer > Comparisons row hierarchy, as of the row-header/hierarchy-only
+   * update: Total, an Unincented PLD group (broken out by individual
+   * service/lane), and a Hormel 2024 group (its own Sub-total, no further
+   * children given). Current and Scenario 1 render the identical tree so the
+   * two panels line up row for row -- a fresh array per call (not one array
+   * shared by both panels) since each panel's own DataTable tracks its
+   * row-expanded state by row-object identity.
+   */
+  function comparisonSummaryTree() {
+    return [
+      { label: 'Total', total: true, adv: '198.8', baseFrt: '0.1%', totalDisc: '0.0%', rpp: '$ 2,859.09', annRev: '$ 147,780,476' },
+      {
+        label: 'Unincented PLD',
+        expanded: true,
+        adv: '195.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,914.29', annRev: '$ 147,754,284',
+        children: [
+          { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 2,914.29', annRev: '$ 147,754,284' },
+          { label: 'N-3 Day Select', adv: '85.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,389.67', annRev: '$ 74,911,779' },
+          { label: 'E-Standard to Canada', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2.64', annRev: '$ 6,864' },
+          { label: 'I-Standard from Canada', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 6.60', annRev: '$ 3,432' },
+          { label: 'N-Ground', adv: '4.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,982.32', annRev: '$ 3,101,612' },
+          { label: 'E-Worldwide Express Saver', adv: '42.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,800.87', annRev: '$ 41,505,464' },
+          { label: 'I-Worldwide Express Saver', adv: '4.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,596.00', annRev: '$ 3,739,840' },
+          { label: 'E-Worldwide Express Midday', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,828.40', annRev: '$ 7,353,840' },
+          { label: 'I-Worldwide Express Midday', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 7,552.70', annRev: '$ 3,927,404' },
+          { label: 'E-Worldwide Express', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 96.78', annRev: '$ 251,628' },
+          { label: 'I-Worldwide Express', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 9,617.90', annRev: '$ 5,001,308' },
+          { label: 'E-Worldwide Expedited', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 96.78', annRev: '$ 251,628' },
+          { label: 'I-Worldwide Expedited', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 13,721.90', annRev: '$ 7,135,388' },
+          { label: 'E-Standard to Mexico', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2.64', annRev: '$ 6,864' },
+          { label: 'I-Standard from Mexico', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 1,071.60', annRev: '$ 557,232' }
+        ]
+      },
+      {
+        label: 'Hormel 2024',
+        expanded: true,
+        adv: '3.8', baseFrt: '70.3%', totalDisc: '64.6%', rpp: '$ 26.51', annRev: '$ 26,191',
+        children: [
+          { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 26.51', annRev: '$ 26,191' }
+        ]
+      }
+    ];
   }
 
   DA.data.packetSummaryTrees = {
-    Current: [
-      { label: 'Total', total: true, adv: '17313.0', baseFrt: '51.3%', totalDisc: '56.0%', rpp: '$ 12.41', annRev: '$ 1,074,292' }
-    ].concat(accountBlock()),
-
-    'Scenario 1': [
-      { label: 'Total', total: true, adv: '17340.2', baseFrt: '50.9%', totalDisc: '55.5%', rpp: '$ 12.57', annRev: '$ 1,094,443' },
-      {
-        label: 'Unincented PLD',
-        adv: '27.2', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 38.48', annRev: '$ 20,151',
-        children: [
-          { label: 'Sub total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 38.48', annRev: '$ 20,151' },
-          { label: 'GND', adv: '19.6', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 36.12', annRev: '$ 14,509' },
-          { label: 'USG', adv: '7.6', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 44.57', annRev: '$ 5,642' }
-        ]
-      }
-    ].concat(accountBlock())
+    Current: comparisonSummaryTree(),
+    'Scenario 1': comparisonSummaryTree()
   };
 
   /* ---- Shipping Profiles tab ---------------------------------------------- */
