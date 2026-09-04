@@ -1123,6 +1123,28 @@
       ]);
     }
 
+    /**
+     * The bottom-of-page call to action every Pricing Terms, Other Terms
+     * and Adjustments sub-tab shares -- one primary action for the whole
+     * packet, not a per-table save, so it sits below everything else on
+     * the tab rather than inside any one card. Disabled: nothing in this
+     * demo actually persists yet, same as it's always been on Adjustments
+     * (the one tab that already carried this button before this pass
+     * added it to the rest).
+     */
+    function updatePacketCta() {
+      return el('div', { className: 'page-actions page-actions--wide' }, [
+        C.Button({
+          label: 'Update Analyzer Packet',
+          variant: 'primary',
+          shape: 'pill',
+          icon: DA.icons.chevronRight(14, ''),
+          iconPosition: 'end',
+          disabled: true
+        })
+      ]);
+    }
+
     /** Filter row shared by Adjustments and Other Terms: scenario and bid pickers plus Reset. */
     function scenarioBidFilters() {
       return el('div', { className: 'card' }, [
@@ -1302,16 +1324,7 @@
             ])
           ])
         ]),
-        el('div', { className: 'page-actions page-actions--wide' }, [
-          C.Button({
-            label: 'Update Analyzer Packet',
-            variant: 'primary',
-            shape: 'pill',
-            icon: DA.icons.chevronRight(14, ''),
-            iconPosition: 'end',
-            disabled: true
-          })
-        ])
+        updatePacketCta()
       ]);
     }
 
@@ -1386,7 +1399,8 @@
             ],
             rows: DA.data.packetDimDivisor
           })
-        ])
+        ]),
+        updatePacketCta()
       ]);
     }
 
@@ -1404,7 +1418,9 @@
             {
               id: 'published-fuel-surcharge',
               label: 'Published Fuel Surcharge',
-              render: emptyView('Published Fuel Surcharge')
+              render: function () {
+                return el('div', {}, [emptyView('Published Fuel Surcharge')(), updatePacketCta()]);
+              }
             }
           ]
         })

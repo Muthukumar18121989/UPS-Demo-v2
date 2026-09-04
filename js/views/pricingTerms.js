@@ -39,6 +39,29 @@
     return el('span', { className: 'flow-chip' }, [el('span', { text: label })]);
   }
 
+  /**
+   * The bottom-of-page call to action every Pricing Terms sub-tab shares --
+   * same "Update Analyzer Packet" pill Adjustments already carries at its
+   * own tab's bottom (analyzerPacketPage.js's own updatePacketCta(), a
+   * separate copy since that's a different module/closure) -- one primary
+   * action for the whole packet, not a per-table save, so it sits below
+   * everything else on the tab. Disabled: nothing in this demo actually
+   * persists yet.
+   */
+  function updatePacketCta() {
+    var C = DA.components;
+    return el('div', { className: 'page-actions page-actions--wide' }, [
+      C.Button({
+        label: 'Update Analyzer Packet',
+        variant: 'primary',
+        shape: 'pill',
+        icon: DA.icons.chevronRight(14, ''),
+        iconPosition: 'end',
+        disabled: true
+      })
+    ]);
+  }
+
   /* ---- Tier Incentives ---------------------------------------------------- */
 
   /**
@@ -987,16 +1010,16 @@
         value: 'tier-incentives',
         items: [
           { id: 'tier-incentives', label: 'Tier Incentives', render: function () {
-            return el('div', {}, [context.filters(), tierIncentivesView()]);
+            return el('div', {}, [context.filters(), tierIncentivesView(), updatePacketCta()]);
           } },
           { id: 'services', label: 'Services', render: function () {
-            return el('div', {}, [context.filters(), servicesViewSwitchable()]);
+            return el('div', {}, [context.filters(), servicesViewSwitchable(), updatePacketCta()]);
           } },
           { id: 'accessorials', label: 'Accessorials', render: function () {
-            return el('div', {}, [context.filters(), accessorialsViewSwitchable()]);
+            return el('div', {}, [context.filters(), accessorialsViewSwitchable(), updatePacketCta()]);
           } },
           { id: 'modifiers', label: 'Modifiers', render: function () {
-            return el('div', {}, [context.filters(), context.emptyView('Modifier')()]);
+            return el('div', {}, [context.filters(), context.emptyView('Modifier')(), updatePacketCta()]);
           } }
         ]
       })
