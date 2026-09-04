@@ -4148,7 +4148,19 @@
  * the diagonal (and the two labels sitting on it) room to actually read
  * as a rectangle split in two, rather than a near-flat line across a
  * cell only as tall as one line of text needs.
+ *
+ * rate-chart__rowhead (this table's own row-header column only, both the
+ * corner cell and every body row's weight cell share the same colspan-2
+ * column) gives that column a floor wider than its narrow single/double
+ * -digit weight values would otherwise auto-size it to -- without it,
+ * "Zones" and "Weight" have too little horizontal room either side of the
+ * diagonal to actually land in opposite corners and just read as two
+ * stacked, left-aligned lines instead of a split.
  */
+.rate-chart__rowhead {
+  min-width: 96px;
+}
+
 .matrix__corner {
   position: relative;
   height: 52px;

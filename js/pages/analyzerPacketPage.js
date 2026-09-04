@@ -1133,7 +1133,7 @@
 
       var head = el('thead', {}, [
         el('tr', {}, [
-          el('th', { className: 'matrix__rowhead matrix__corner', attrs: { scope: 'col', colspan: 2 } }, [
+          el('th', { className: 'matrix__rowhead matrix__corner rate-chart__rowhead', attrs: { scope: 'col', colspan: 2 } }, [
             el('span', { className: 'matrix__corner-label matrix__corner-label--zones', text: 'Zones' }),
             el('span', { className: 'matrix__corner-label matrix__corner-label--weight', text: 'Weight' })
           ])
@@ -1144,7 +1144,7 @@
 
       var body = el('tbody', {}, data.rows.map(function (row) {
         return el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row', colspan: 2 }, text: row.weight })
+          el('th', { className: 'matrix__rowhead rate-chart__rowhead', attrs: { scope: 'row', colspan: 2 }, text: row.weight })
         ].concat(row.net.map(function (rate) {
           // A plain <a> here, same as every other report table's linked
           // figure -- it's what makes the value read as link-blue and
