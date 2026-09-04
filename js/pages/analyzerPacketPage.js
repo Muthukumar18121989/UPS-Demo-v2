@@ -598,8 +598,17 @@
       ]);
     }
 
-    /** The lane key every shipping profile view opens with: Movement, Mode and
-     * (the raw) Core Service joined into one Core Service label column. */
+    /**
+     * The lane key every shipping profile view opens with: Movement, Mode and
+     * (the raw) Core Service joined into one Core Service label column --
+     * `row.serviceLabel`, when a row carries one, renders in its place as a
+     * plain friendly name instead (Cost Details' own N-Next Day Air etc.).
+     * `row.pkgType` renders the same two-line "UPS <service> -Pkg <type>"
+     * plus superscript product/rate codes serviceLabel() (Services tab)
+     * already established -- same .service-pkg* classes, reused rather than
+     * duplicated, for the package-type row Cost Details' own Core Service
+     * rows can now open onto.
+     */
     function profileKeyColumns() {
       return [
         {
@@ -607,7 +616,20 @@
           label: 'Core Service',
           width: '220px',
           className: 'is-rowhead',
-          render: function (row) { return [row.movement, row.mode, row.service].join('-'); }
+          render: function (row) {
+            if (row.pkgType) {
+              return el('span', { className: 'service-pkg' }, [
+                el('span', { className: 'service-pkg__line', text: 'UPS ' + row.pkgParentLabel }),
+                el('span', { className: 'service-pkg__meta' }, [
+                  el('span', { text: '-Pkg ' + row.pkgType }),
+                  el('sup', { className: 'service-pkg__codes', text: ' ' + row.pkgCodes })
+                ])
+              ]);
+            }
+            if (row.serviceLabel) return row.serviceLabel;
+            if (!row.movement && !row.mode && !row.service) return '';
+            return [row.movement, row.mode, row.service].join('-');
+          }
         },
         numeric('zone', 'Zone', { width: '85px' }),
         numeric('lane', 'Lane', { width: '85px' })
@@ -624,8 +646,18 @@
             headerTone: 'warm',
             tinted: true,
             expandKey: 'coreService',
-            // A lane opens onto the zones it shipped in.
+            // A row's own static `children` (Cost Details' package-type
+            // rows, and the zone rows under them) win over the generic
+            // zone split every other lane still opens onto dynamically. A
+            // package-type row with no real `children` of its own (Cost
+            // Details' two collapsed-in-the-screenshot rows, with no
+            // visible contents to give it) stays a leaf rather than
+            // falling through to that generic split -- it shares
+            // zone: '-' with an ordinary lane row (so its own Zone column
+            // reads as a dash, matching the screenshot) but isn't one.
             getChildren: function (row) {
+              if (row.children) return row.children;
+              if (row.pkgType) return null;
               if (row.zone !== '-') return null;
               return DA.data.zoneBreakdown(row, 'service', DA.data.additive[options.additive]);
             },

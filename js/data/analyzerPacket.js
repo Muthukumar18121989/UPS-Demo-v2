@@ -135,13 +135,90 @@
     });
   }
 
+  /**
+   * Cost Details row hierarchy/labels, per the client's reference
+   * screenshot (Analyzer > Cost Details update). Only the 4 rows it shows
+   * (1DA/1DP/2DA/3DS) get a friendly serviceLabel and updated visible
+   * figures -- the other 5 rows are untouched, unlabeled Movement-Mode-
+   * Service rows as before, per the client's own scoping choice.
+   *
+   * 1DA and 1DP additionally get a real `children` array: a package-type
+   * row ("UPS <service> -Pkg <type>", superscript product/rate codes,
+   * reusing serviceLabel()'s own .service-pkg markup from the Services
+   * tab) that shows "-" for every figure of its own -- real numbers only
+   * surface one level deeper, on the Zone/Lane rows the package row's own
+   * chevron opens onto, exactly as the client's screenshot and its
+   * explicit expand-behavior instructions describe. 1DA's own zone rows
+   * (102/104/105/.../108, all lane US) are the screenshot's own values;
+   * 1DP's two package rows (Commercial/Residential) are shown collapsed
+   * in the screenshot with their contents not visible, so they're left as
+   * leaves rather than inventing unseen zone data for them.
+   *
+   * Every column not visible in the screenshot (DL Dens, PU, LS, CS, AR,
+   * JF, GF, BR, PD, DL, NO, OTH, Total Freight Cost, Cost Adj, New Cost)
+   * keeps this row's own pre-existing placeholder figures unchanged, on
+   * every row including 1DA's new zone children -- only the columns the
+   * screenshot actually shows were replaced.
+   */
   DA.data.shippingProfileCost = withKeys([
-    { volume: '652.0', adv: '130.4', pps: '1.0', weightPiece: '11.91', avgCube: '1.24', avgCubeFactor: '1.08', puDens: '8.64', dlDens: '1.65', pu: '$ 2.42', ls: '$ 0.47', cs: '$ 2.15', ar: '$ 3.62', jf: '$ 12.31', gf: '$ 2.12', br: '$ 0.0', pd: '$ 1.83', dl: '$ 5.59', no: '$ 3.06', oth: '$ 0.0', totalFreightCost: '$ 33.57', costAdj: '-', newCost: '$ 33.57' },
+    {
+      serviceLabel: 'N-Next Day Air',
+      expanded: true,
+      volume: '234.0', adv: '0.9', pps: '1.00', weightPiece: '8.0', avgCube: '1.24', avgCubeFactor: '0.98', puDens: '1.8',
+      dlDens: '1.65', pu: '$ 2.42', ls: '$ 0.47', cs: '$ 2.15', ar: '$ 3.62', jf: '$ 12.31', gf: '$ 2.12', br: '$ 0.0', pd: '$ 1.83', dl: '$ 5.59', no: '$ 3.06', oth: '$ 0.0', totalFreightCost: '$ 33.57', costAdj: '-', newCost: '$ 33.57',
+      children: [
+        {
+          movement: '', mode: '', service: '',
+          expanded: true,
+          pkgType: 'Residential', pkgParentLabel: 'N-Next Day Air', pkgCodes: 'FC, PP, RS, RTP, TP',
+          zone: '-', lane: '-',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-', avgCube: '-', avgCubeFactor: '-', puDens: '-',
+          dlDens: '-', pu: '-', ls: '-', cs: '-', ar: '-', jf: '-', gf: '-', br: '-', pd: '-', dl: '-', no: '-', oth: '-', totalFreightCost: '-', costAdj: '-', newCost: '-',
+          children: [
+            { movement: '', mode: '', service: '', zone: '102', lane: 'US', volume: '52.0', adv: '0.2', pps: '1.00', weightPiece: '10.0', avgCube: '1.04', avgCubeFactor: '1.20', puDens: '0.9', dlDens: '1.65', pu: '$ 2.42', ls: '$ 0.47', cs: '$ 2.15', ar: '$ 3.62', jf: '$ 12.31', gf: '$ 2.12', br: '$ 0.0', pd: '$ 1.83', dl: '$ 5.59', no: '$ 3.06', oth: '$ 0.0', totalFreightCost: '$ 33.57', costAdj: '-', newCost: '$ 33.57' },
+            { movement: '', mode: '', service: '', zone: '104', lane: 'US', volume: '52.0', adv: '0.2', pps: '1.00', weightPiece: '2.0', avgCube: '0.89', avgCubeFactor: '0.20', puDens: '12.4', dlDens: '1.65', pu: '$ 2.42', ls: '$ 0.47', cs: '$ 2.15', ar: '$ 3.62', jf: '$ 12.31', gf: '$ 2.12', br: '$ 0.0', pd: '$ 1.83', dl: '$ 5.59', no: '$ 3.06', oth: '$ 0.0', totalFreightCost: '$ 33.57', costAdj: '-', newCost: '$ 33.57' },
+            { movement: '', mode: '', service: '', zone: '105', lane: 'US', volume: '26.0', adv: '0.1', pps: '1.00', weightPiece: '2.0', avgCube: '0.87', avgCubeFactor: '0.19', puDens: '12.4', dlDens: '1.65', pu: '$ 2.42', ls: '$ 0.47', cs: '$ 2.15', ar: '$ 3.62', jf: '$ 12.31', gf: '$ 2.12', br: '$ 0.0', pd: '$ 1.83', dl: '$ 5.59', no: '$ 3.06', oth: '$ 0.0', totalFreightCost: '$ 33.57', costAdj: '-', newCost: '$ 33.57' },
+            { movement: '', mode: '', service: '', zone: '106', lane: 'US', volume: '26.0', adv: '0.1', pps: '1.00', weightPiece: '19.0', avgCube: '2.79', avgCubeFactor: '2.04', puDens: '0.9', dlDens: '1.65', pu: '$ 2.42', ls: '$ 0.47', cs: '$ 2.15', ar: '$ 3.62', jf: '$ 12.31', gf: '$ 2.12', br: '$ 0.0', pd: '$ 1.83', dl: '$ 5.59', no: '$ 3.06', oth: '$ 0.0', totalFreightCost: '$ 33.57', costAdj: '-', newCost: '$ 33.57' },
+            { movement: '', mode: '', service: '', zone: '107', lane: 'US', volume: '26.0', adv: '0.1', pps: '1.00', weightPiece: '16.0', avgCube: '1.03', avgCubeFactor: '1.79', puDens: '1.8', dlDens: '1.65', pu: '$ 2.42', ls: '$ 0.47', cs: '$ 2.15', ar: '$ 3.62', jf: '$ 12.31', gf: '$ 2.12', br: '$ 0.0', pd: '$ 1.83', dl: '$ 5.59', no: '$ 3.06', oth: '$ 0.0', totalFreightCost: '$ 33.57', costAdj: '-', newCost: '$ 33.57' },
+            { movement: '', mode: '', service: '', zone: '108', lane: 'US', volume: '52.0', adv: '0.2', pps: '1.00', weightPiece: '5.5', avgCube: '1.32', avgCubeFactor: '1.00', puDens: '2.2', dlDens: '1.65', pu: '$ 2.42', ls: '$ 0.47', cs: '$ 2.15', ar: '$ 3.62', jf: '$ 12.31', gf: '$ 2.12', br: '$ 0.0', pd: '$ 1.83', dl: '$ 5.59', no: '$ 3.06', oth: '$ 0.0', totalFreightCost: '$ 33.57', costAdj: '-', newCost: '$ 33.57' }
+          ]
+        }
+      ]
+    },
     { volume: '15.0', adv: '3.0', pps: '1.0', weightPiece: '14.87', avgCube: '1.51', avgCubeFactor: '1.07', puDens: '4.54', dlDens: '1.61', pu: '$ 4.9', ls: '$ 0.39', cs: '$ 2.17', ar: '$ 3.72', jf: '$ 18.69', gf: '$ 2.83', br: '$ 0.0', pd: '$ 2.07', dl: '$ 8.43', no: '$ 5.17', oth: '$ 0.0', totalFreightCost: '$ 48.39', costAdj: '-', newCost: '$ 48.39' },
-    { volume: '68.0', adv: '13.6', pps: '1.0', weightPiece: '11.09', avgCube: '1.17', avgCubeFactor: '0.97', puDens: '4.92', dlDens: '4.04', pu: '$ 3.92', ls: '$ 0.17', cs: '$ 2.64', ar: '$ 3.95', jf: '$ 10.26', gf: '$ 1.87', br: '$ 0.0', pd: '$ 1.92', dl: '$ 2.14', no: '$ 2.5', oth: '$ 0.0', totalFreightCost: '$ 29.37', costAdj: '-', newCost: '$ 29.37' },
-    { volume: '218.0', adv: '43.6', pps: '1.0', weightPiece: '5.45', avgCube: '0.55', avgCubeFactor: '1.02', puDens: '3.9', dlDens: '2.68', pu: '$ 4.77', ls: '$ 0.49', cs: '$ 1.81', ar: '$ 0.43', jf: '$ 1.48', gf: '$ 0.9', br: '$ 0.0', pd: '$ 1.25', dl: '$ 2.85', no: '$ 1.8', oth: '$ 0.01', totalFreightCost: '$ 15.78', costAdj: '-', newCost: '$ 15.78' },
+    {
+      serviceLabel: 'N-Next Day Air Saver',
+      expanded: true,
+      volume: '52.0', adv: '0.2', pps: '1.00', weightPiece: '15.0', avgCube: '1.47', avgCubeFactor: '1.64', puDens: '2.1',
+      dlDens: '4.04', pu: '$ 3.92', ls: '$ 0.17', cs: '$ 2.64', ar: '$ 3.95', jf: '$ 10.26', gf: '$ 1.87', br: '$ 0.0', pd: '$ 1.92', dl: '$ 2.14', no: '$ 2.5', oth: '$ 0.0', totalFreightCost: '$ 29.37', costAdj: '-', newCost: '$ 29.37',
+      children: [
+        {
+          movement: '', mode: '', service: '',
+          pkgType: 'Commercial', pkgParentLabel: 'N-Next Day Air Saver', pkgCodes: 'FC, PP, TP',
+          zone: '-', lane: '-',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-', avgCube: '-', avgCubeFactor: '-', puDens: '-',
+          dlDens: '-', pu: '-', ls: '-', cs: '-', ar: '-', jf: '-', gf: '-', br: '-', pd: '-', dl: '-', no: '-', oth: '-', totalFreightCost: '-', costAdj: '-', newCost: '-'
+        },
+        {
+          movement: '', mode: '', service: '',
+          pkgType: 'Residential', pkgParentLabel: 'N-Next Day Air Saver', pkgCodes: 'FC, PP, TP',
+          zone: '-', lane: '-',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-', avgCube: '-', avgCubeFactor: '-', puDens: '-',
+          dlDens: '-', pu: '-', ls: '-', cs: '-', ar: '-', jf: '-', gf: '-', br: '-', pd: '-', dl: '-', no: '-', oth: '-', totalFreightCost: '-', costAdj: '-', newCost: '-'
+        }
+      ]
+    },
+    {
+      serviceLabel: 'N-2nd Day Air',
+      volume: '26.0', adv: '0.1', pps: '1.000', weightPiece: '17.0', avgCube: '1.10', avgCubeFactor: '1.85', puDens: '1.9',
+      dlDens: '2.68', pu: '$ 4.77', ls: '$ 0.49', cs: '$ 1.81', ar: '$ 0.43', jf: '$ 1.48', gf: '$ 0.9', br: '$ 0.0', pd: '$ 1.25', dl: '$ 2.85', no: '$ 1.8', oth: '$ 0.01', totalFreightCost: '$ 15.78', costAdj: '-', newCost: '$ 15.78'
+    },
     { volume: '9.0', adv: '1.8', pps: '1.0', weightPiece: '13.89', avgCube: '0.99', avgCubeFactor: '0.91', puDens: '2.78', dlDens: '5.78', pu: '$ 5.9', ls: '$ 0.51', cs: '$ 2.71', ar: '$ 0.56', jf: '$ 2.3', gf: '$ 1.75', br: '$ 0.0', pd: '$ 1.67', dl: '$ 4.14', no: '$ 2.5', oth: '$ 0.0', totalFreightCost: '$ 22.05', costAdj: '-', newCost: '$ 22.05' },
-    { volume: '357.0', adv: '71.4', pps: '1.0', weightPiece: '12.38', avgCube: '1.15', avgCubeFactor: '1.05', puDens: '13.39', dlDens: '1.84', pu: '$ 1.53', ls: '$ 0.47', cs: '$ 2.09', ar: '$ 0.25', jf: '$ 1.08', gf: '$ 1.62', br: '$ 0.0', pd: '$ 1.51', dl: '$ 3.14', no: '$ 1.93', oth: '$ 0.01', totalFreightCost: '$ 13.62', costAdj: '-', newCost: '$ 13.62' },
+    {
+      serviceLabel: 'N-3 Day Select',
+      volume: '22100.0', adv: '85.0', pps: '3.40', weightPiece: '76.5', avgCube: '1.12', avgCubeFactor: '1.05', puDens: '13.39',
+      dlDens: '1.84', pu: '$ 1.53', ls: '$ 0.47', cs: '$ 2.09', ar: '$ 0.25', jf: '$ 1.08', gf: '$ 1.62', br: '$ 0.0', pd: '$ 1.51', dl: '$ 3.14', no: '$ 1.93', oth: '$ 0.01', totalFreightCost: '$ 13.62', costAdj: '-', newCost: '$ 13.62'
+    },
     { volume: '20953.0', adv: '4190.6', pps: '1.0', weightPiece: '13.01', avgCube: '1.36', avgCubeFactor: '1.15', puDens: '117.72', dlDens: '1.3', pu: '$ 0.23', ls: '$ 0.51', cs: '$ 1.85', ar: '$ 0.0', jf: '$ 0.0', gf: '$ 2.78', br: '$ 0.0', pd: '$ 1.2', dl: '$ 4.0', no: '$ 1.37', oth: '$ 0.02', totalFreightCost: '$ 11.91', costAdj: '-', newCost: '$ 11.91' },
     { volume: '62796.0', adv: '12559.2', pps: '1.0', weightPiece: '3.59', avgCube: '0.52', avgCubeFactor: '1.09', puDens: '3031.44', dlDens: '1.16', pu: '$ 0.07', ls: '$ 0.41', cs: '$ 1.24', ar: '$ 0.0', jf: '$ 0.0', gf: '$ 0.94', br: '$ 0.0', pd: '$ 0.96', dl: '$ 5.53', no: '$ 1.04', oth: '$ 0.0', totalFreightCost: '$ 10.19', costAdj: '-', newCost: '$ 10.19' },
     { volume: '1497.0', adv: '299.4', pps: '1.0', weightPiece: '12.12', avgCube: '0.29', avgCubeFactor: '1.11', puDens: '3335.35', dlDens: '1.21', pu: '$ 0.07', ls: '$ 0.25', cs: '$ 0.88', ar: '$ 0.0', jf: '$ 0.0', gf: '$ 0.57', br: '$ 0.0', pd: '$ 0.8', dl: '$ 5.25', no: '$ 0.89', oth: '$ 0.0', totalFreightCost: '$ 8.69', costAdj: '-', newCost: '$ 8.69' }
