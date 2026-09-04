@@ -418,11 +418,22 @@
               if (i === 0) return;
               var prevRect = cells[i - 1].getBoundingClientRect();
               var rect = c.getBoundingClientRect();
+              // The header and each card are independent grids sharing the
+              // same column template, but the header's own computed column
+              // rect can still land a sub-pixel off a card's (browsers
+              // round each grid's fractional 1fr tracks separately) --
+              // spanning the union of both cells' edges, instead of just
+              // the lower one's, means the connector always fully covers
+              // both borders rather than clipping whichever cell happens
+              // to be a hair narrower, which read as the column's own
+              // divider going slightly out of line right at that seam.
+              var left = Math.min(prevRect.left, rect.left);
+              var right = Math.max(prevRect.right, rect.right);
               connectorLayer.appendChild(el('div', {
                 className: 'comparison-cards__connector',
                 style: {
-                  left: (rect.left - layerRect.left) + 'px',
-                  width: rect.width + 'px',
+                  left: (left - layerRect.left) + 'px',
+                  width: (right - left) + 'px',
                   top: (prevRect.bottom - layerRect.top) + 'px',
                   height: Math.max(0, rect.top - prevRect.bottom) + 'px'
                 }
