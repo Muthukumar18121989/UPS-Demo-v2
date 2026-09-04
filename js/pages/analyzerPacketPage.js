@@ -382,25 +382,61 @@
         ].concat(metricFields));
       });
 
+      var wrap = el('div', {
+        className: 'comparison-cards scroll-area',
+        attrs: { role: 'table', 'aria-label': 'Scenario comparison' }
+      }, [header].concat(cards));
+
+      // Each row (header, then every card) is its own independent CSS grid
+      // -- .comparison-cards only stacks them with a flex `gap` between, so
+      // a highlighted column's own cells (is-col-highlight, below) read as
+      // separate tinted boxes with a visible break at every gap rather than
+      // one continuous column. This layer fills exactly those gaps, one
+      // absolutely-positioned strip per join, computed from the real cell
+      // rects so it lines up regardless of column widths -- the rest of
+      // the column highlight (the fill + left/right teal edge) stays the
+      // cells' own background/border, unchanged; this only bridges what
+      // sat between them.
+      var connectorLayer = el('div', { className: 'comparison-cards__connectors' });
+      wrap.appendChild(connectorLayer);
+
       // Every column's own cell list is complete once every row has been
       // built above, so the hover wiring happens last.
       columnCells.forEach(function (cells) {
         cells.forEach(function (cell) {
           cell.addEventListener('mouseenter', function () {
-            cells.forEach(function (c) { c.classList.add('is-col-highlight'); });
+            // Relative to the layer's own box, not wrap's -- wrap carries
+            // its own border/padding (offset from its border-box, which is
+            // what getBoundingClientRect reports, vs. the padding-box
+            // `position: absolute` offsets resolve against), so anchoring
+            // to the layer itself (inset: 0 against that same padding box)
+            // keeps every connector exactly aligned with the real cells
+            // regardless of that border/padding rather than off by it.
+            var layerRect = connectorLayer.getBoundingClientRect();
+            cells.forEach(function (c, i) {
+              c.classList.add('is-col-highlight');
+              if (i === 0) return;
+              var prevRect = cells[i - 1].getBoundingClientRect();
+              var rect = c.getBoundingClientRect();
+              connectorLayer.appendChild(el('div', {
+                className: 'comparison-cards__connector',
+                style: {
+                  left: (rect.left - layerRect.left) + 'px',
+                  width: rect.width + 'px',
+                  top: (prevRect.bottom - layerRect.top) + 'px',
+                  height: Math.max(0, rect.top - prevRect.bottom) + 'px'
+                }
+              }));
+            });
           });
           cell.addEventListener('mouseleave', function () {
             cells.forEach(function (c) { c.classList.remove('is-col-highlight'); });
+            DA.dom.clear(connectorLayer);
           });
         });
       });
 
-      DA.dom.clear(comparisonBand).appendChild(
-        el('div', {
-          className: 'comparison-cards scroll-area',
-          attrs: { role: 'table', 'aria-label': 'Scenario comparison' }
-        }, [header].concat(cards))
-      );
+      DA.dom.clear(comparisonBand).appendChild(wrap);
     }
 
     // Table view is the default -- the fuller, more scannable read of the

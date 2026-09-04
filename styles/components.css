@@ -897,6 +897,7 @@
  * page, so it read as barely rounded at all.
  */
 .comparison-cards {
+  position: relative; /* anchors .comparison-cards__connectors below */
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -905,6 +906,30 @@
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-container);
+}
+
+/*
+ * Bridges the `gap` between the header row and each card row for a
+ * highlighted column (renderComparisonCards() populates it on hover) --
+ * the header and every card are each their own independent CSS grid, so
+ * without this, a highlighted column's own tinted/bordered cells
+ * (is-col-highlight below) read as separate boxes with a visible break at
+ * every gap instead of one continuous column. `position: absolute; inset:
+ * 0` takes it out of the flex column's own layout entirely (it neither
+ * takes space nor shifts anything else) and gives its own connector
+ * strips a stable, scroll-synced coordinate space to position against.
+ */
+.comparison-cards__connectors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.comparison-cards__connector {
+  position: absolute;
+  background-color: var(--color-primary-subtle);
+  border-left: 1px solid var(--color-primary-text);
+  border-right: 1px solid var(--color-primary-text);
 }
 
 .comparison-cards__header,
@@ -1001,10 +1026,24 @@
  * compare, just the row's own label. Same --color-primary-subtle tint
  * DataTable's own (currently unused elsewhere) column-highlight rules
  * use, for a consistent "column highlight" language app-wide.
+ *
+ * The left/right border is --color-primary-text -- the same teal already
+ * used for every table's own value color app-wide, not a new color --
+ * so the highlighted column reads as one clearly outlined lane rather
+ * than just a soft tint change. Real borders, not box-shadow: box-sizing
+ * is border-box globally (base.css), so adding them doesn't shift the
+ * cell's own box or its neighbors, and it keeps this edge at the exact
+ * same coordinate .comparison-cards__connector's own border reads its
+ * position from (getBoundingClientRect, in renderComparisonCards()) --
+ * together the two close every gap between rows, so the whole column
+ * reads as one continuous highlighted band, header to last row, instead
+ * of separate tinted boxes with a visible break at each row gap.
  */
 .comparison-card__field.is-col-highlight,
 .comparison-cards__header-cell.is-col-highlight {
   background-color: var(--color-primary-subtle);
+  border-left: 1px solid var(--color-primary-text);
+  border-right: 1px solid var(--color-primary-text);
 }
 
 .comparison-card__field {
