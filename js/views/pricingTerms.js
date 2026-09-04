@@ -590,6 +590,21 @@
   }
 
   /**
+   * A top-level Choose Service category's own icon -- Domestic stays within
+   * one country (home); Export and Import both cross one, so they share the
+   * same diagonal-arrow pair, mirrored to show which direction. Anything
+   * not one of these three (a future category, or Option 1/2's own
+   * unrelated top-level groups like "Transportation Charges") falls back to
+   * the plain `box` every category used to share.
+   */
+  function categoryIcon(label) {
+    if (label === 'Domestic') return DA.icons.home(16);
+    if (label === 'Export') return DA.icons.exportArrow(16);
+    if (label === 'Import') return DA.icons.importArrow(16);
+    return DA.icons.box(16);
+  }
+
+  /**
    * Option 3: the same hierarchy Option 1 shows, but as a persistent
    * left-hand pane instead of a stack of accordions -- built on the exact
    * .dropdown__tree/.dropdown__option markup Option 2's popover tree
@@ -666,14 +681,15 @@
         }
       }, [
         DA.icons.chevronDown(14, 'dropdown__tree-chevron'),
-        // A top-level group ("Domestic", "Transportation Charges") gets a
-        // category icon alongside its chevron, matching the Accounts
-        // page's own box icon -- so it still reads as "this is an
+        // A top-level group ("Domestic", "Export", "Import") gets a category
+        // icon alongside its chevron, so it still reads as "this is an
         // expandable group" at a glance, collapsed or not, rather than
-        // relying on the chevron alone. Nested levels (Air, Ground -
-        // Package) skip it -- the icon marks the main header, not every
-        // level down.
-        depth === 0 ? DA.icons.box(16) : null,
+        // relying on the chevron alone -- and, now that there's more than
+        // one top-level category, so each one reads as what it actually is
+        // rather than three identical packages (see icons.js). Nested
+        // levels (Air, Ground - Package) skip it -- the icon marks the main
+        // header, not every level down.
+        depth === 0 ? categoryIcon(node.label) : null,
         el('span', { className: 'dropdown__tree-label', text: node.label })
       ]);
 
@@ -708,10 +724,10 @@
       attrs: { type: 'button', 'aria-label': 'Expand hierarchy panel' }
     }, [
       DA.icons.chevronRight(14, 'plan-sidebar__expand-chevron'),
-      // Echoes the category icon a top-level group (buildGroup, depth 0)
-      // carries in the expanded tree, so the collapsed strip still reads
-      // as "the same hierarchy panel, just narrowed" instead of turning
-      // into an unrelated bare arrow.
+      // The whole hierarchy panel, collapsed -- not any one category (there
+      // are three different category icons now, see categoryIcon()), so
+      // this stays the plain, now Domestic-free `box` rather than echoing
+      // whichever one happens to be selected.
       DA.icons.box(16)
     ]);
 

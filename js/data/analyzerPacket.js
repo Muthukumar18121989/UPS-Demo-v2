@@ -490,7 +490,13 @@
 
   /* ---- Pricing terms tab -------------------------------------------------- */
 
-  /** Region > mode > service, as the service incentive plans are grouped. */
+  /**
+   * Region > mode > service, as the service incentive plans are grouped.
+   * Export and Import are header-only for now, per client instruction --
+   * empty `children` still renders each as its own expandable category
+   * (icon, chevron, "you can open this") rather than a selectable leaf;
+   * their service lists are a separate, later addition.
+   */
   DA.data.pricingServiceTree = [
     {
       label: 'Domestic',
@@ -508,7 +514,9 @@
         },
         { label: 'Ground', children: [{ label: 'Ground - Package' }] }
       ]
-    }
+    },
+    { label: 'Export', children: [] },
+    { label: 'Import', children: [] }
   ];
 
   /** Zone columns and weight bands behind a service's incentive grid. */

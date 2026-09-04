@@ -135,6 +135,53 @@
     );
   }
 
+  /*
+   * Choose Service tree's own top-level category icons (Domestic / Export /
+   * Import) -- swapped in for the one generic `box` every top-level group
+   * used to share, so each of the three reads as what it actually is at a
+   * glance rather than three identical packages. `box` itself stays defined
+   * above (still used elsewhere) and now free to mean "a package" again
+   * instead of doubling as "Domestic".
+   */
+  function home(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M4.5 12 12 5l7.5 7"/>' +
+      '<path ' + STROKE +
+      ' d="M6.8 10.3v8a1 1 0 0 0 1 1H9.9v-5h4.2v5h2.1a1 1 0 0 0 1-1v-8"/>',
+      { size: size || 26, className: className || '' }
+    );
+  }
+
+  /*
+   * A plain corner-to-corner diagonal arrow, same drawing technique as
+   * `trendingUp` above (a line plus an open-corner chevron at the tip, no
+   * arrowhead fill needed) -- reads as "outbound" without reusing
+   * `upload`'s tray-and-vertical-arrow shape, which servicePlan() already
+   * shows right next to this same tree for a completely different action
+   * ("Upload Net Rate Values"). Deliberately no circle/globe around it --
+   * a circle plus a single diagonal arrow through it is the ♂ (Mars/male)
+   * symbol, confirmed by rendering an earlier draft large and comparing.
+   */
+  function exportArrow(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M6 18 18 6"/>' +
+      '<path ' + STROKE + ' d="M18 6v6M18 6h-6"/>',
+      { size: size || 26, className: className || '' }
+    );
+  }
+
+  /* exportArrow's mirror -- the same diagonal, open-corner chevron at the
+     near tip instead of the far one, so the arrow reads as arriving rather
+     than leaving (the same "which end has the corner" logic `trendingUp`'s
+     own chevron placement already relies on). */
+  function importArrow(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M18 6 6 18"/>' +
+      '<path ' + STROKE + ' d="M6 18v-6M6 18h6"/>',
+      { size: size || 26, className: className || '' }
+    );
+  }
+
   function pencil(size) {
     return svg(
       '<path ' + STROKE + ' d="M4.5 19.5h3.2l9-9a2.26 2.26 0 0 0-3.2-3.2l-9 9Z"/>' +
@@ -347,6 +394,9 @@
     filter: filter,
     box: box,
     boxOff: boxOff,
+    home: home,
+    exportArrow: exportArrow,
+    importArrow: importArrow,
     settings: settings,
     plusCircle: plusCircle,
     file: file,
