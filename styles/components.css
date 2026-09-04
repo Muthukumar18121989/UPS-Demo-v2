@@ -2676,6 +2676,13 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+/* Pushed to the tab bar's right edge within the same flex row -- stays
+   inside a boxed tab bar's own border rather than sitting outside it. */
+.tabs__extra {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .tabs__tab {
   position: relative;
   padding: var(--space-3) var(--space-1);
@@ -3337,11 +3344,11 @@
   padding: var(--space-1) var(--space-5) 0;
 }
 
-/* Now living in the first scenario accordion's own header row
-   (headerExtra) instead of a standalone row above the whole grid --
-   drop the padding/justify meant for that full-width row, since it's
-   a shrink-to-fit flex item there instead. */
-.accordion__header .comparison-sync-toggle {
+/* Now living in the Comparisons tab's own tab-bar row (.tabs__extra)
+   instead of a standalone row above the whole grid, or the first
+   accordion's header -- drop the padding/justify meant for that
+   full-width row, since it's a shrink-to-fit flex item there instead. */
+.tabs__extra .comparison-sync-toggle {
   flex: 0 0 auto;
   padding: 0;
 }

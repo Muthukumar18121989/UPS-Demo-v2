@@ -525,12 +525,26 @@
       return { register: register, toggle: toggle };
     }
 
-    function summaryView() {
+    /**
+     * `toggleSlot`, when given, is the persistent node analyzerView() seats
+     * in the Comparisons tab's own tab-bar row -- summaryView() re-renders
+     * on every visit to that tab (a fresh sync/panels set each time, so
+     * stale detached tables from the previous render don't stay wired up),
+     * so the toggle mounted into the slot is replaced along with it rather
+     * than reused across renders.
+     */
+    function summaryView(toggleSlot) {
       var trees = DA.data.packetSummaryTrees;
       var sync = summaryComparisonSync();
 
+      if (toggleSlot) {
+        DA.dom.clear(toggleSlot).appendChild(
+          el('div', { className: 'comparison-sync-toggle' }, [sync.toggle])
+        );
+      }
+
       var grid = el('div', { className: 'comparison-grid' },
-        scenarios.map(function (scenario, index) {
+        scenarios.map(function (scenario) {
           var rows = trees[scenario.name] || trees.Current;
           var table = C.DataTable({
             caption: scenario.name + ' summary',
@@ -546,14 +560,6 @@
             title: scenario.name,
             expanded: true,
             className: 'accordion--filled',
-            // Lives in the first scenario's own header row, at the right
-            // edge, instead of a standalone row above the whole grid --
-            // one global control, so it only needs to appear once, and
-            // the first accordion's header already has the width to
-            // spare that a row of its own was wasting.
-            headerExtra: index === 0
-              ? el('div', { className: 'comparison-sync-toggle' }, [sync.toggle])
-              : null,
             content: [table]
           });
         })
@@ -1173,12 +1179,25 @@
      * only the menu structure and labels moved, matching the reference menu.
      */
     function analyzerView() {
+      // Seated once, into the tab bar's own right edge, instead of inside
+      // the Comparisons panel -- summaryView() re-mounts its (re-created,
+      // per render) toggle into this same slot each time that tab is
+      // shown; Tabs itself hides the slot whenever any other tab is
+      // active, so the control only ever appears next to the view it
+      // affects.
+      var comparisonSyncSlot = el('div', {});
+
       return el('div', { className: 'tabs--boxed' }, [
         C.Tabs({
           ariaLabel: 'Analyzer views',
           value: 'comparisons',
+          extra: { node: comparisonSyncSlot, forTab: 'comparisons' },
           items: [
-            { id: 'comparisons', label: 'Comparisons', render: summaryView },
+            {
+              id: 'comparisons',
+              label: 'Comparisons',
+              render: function () { return summaryView(comparisonSyncSlot); }
+            },
             { id: 'services', label: 'Services', render: serviceView },
             { id: 'charges', label: 'Charges', render: accessorialView },
             { id: 'accounts', label: 'Accounts', render: accountsView },
