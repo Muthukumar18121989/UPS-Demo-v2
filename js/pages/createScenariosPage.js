@@ -63,6 +63,52 @@
       });
     }
 
+    /** The three Packet/Customer/User field groups Option 2's sections and
+        Option 3's columns both render from -- one shared source rather
+        than the same field lists typed out twice. */
+    function summarySections() {
+      return [
+        {
+          title: 'Packet Information',
+          columns: 3,
+          fields: [
+            { label: 'Analyzer Packet ID', value: packet.packetId },
+            { label: 'Customer Name', value: packet.customerName },
+            { label: 'Reference Number', value: packet.referenceNumber },
+            { label: 'Analyzer Packet Description', value: packet.description }
+          ]
+        },
+        {
+          title: 'Customer Information',
+          columns: 3,
+          fields: [
+            { label: 'Customer Hierarchy', value: packet.hierarchy },
+            { label: 'Shipping Profile From', value: packet.from },
+            { label: 'Shipping Profile To', value: packet.to },
+            { label: 'Industry', value: packet.industry },
+            { label: 'PQR', value: packet.pqr },
+            { label: 'OPPs', value: packet.opps }
+          ]
+        },
+        {
+          title: 'User Information',
+          columns: 3,
+          fields: [
+            { label: 'Owner', value: owner },
+            { label: 'Created Date', value: packet.createdAt },
+            { label: 'Last Modified Date', value: packet.lastModifiedAt },
+            // Last, and wide -- a username can run long enough to wrap
+            // onto two lines, which a single 1-of-4 column was too
+            // narrow for; giving it the whole row (same as Packet
+            // Information's own Description field) means it wraps
+            // wide instead of squeezed, and lands on its own row the
+            // same way every other section's own extra field does.
+            { label: 'Last Modified By', value: packet.lastModifiedBy || owner, wide: true }
+          ]
+        }
+      ];
+    }
+
     /** Option 2: fields grouped into titled Packet/Customer/User sections. */
     function groupedSummary() {
       return C.SummaryPanel({
@@ -72,62 +118,54 @@
           { label: 'Customer Name', value: packet.customerName },
           { label: 'Reference Number', value: packet.referenceNumber }
         ],
-        sections: [
-          {
-            title: 'Packet Information',
-            columns: 3,
-            fields: [
-              { label: 'Analyzer Packet ID', value: packet.packetId },
-              { label: 'Customer Name', value: packet.customerName },
-              { label: 'Reference Number', value: packet.referenceNumber },
-              { label: 'Analyzer Packet Description', value: packet.description }
-            ]
-          },
-          {
-            title: 'Customer Information',
-            columns: 3,
-            fields: [
-              { label: 'Customer Hierarchy', value: packet.hierarchy },
-              { label: 'Shipping Profile From', value: packet.from },
-              { label: 'Shipping Profile To', value: packet.to },
-              { label: 'Industry', value: packet.industry },
-              { label: 'PQR', value: packet.pqr },
-              { label: 'OPPs', value: packet.opps }
-            ]
-          },
-          {
-            title: 'User Information',
-            columns: 3,
-            fields: [
-              { label: 'Owner', value: owner },
-              { label: 'Created Date', value: packet.createdAt },
-              { label: 'Last Modified Date', value: packet.lastModifiedAt },
-              // Last, and wide -- a username can run long enough to wrap
-              // onto two lines, which a single 1-of-4 column was too
-              // narrow for; giving it the whole row (same as Packet
-              // Information's own Description field) means it wraps
-              // wide instead of squeezed, and lands on its own row the
-              // same way every other section's own extra field does.
-              { label: 'Last Modified By', value: packet.lastModifiedBy || owner, wide: true }
-            ]
-          }
-        ]
+        sections: summarySections()
       });
     }
 
-    // Both layouts stay live side by side behind a switch -- not a decision
-    // made once and thrown away -- so either can be pulled up on demand
-    // while presenting, without a code change. Option 1 is the default:
-    // its collapsed header carries Packet ID, Customer Name and Reference
-    // Number together, where Option 2's collapsed header only carries
-    // Packet ID (plus Customer Name as a secondary) and drops Reference
-    // Number entirely.
+    /**
+     * Option 3: the same three groups as columns side by side instead of
+     * titled boxes stacked one under another -- a reference screen's own
+     * layout (three cards, a title over "Label : Value" rows), but with
+     * that screen's own sample titles/fields swapped out for Option 2's
+     * real ones (Packet/Customer/User Information and their actual
+     * fields), not copied verbatim. Always shown in full -- the
+     * reference has no collapsed single-line state to fall back to the
+     * way Option 1/2's own accordion header does, so this one doesn't
+     * either.
+     */
+    function columnsSummary() {
+      return el('div', {
+        className: 'summary-columns',
+        attrs: { 'aria-label': 'Analyzer packet summary' }
+      }, summarySections().map(function (group) {
+        return el('div', { className: 'summary-columns__col' }, [
+          el('p', { className: 'summary-panel__section-title', text: group.title }),
+          el('div', { className: 'summary-columns__fields' },
+            group.fields.map(function (field) {
+              // `wide` is meaningless here -- every field already has the
+              // column's full width to itself in a single-column stack.
+              return C.Detail({ label: field.label, value: field.value, chip: field.chip });
+            })
+          )
+        ]);
+      }));
+    }
+
+    // All three layouts stay live side by side behind a switch -- not a
+    // decision made once and thrown away -- so any can be pulled up on
+    // demand while presenting, without a code change. Option 1 is the
+    // default: its collapsed header carries Packet ID, Customer Name and
+    // Reference Number together, where Option 2's collapsed header only
+    // carries Packet ID (plus Customer Name as a secondary) and drops
+    // Reference Number entirely. Option 3 has no collapsed state at all.
     var summaryMount = el('div', {});
     var summaryOption = 'option1';
 
     function renderSummary() {
       DA.dom.clear(summaryMount).appendChild(
-        summaryOption === 'option1' ? flatSummary() : groupedSummary()
+        summaryOption === 'option1' ? flatSummary()
+          : summaryOption === 'option3' ? columnsSummary()
+          : groupedSummary()
       );
     }
 
@@ -136,7 +174,8 @@
       value: summaryOption,
       items: [
         { value: 'option1', label: 'Option 1' },
-        { value: 'option2', label: 'Option 2' }
+        { value: 'option2', label: 'Option 2' },
+        { value: 'option3', label: 'Option 3' }
       ],
       onChange: function (value) {
         summaryOption = value;

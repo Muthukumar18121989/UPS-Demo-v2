@@ -1815,6 +1815,44 @@
 }
 
 /* --------------------------------------------------------------------------
+   Packet summary — Option 3: three field groups as columns
+   -------------------------------------------------------------------------- */
+/* The same three Packet/Customer/User groups Option 2 shows as stacked
+   titled boxes, laid out side by side instead -- a title over its own
+   "Label : Value" rows per column, with a thin rule between columns
+   (not a border round each) since they read as one continuous card,
+   not three separate ones. Always visible -- there's no collapsed
+   single-line header the way Option 1/2's own accordion has. */
+.summary-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  background-color: var(--color-surface);
+}
+
+.summary-columns__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-right: var(--space-5);
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.summary-columns__col:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.summary-columns__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* --------------------------------------------------------------------------
    Alert  (contextual banner with a leading severity bar)
    -------------------------------------------------------------------------- */
 .alert {
