@@ -3329,7 +3329,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: var(--space-5);
-  padding: var(--space-5);
+  /* No left/right padding -- the Current/Scenario 1 cards run flush to
+     the boxed tab bar's own border above them instead of sitting inset
+     from it, so their combined width matches the box's width exactly
+     rather than reading narrower than it. Top/bottom padding kept for
+     breathing room above the first card and below the last. */
+  padding: var(--space-5) 0;
 }
 
 /*
@@ -3396,12 +3401,21 @@
 
 .accordion--filled .accordion__trigger {
   font-weight: var(--font-weight-medium);
+  /* 2px tighter than the base trigger's var(--space-4) (16px) -- trimmed
+     to match the panel below it, so "Current"/"Scenario 1" and the table
+     underneath keep the same left inset as each other. */
+  padding: calc(var(--space-4) - 2px);
 }
 
 /* The base accordion panel has no top padding, so its dark table header
-   sat flush against the shaded trigger above it with no breathing room. */
+   sat flush against the shaded trigger above it with no breathing room.
+   All four sides then trimmed 2px below the base rule's own var(--space-4)
+   (16px) / var(--space-5) (20px) -- a small, deliberate trim (not the
+   edge-to-edge, padding-removed version tried and reverted earlier) that
+   hands the table a little more width without losing the panel's own
+   framing. */
 .accordion--filled > .accordion__panel {
-  padding-top: var(--space-4);
+  padding: calc(var(--space-4) - 2px) calc(var(--space-4) - 2px) calc(var(--space-5) - 2px);
 }
 
 /* Row-label column, held visually apart from the figures beside it --
