@@ -453,6 +453,11 @@
     ]);
   }
 
+  /** Shared by all three Services layouts -- same trigger, same dialog. */
+  function openAddServicePlanDialog() {
+    DA.dialogs.AddServiceIncentivePlanDialog().open();
+  }
+
   /** Option 2: the searchable single-select tree dropdown, current default. */
   function servicesView() {
     return planPicker({
@@ -460,7 +465,8 @@
       leafRender: servicePlan,
       selectLabel: 'Choose Service',
       addHref: '#add-plan',
-      addLabel: 'Add Service Incentive Plan'
+      addLabel: 'Add Service Incentive Plan',
+      onAddClick: openAddServicePlanDialog
     });
   }
 
@@ -494,7 +500,11 @@
   function servicesTreeView() {
     return el('div', {}, [
       el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el('a', { className: 'link-with-icon', attrs: { href: '#add-plan' } }, [
+        el('a', {
+          className: 'link-with-icon',
+          attrs: { href: '#add-plan' },
+          on: { click: function (event) { event.preventDefault(); openAddServicePlanDialog(); } }
+        }, [
           DA.icons.plusCircle(18),
           el('span', { text: 'Add Service Incentive Plan' })
         ])
@@ -676,7 +686,8 @@
       leafRender: servicePlan,
       selectLabel: 'Choose Service',
       addHref: '#add-plan',
-      addLabel: 'Add Service Incentive Plan'
+      addLabel: 'Add Service Incentive Plan',
+      onAddClick: openAddServicePlanDialog
     });
   }
 
