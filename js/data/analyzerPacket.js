@@ -856,15 +856,22 @@
    * reference screen yet. Each row's threshold band data (divisorCode,
    * cubicVolumeFrom, divisor) feeds the Structure Details dialog rather
    * than a flat column -- the outer table only ever shows the drill-down.
+   *
+   * Row headers replaced per explicit request with the client's own 6
+   * service names (was 8 rows built from Movement/Mode/Service Group,
+   * repeating "Next Day Air Early" x6 and "Next Day Air" x2) --
+   * `coreServiceLabel` renders directly in dimDivisorView()'s Core Service
+   * column now, one row per named service. Every other column's own
+   * figures are carried over unchanged from the old rows (same
+   * placeholder incentiveType/divisorCode/cubicVolumeFrom/divisor on
+   * every row already, before and after).
    */
   DA.data.packetDimDivisor = [
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air Early', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { movement: 'Domestic', mode: 'Air', serviceGroup: 'Next Day Air', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' }
+    { coreServiceLabel: 'N-1 Day Air', serviceGroup: 'N-1 Day Air', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-1 Day Saver', serviceGroup: 'N-1 Day Saver', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-2 Day AM', serviceGroup: 'N-2 Day AM', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-2 Day Air', serviceGroup: 'N-2 Day Air', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-3 Day Select', serviceGroup: 'N-3 Day Select', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-Ground', serviceGroup: 'N-Ground', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' }
   ];
 })(window.DA);

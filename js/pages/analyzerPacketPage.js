@@ -1257,20 +1257,26 @@
             freezeColumns: 1,
             columns: [
               {
-                // Movement, Mode and Service Group joined into one label --
-                // the same "Core Service" pattern Analyzer's Cost Details/
-                // Zones tables use (profileKeyColumns()), rather than three
-                // separate frozen columns for what reads as a single line
-                // identifying the row.
+                // `coreServiceLabel`, when a row carries one, renders as
+                // plain text (packetDimDivisor's own real service names);
+                // otherwise falls back to Movement/Mode/Service Group
+                // joined into one label, the same "Core Service" pattern
+                // Analyzer's Cost Details/Zones tables use
+                // (profileKeyColumns()).
                 key: 'coreService',
                 label: 'Core Service',
                 width: '280px',
                 className: 'is-rowhead',
                 render: function (row) {
+                  if (row.coreServiceLabel) return row.coreServiceLabel;
                   return [row.movement, row.mode, row.serviceGroup].join('-');
                 }
               },
-              { key: 'incentiveType', label: 'Incentive Type', width: '150px' },
+              // is-plain -- "DIM Divisor" is a fixed label, not a value to
+              // edit or a link, so it shouldn't pick up the app-wide teal
+              // treatment every other (non-rowhead, non-plain) cell gets by
+              // default; dark text like the rest of the row instead.
+              { key: 'incentiveType', label: 'Incentive Type', width: '150px', className: 'is-plain' },
               {
                 key: 'incentiveAmount',
                 label: 'Incentive Amount',
