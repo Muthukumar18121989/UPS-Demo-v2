@@ -573,7 +573,69 @@
 
     /* ---- Shipping Profiles tab -------------------------------------------- */
 
+    /**
+     * The Filters drawer shared by every Analyzer sub-tab from Services
+     * through Weight & Cube (each reaches it through its own
+     * profileFilters()/accessorialView()'s Filters button below) -- same
+     * drawer shell Create New Scenario uses. Choose Account, Choose
+     * Service and Choose Container Type are real, multi-select trees per
+     * the client's reference screenshots; Choose Accessorial reuses the
+     * app's own existing accessorial list. Choose Service Feature Code
+     * and Choose Movement Direction Code aren't in any reference
+     * screenshot yet, so each renders with only the field's own default
+     * "All" until the client supplies their real option lists.
+     */
+    function openFiltersDrawer(trigger) {
+      var fields = [
+        C.TreeCheckboxField({ label: 'Choose Account', tree: DA.data.filterAccountTree, allBadge: 'Default' }),
+        C.TreeCheckboxField({ label: 'Choose Service', tree: DA.data.filterServiceTree }),
+        C.TreeCheckboxField({
+          label: 'Choose Accessorial',
+          tree: DA.data.filterOptions.accessorial
+            .filter(function (label) { return label !== 'All'; })
+            .map(function (label) { return { label: label }; })
+        }),
+        C.TreeCheckboxField({ label: 'Choose Service Feature Code', tree: [] }),
+        C.TreeCheckboxField({ label: 'Choose Movement Direction Code', tree: [] }),
+        C.TreeCheckboxField({
+          label: 'Choose Container Type',
+          tree: DA.data.filterContainerTypes.map(function (label) { return { label: label }; })
+        })
+      ];
+
+      var drawer = C.Modal({
+        variant: 'drawer',
+        title: 'Filters',
+        returnFocusTo: trigger,
+        body: el('div', { className: 'drawer-form' }, fields.concat([
+          el('div', { className: 'drawer-form__actions' }, [
+            C.Button({
+              label: 'Apply Filters',
+              variant: 'primary',
+              shape: 'pill',
+              onClick: function () { drawer.close(); }
+            }),
+            C.Button({
+              label: 'Clear All',
+              variant: 'outline',
+              shape: 'pill',
+              onClick: function () { fields.forEach(function (field) { field.reset(); }); }
+            })
+          ])
+        ]))
+      });
+
+      drawer.open();
+    }
+
     function profileFilters() {
+      var filtersButton = C.Button({
+        label: 'Filters',
+        variant: 'ghost',
+        icon: DA.icons.filter(16),
+        onClick: function () { openFiltersDrawer(filtersButton); }
+      });
+
       return el('div', { className: 'card' }, [
         el('div', { className: 'view-filters' }, [
           el('div', { className: 'view-filters__field' }, [
@@ -593,7 +655,7 @@
               options: accountOptions()
             })
           ]),
-          C.Button({ label: 'Filters', variant: 'ghost', icon: DA.icons.filter(16) })
+          filtersButton
         ])
       ]);
     }

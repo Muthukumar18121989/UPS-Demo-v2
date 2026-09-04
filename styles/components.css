@@ -3683,6 +3683,64 @@
   cursor: pointer;
 }
 
+/*
+ * TreeCheckboxField's own row shape -- every node (group or leaf) is a
+ * checkbox plus, for a group, its own small chevron button beside it,
+ * rather than TreeSelectField's single button per row (a leaf you click
+ * anywhere on, a group you can only expand). Reuses --tree-depth the same
+ * way .dropdown__tree-toggle/-leaf already do.
+ */
+.dropdown__tree-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  padding-left: calc(var(--space-4) + var(--tree-depth, 0) * var(--space-5));
+}
+
+.dropdown__tree-row:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.dropdown__tree-row--all {
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.dropdown__tree-leaf-node {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dropdown__tree-chevron-btn {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.dropdown__tree-chevron-btn[aria-expanded="false"] .dropdown__tree-chevron {
+  transform: rotate(-90deg);
+}
+
+/* Informational only (an item count, or "Default") -- plain muted text,
+   not .badge's own heavier uppercase pill, which read too loud beside a
+   checkbox row this size. */
+.dropdown__tree-badge {
+  margin-left: auto;
+  padding-left: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+}
+
 /* Option 1's tree (see servicesTreeView()/planNode() in pricingTerms.js) --
    restored alongside Option 2's dropdown rather than removed with it, so
    both stay available to switch between live. */

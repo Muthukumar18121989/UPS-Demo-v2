@@ -43,6 +43,60 @@
   };
 
   /**
+   * The Analyzer > Services-through-Weight & Cube Filters drawer's own
+   * option trees/lists, per the client's reference screenshots. Choose
+   * Account and Choose Service both go one level deeper than what's
+   * actually visible there: Opportunity PLD (Choose Account) and Ground/
+   * Export/Import (Choose Service) all show their own expand chevron in
+   * the screenshots but with contents not given, so each is kept as a
+   * plain selectable item carrying just the badge/count the screenshot
+   * shows, rather than an invented sub-tree under it. Choose Accessorial
+   * reuses filterOptions.accessorial above rather than a second, separate
+   * list. Choose Service Feature Code and Choose Movement Direction Code
+   * aren't in any reference screenshot yet -- both start with only the
+   * drawer's own default "All" until the client supplies their real
+   * option lists.
+   */
+  DA.data.filterAccountTree = [
+    {
+      label: 'HORMEL 2024',
+      children: [
+        {
+          label: 'No Sub Parent',
+          children: [
+            { label: '0000067577 - APPLEGATE FARMS' }
+          ]
+        }
+      ]
+    },
+    { label: 'Opportunity PLD' }
+  ];
+
+  DA.data.filterServiceTree = [
+    {
+      label: 'Domestic',
+      badge: '2 Groups',
+      children: [
+        {
+          label: 'Air',
+          badge: '4',
+          children: [
+            { label: 'Next Day Air (1DA)', badge: '6' },
+            { label: 'Next Day Air Saver (1DP)', badge: '6' },
+            { label: '2nd Day Air (2DA)', badge: '6' },
+            { label: '3 Day Select (3DS)', badge: '6' }
+          ]
+        },
+        { label: 'Ground', badge: '1' }
+      ]
+    },
+    { label: 'Export', badge: '2 Groups' },
+    { label: 'Import', badge: '2 Groups' }
+  ];
+
+  DA.data.filterContainerTypes = ['Package', 'DOC', 'PAK', 'PAL'];
+
+  /**
    * Differences between two scenarios, keyed "from|to". These come from the
    * source rather than being recomputed here: the figures above are rounded for
    * display, so subtracting them lands a unit off on Total Disc and Profit.
