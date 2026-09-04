@@ -97,12 +97,18 @@
           },
           {
             title: 'User Information',
-            columns: 4,
+            columns: 3,
             fields: [
               { label: 'Owner', value: owner },
               { label: 'Created Date', value: packet.createdAt },
-              { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
-              { label: 'Last Modified Date', value: packet.lastModifiedAt }
+              { label: 'Last Modified Date', value: packet.lastModifiedAt },
+              // Last, and wide -- a username can run long enough to wrap
+              // onto two lines, which a single 1-of-4 column was too
+              // narrow for; giving it the whole row (same as Packet
+              // Information's own Description field) means it wraps
+              // wide instead of squeezed, and lands on its own row the
+              // same way every other section's own extra field does.
+              { label: 'Last Modified By', value: packet.lastModifiedBy || owner, wide: true }
             ]
           }
         ]
