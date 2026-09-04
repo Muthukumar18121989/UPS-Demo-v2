@@ -1779,7 +1779,7 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wider);
   text-transform: uppercase;
-  color: var(--color-text-link);
+  color: var(--color-primary);
   margin: 0 0 var(--space-3);
 }
 
