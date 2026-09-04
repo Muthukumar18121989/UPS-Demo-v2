@@ -221,7 +221,7 @@
     }
 
     function buildTable() {
-      return el('table', { className: 'matrix' }, [
+      return el('table', { className: 'matrix matrix--sticky-head' }, [
         el('caption', { className: 'u-visually-hidden', text: 'Weight break incentives by zone' }),
         el('thead', {}, [
           el('tr', {}, [
@@ -242,8 +242,16 @@
             el('th', { attrs: { scope: 'colgroup', colspan: zones.length }, text: 'Domestic' }),
             el('th', { attrs: { scope: 'col', rowspan: 2 }, text: '' })
           ]),
-          el('tr', {}, zones.map(function (zone) {
-            return el('th', { attrs: { scope: 'col' }, text: zone });
+          el('tr', {}, zones.map(function (zone, index) {
+            // The last zone column (008) sits at the end of this row's own
+            // <th>s -- .matrix thead th:last-child would otherwise strip
+            // its divider, meant for the table's real last header cell
+            // (the rowspan'd action column, seated in the row above).
+            return el('th', {
+              className: index === zones.length - 1 ? 'is-last-zone' : null,
+              attrs: { scope: 'col' },
+              text: zone
+            });
           }))
         ]),
         el('tbody', {}, bands.map(function (band, index) {

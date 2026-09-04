@@ -4061,6 +4061,28 @@
   border-right: 0;
 }
 
+/* A multi-row thead's own last cell in a given row (e.g. weightBreakGrid's
+   own "008" zone column, the last cell of its own zone-codes row even
+   though the trailing action column -- rowspan'd down from the first
+   header row -- is the table's real last column) shouldn't lose its
+   divider to the :last-child rule above; only the table's true rightmost
+   header cell should. Placed after that rule so, at equal specificity,
+   this one wins for any cell explicitly marked. */
+.matrix thead th.is-last-zone {
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Opt-in (weightBreakGrid's own table only, via className) rather than
+   every .matrix table's own default -- the header stays put while the
+   body scrolls beneath it. Sticks the whole (here, 3-row) header block
+   together as one unit rather than computing a separate stacked `top`
+   offset per row. */
+.matrix--sticky-head thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .matrix__rowhead {
   background-color: var(--color-surface-muted-strong);
   color: var(--color-text-primary);
