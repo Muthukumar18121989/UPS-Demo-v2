@@ -393,10 +393,7 @@
       // separate tinted boxes with a visible break at every gap rather than
       // one continuous column. This layer fills exactly those gaps, one
       // absolutely-positioned strip per join, computed from the real cell
-      // rects so it lines up regardless of column widths -- the rest of
-      // the column highlight (the fill + left/right teal edge) stays the
-      // cells' own background/border, unchanged; this only bridges what
-      // sat between them.
+      // rects so the fill lines up regardless of column widths.
       var connectorLayer = el('div', { className: 'comparison-cards__connectors' });
       wrap.appendChild(connectorLayer);
 
@@ -410,23 +407,23 @@
             // what getBoundingClientRect reports, vs. the padding-box
             // `position: absolute` offsets resolve against), so anchoring
             // to the layer itself (inset: 0 against that same padding box)
-            // keeps every connector exactly aligned with the real cells
+            // keeps every piece below exactly aligned with the real cells
             // regardless of that border/padding rather than off by it.
             var layerRect = connectorLayer.getBoundingClientRect();
+            var rects = cells.map(function (c) { return c.getBoundingClientRect(); });
+
             cells.forEach(function (c, i) {
               c.classList.add('is-col-highlight');
               if (i === 0) return;
-              var prevRect = cells[i - 1].getBoundingClientRect();
-              var rect = c.getBoundingClientRect();
+              var prevRect = rects[i - 1];
+              var rect = rects[i];
               // The header and each card are independent grids sharing the
               // same column template, but the header's own computed column
               // rect can still land a sub-pixel off a card's (browsers
               // round each grid's fractional 1fr tracks separately) --
               // spanning the union of both cells' edges, instead of just
-              // the lower one's, means the connector always fully covers
-              // both borders rather than clipping whichever cell happens
-              // to be a hair narrower, which read as the column's own
-              // divider going slightly out of line right at that seam.
+              // the lower one's, means the fill always fully covers both,
+              // with no gap on either side at that seam.
               var left = Math.min(prevRect.left, rect.left);
               var right = Math.max(prevRect.right, rect.right);
               connectorLayer.appendChild(el('div', {
@@ -439,6 +436,27 @@
                 }
               }));
             });
+
+            // The fill above is deliberately per-seam (it only has to cover
+            // a gap, not read as a straight edge) -- the left/right teal
+            // border is different: drawn per-cell, that same header-vs-card
+            // sub-pixel gap means each row's own border segment lands a
+            // hair left or right of its neighbors', and stacked down a
+            // column that reads as a visibly kinked line rather than a
+            // straight one. One outline spanning every cell's own
+            // top/bottom/left/right union, drawn once, is a single
+            // rectangle -- it has no seams to kink at.
+            var outlineLeft = Math.min.apply(null, rects.map(function (r) { return r.left; }));
+            var outlineRight = Math.max.apply(null, rects.map(function (r) { return r.right; }));
+            connectorLayer.appendChild(el('div', {
+              className: 'comparison-cards__col-outline',
+              style: {
+                left: (outlineLeft - layerRect.left) + 'px',
+                width: (outlineRight - outlineLeft) + 'px',
+                top: (rects[0].top - layerRect.top) + 'px',
+                height: (rects[rects.length - 1].bottom - rects[0].top) + 'px'
+              }
+            }));
           });
           cell.addEventListener('mouseleave', function () {
             cells.forEach(function (c) { c.classList.remove('is-col-highlight'); });

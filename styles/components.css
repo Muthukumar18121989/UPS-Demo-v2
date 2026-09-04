@@ -909,15 +909,18 @@
 }
 
 /*
- * Bridges the `gap` between the header row and each card row for a
- * highlighted column (renderComparisonCards() populates it on hover) --
- * the header and every card are each their own independent CSS grid, so
- * without this, a highlighted column's own tinted/bordered cells
- * (is-col-highlight below) read as separate boxes with a visible break at
- * every gap instead of one continuous column. `position: absolute; inset:
- * 0` takes it out of the flex column's own layout entirely (it neither
- * takes space nor shifts anything else) and gives its own connector
- * strips a stable, scroll-synced coordinate space to position against.
+ * Holds the two pieces renderComparisonCards() populates on hover: the
+ * .comparison-cards__connector fill strips that bridge the `gap` between
+ * the header row and each card row for a highlighted column (the header
+ * and every card are each their own independent CSS grid, so without
+ * this, a highlighted column's own tinted cells, is-col-highlight below,
+ * read as separate boxes with a visible break at every gap instead of one
+ * continuous column), and the single .comparison-cards__col-outline
+ * rectangle that draws that column's own left/right teal edge. `position:
+ * absolute; inset: 0` takes this layer out of the flex column's own
+ * layout entirely (it neither takes space nor shifts anything else) and
+ * gives both a stable, scroll-synced coordinate space to position
+ * against.
  */
 .comparison-cards__connectors {
   position: absolute;
@@ -928,6 +931,20 @@
 .comparison-cards__connector {
   position: absolute;
   background-color: var(--color-primary-subtle);
+}
+
+/*
+ * The one straight teal edge for a highlighted column -- drawn once, as a
+ * single rectangle spanning every one of that column's cells (header
+ * through the last row), instead of each cell drawing its own left/right
+ * border. Per-cell borders looked kinked column-to-column: the header and
+ * each card are independent grids sharing the same template, but a
+ * browser can still round their fractional 1fr tracks a sub-pixel apart,
+ * so every row's own border segment could land a hair left or right of
+ * its neighbors'. One rectangle has no seams to kink at.
+ */
+.comparison-cards__col-outline {
+  position: absolute;
   border-left: 1px solid var(--color-primary-text);
   border-right: 1px solid var(--color-primary-text);
 }
@@ -1027,23 +1044,19 @@
  * DataTable's own (currently unused elsewhere) column-highlight rules
  * use, for a consistent "column highlight" language app-wide.
  *
- * The left/right border is --color-primary-text -- the same teal already
- * used for every table's own value color app-wide, not a new color --
- * so the highlighted column reads as one clearly outlined lane rather
- * than just a soft tint change. Real borders, not box-shadow: box-sizing
- * is border-box globally (base.css), so adding them doesn't shift the
- * cell's own box or its neighbors, and it keeps this edge at the exact
- * same coordinate .comparison-cards__connector's own border reads its
- * position from (getBoundingClientRect, in renderComparisonCards()) --
- * together the two close every gap between rows, so the whole column
- * reads as one continuous highlighted band, header to last row, instead
- * of separate tinted boxes with a visible break at each row gap.
+ * Fill only -- no border here. The left/right teal edge is drawn once, as
+ * a single rectangle spanning the whole column (.comparison-cards__col
+ * -outline, populated alongside this class in renderComparisonCards()),
+ * not per cell: the header and every card are independent grids sharing
+ * the same column template, but a browser can still round their
+ * fractional 1fr tracks a sub-pixel apart, so a border on each cell
+ * individually could land a hair left or right of its neighbors' --
+ * stacked down a column, that read as a visibly kinked line rather than
+ * a straight one.
  */
 .comparison-card__field.is-col-highlight,
 .comparison-cards__header-cell.is-col-highlight {
   background-color: var(--color-primary-subtle);
-  border-left: 1px solid var(--color-primary-text);
-  border-right: 1px solid var(--color-primary-text);
 }
 
 .comparison-card__field {
