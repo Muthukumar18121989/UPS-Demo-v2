@@ -519,12 +519,19 @@
       codes, which the Custom Net Rate method reuses instead). */
   DA.data.weightBreakZones = ['002', '003', '004', '005', '006', '007', '008'];
 
+  /**
+   * The last band ("51+") carries no `to` -- an open-ended top band, per
+   * the client's reference screenshot, whose own empty cell is where
+   * "Add weight break band" seats its new editable boundary (see
+   * weightBreakGrid() in js/views/pricingTerms.js).
+   */
   DA.data.weightBreaks = [
-    { from: '1', to: '5', rate: '46.00%' },
-    { from: '6', to: '10', rate: '47.00%' },
-    { from: '11', to: '20', rate: '50.00%' },
-    { from: '21', to: '50', rate: '52.00%' },
-    { from: '51+', to: '9999999', rate: '54.00%' }
+    { from: '1', to: '5', rate: '23.2%' },
+    { from: '6', to: '10', rate: '27.2%' },
+    { from: '11', to: '20', rate: '32.2%' },
+    { from: '21', to: '40', rate: '32.5%' },
+    { from: '41', to: '50', rate: '31.2%' },
+    { from: '51+', to: '', rate: '31.1%' }
   ];
 
   /**

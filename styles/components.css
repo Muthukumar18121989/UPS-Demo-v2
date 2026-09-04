@@ -4096,6 +4096,25 @@
   justify-content: flex-end;
 }
 
+/* The weight-break grid's own "Add weight break band" input -- a matrix
+   cell's usual .cell-value swapped for a live field, sized to the cell
+   rather than a full field's own height. */
+.cell-input {
+  width: 56px;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: right;
+}
+
+.cell-input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
 .icon-action {
   display: inline-flex;
   padding: 0;

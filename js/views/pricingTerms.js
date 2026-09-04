@@ -165,50 +165,128 @@
    * Cell-by-cell: a matrix grid, one row per weight band, rate an editable
    * percent per zone -- the method's own smaller, zero-padded zone set
    * (weightBreakZones), not the 10-zone set the other rate grids share.
+   *
+   * "Zone Reference: Daily" moved from a standalone caption above the
+   * table into the table's own header (a third thead row, spanning the
+   * zone columns only -- Billable Weight's own two columns sit blank
+   * beneath it, matching the client's reference screenshot), and the last
+   * band's `to` cell renders genuinely empty rather than an editable "-"
+   * placeholder.
+   *
+   * The grid keeps its own working copy of the bands (not
+   * DA.data.weightBreaks directly) so "Add weight break band" can grow it
+   * without rewriting the shared demo data every other view of this same
+   * table reads from. Per the client's own explicit description: clicking
+   * "Add weight break band" turns the last band's empty `to` cell into a
+   * live input; entering a value there bounds that band (its own "51+"
+   * drops the "+", matching every bounded band above it) and appends a
+   * fresh band below it, copying the completed band's own rate and left
+   * with an empty `to` cell of its own -- the new open-ended band, in
+   * exactly the same resting state the old one started in.
    */
   function weightBreakGrid() {
     var zones = DA.data.weightBreakZones;
+    var bands = DA.data.weightBreaks.map(function (band) { return Object.assign({}, band); });
+    var editingLast = false;
+    var tableMount = el('div', {});
 
-    var grid = el('table', { className: 'matrix' }, [
-      el('caption', { className: 'u-visually-hidden', text: 'Weight break incentives by zone' }),
-      el('thead', {}, [
-        el('tr', {}, [
-          el('th', {
-            className: 'matrix__rowhead',
-            attrs: { scope: 'col', colspan: 2, rowspan: 2 },
-            text: 'Billable Weight'
-          }),
-          el('th', { attrs: { scope: 'colgroup', colspan: zones.length }, text: 'Domestic' }),
-          el('th', { attrs: { scope: 'col', rowspan: 2 }, text: '' })
+    function toCell(band, isLast) {
+      if (isLast && editingLast) {
+        var input = el('input', {
+          className: 'cell-input',
+          attrs: {
+            type: 'text',
+            inputmode: 'numeric',
+            'aria-label': 'Weight break boundary after ' + band.from
+          },
+          on: {
+            keydown: function (event) { if (event.key === 'Enter') input.blur(); },
+            blur: function () { commitBoundary(band, input.value.trim()); }
+          }
+        });
+        window.setTimeout(function () { input.focus(); }, 0);
+        return el('span', { className: 'cell-value' }, [input]);
+      }
+      return band.to ? editableCell(band.to) : el('span', { className: 'cell-value' });
+    }
+
+    function commitBoundary(band, value) {
+      editingLast = false;
+      if (value) {
+        band.to = value;
+        band.from = band.from.replace('+', '');
+        bands.push({ from: String(Number(value) + 1) + '+', to: '', rate: band.rate });
+      }
+      render();
+    }
+
+    function buildTable() {
+      return el('table', { className: 'matrix' }, [
+        el('caption', { className: 'u-visually-hidden', text: 'Weight break incentives by zone' }),
+        el('thead', {}, [
+          el('tr', {}, [
+            el('th', { className: 'matrix__rowhead', attrs: { scope: 'col', colspan: 2 } }),
+            el('th', {
+              className: 'rate-grid__caption',
+              attrs: { scope: 'colgroup', colspan: zones.length },
+              text: 'Zone Reference: Daily'
+            }),
+            el('th', { className: 'matrix__rowhead', attrs: { scope: 'col' } })
+          ]),
+          el('tr', {}, [
+            el('th', {
+              className: 'matrix__rowhead',
+              attrs: { scope: 'col', colspan: 2, rowspan: 2 },
+              text: 'Billable Weight'
+            }),
+            el('th', { attrs: { scope: 'colgroup', colspan: zones.length }, text: 'Domestic' }),
+            el('th', { attrs: { scope: 'col', rowspan: 2 }, text: '' })
+          ]),
+          el('tr', {}, zones.map(function (zone) {
+            return el('th', { attrs: { scope: 'col' }, text: zone });
+          }))
         ]),
-        el('tr', {}, zones.map(function (zone) {
-          return el('th', { attrs: { scope: 'col' }, text: zone });
+        el('tbody', {}, bands.map(function (band, index) {
+          var isLast = index === bands.length - 1;
+          return el('tr', {}, [
+            el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' } }, [editableCell(band.from)]),
+            el('td', { className: 'matrix__rowhead' }, [toCell(band, isLast)])
+          ].concat(zones.map(function () {
+            return el('td', { className: 'matrix__cell' }, [editableCell(band.rate)]);
+          })).concat([
+            el('td', {}, [
+              el('button', {
+                className: 'icon-action icon-action--danger u-tap-target',
+                attrs: { type: 'button', 'aria-label': 'Remove weight break ' + band.from }
+              }, [DA.icons.trash(14)])
+            ])
+          ]));
         }))
-      ]),
-      el('tbody', {}, DA.data.weightBreaks.map(function (band) {
-        return el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' } }, [editableCell(band.from)]),
-          el('td', { className: 'matrix__rowhead' }, [editableCell(band.to)])
-        ].concat(zones.map(function () {
-          return el('td', { className: 'matrix__cell' }, [editableCell(band.rate)]);
-        })).concat([
-          el('td', {}, [
-            el('button', {
-              className: 'icon-action icon-action--danger u-tap-target',
-              attrs: { type: 'button', 'aria-label': 'Remove weight break ' + band.from }
-            }, [DA.icons.trash(14)])
-          ])
-        ]));
-      }))
-    ]);
+      ]);
+    }
+
+    function render() {
+      DA.dom.clear(tableMount).appendChild(buildTable());
+    }
+
+    render();
 
     return el('div', { className: 'card' }, [
-      el('p', { className: 'rate-grid__caption', text: 'Zone Reference: Daily' }),
-      el('div', { className: 'grid-scroll scroll-area' }, [grid]),
+      el('div', { className: 'grid-scroll scroll-area' }, [tableMount]),
       el('div', { className: 'grid-footer' }, [
-        el('a', { className: 'link-with-icon', attrs: { href: '#add-weight-break' } }, [
+        el('a', {
+          className: 'link-with-icon',
+          attrs: { href: '#add-weight-break' },
+          on: {
+            click: function (event) {
+              event.preventDefault();
+              editingLast = true;
+              render();
+            }
+          }
+        }, [
           DA.icons.plusCircle(18),
-          el('span', { text: 'Add weight break' })
+          el('span', { text: 'Add weight break band' })
         ]),
         el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
           DA.icons.save(15),
