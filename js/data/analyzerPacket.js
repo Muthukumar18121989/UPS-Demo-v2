@@ -224,13 +224,95 @@
     { volume: '1497.0', adv: '299.4', pps: '1.0', weightPiece: '12.12', avgCube: '0.29', avgCubeFactor: '1.11', puDens: '3335.35', dlDens: '1.21', pu: '$ 0.07', ls: '$ 0.25', cs: '$ 0.88', ar: '$ 0.0', jf: '$ 0.0', gf: '$ 0.57', br: '$ 0.0', pd: '$ 0.8', dl: '$ 5.25', no: '$ 0.89', oth: '$ 0.0', totalFreightCost: '$ 8.69', costAdj: '-', newCost: '$ 8.69' }
   ]);
 
+  /**
+   * Zones row hierarchy/labels, per the client's reference screenshot
+   * (Analyzer > Zones update) -- same scope and structure as the Cost
+   * Details update just above: only the 4 rows the screenshot shows
+   * (1DA/1DP/2DA/3DS) get a friendly serviceLabel and updated visible
+   * figures; the other 5 stay as plain Movement-Mode-Service rows.
+   *
+   * 1DA again gets a real package-type row (Residential, "FC, PP, RS,
+   * RTP, TP") showing "-" for its own figures, opening onto the same 6
+   * real zone rows (102/104/.../108, lane US) with the screenshot's own
+   * Volume/ADV/PPS/Weight-Piece figures (Volume and ADV both still sum
+   * back to 1DA's own 234/0.9). 1DP again gets two package rows
+   * (Commercial/Residential, "FC, PP, TP") shown collapsed with contents
+   * not visible in the screenshot, so left as leaves rather than
+   * inventing unseen zone data, matching Cost Details' and Charges' own
+   * precedent this round.
+   *
+   * Screenshot columns map to this table's own by meaning, not position
+   * (its Base Gross Rev/Base Net Rev/Base Disc aren't this table's
+   * column set) -- Base Gross Rev -> freightGrossSpent, Base Net Rev ->
+   * freightNetSpent, Base Disc -> freightDiscount. Freight RPP, Freight
+   * Profit and Freight OR aren't shown in the screenshot at all, so
+   * every touched row (1DA's own zone children included) keeps that
+   * service's pre-existing placeholder figures for those three columns
+   * unchanged.
+   */
   DA.data.shippingProfileZone = withKeys([
-    { volume: '652', adv: '130.4', pps: '1', weightPiece: '11.91', freightGrossSpent: '$ 110,827.85', freightDiscount: '49.11%', freightRpp: '$ 86.50', freightNetSpent: '$ 56,396.79', freightProfit: '$ 34,511.69', freightOr: '0.39' },
+    {
+      serviceLabel: 'N-Next Day Air',
+      expanded: true,
+      volume: '234', adv: '0.9', pps: '1.0', weightPiece: '8.0',
+      freightGrossSpent: '$ 34,098.00', freightNetSpent: '$ 7,154.00', freightDiscount: '79.0%',
+      freightRpp: '$ 86.50', freightProfit: '$ 34,511.69', freightOr: '0.39',
+      children: [
+        {
+          movement: '', mode: '', service: '',
+          expanded: true,
+          pkgType: 'Residential', pkgParentLabel: 'N-Next Day Air', pkgCodes: 'FC, PP, RS, RTP, TP',
+          zone: '-', lane: '-',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-',
+          freightGrossSpent: '-', freightNetSpent: '-', freightDiscount: '-', freightRpp: '-', freightProfit: '-', freightOr: '-',
+          children: [
+            { movement: '', mode: '', service: '', zone: '102', lane: 'US', volume: '52', adv: '0.2', pps: '1.0', weightPiece: '10.0', freightGrossSpent: '$ 3,334.00', freightNetSpent: '$ 1,073.00', freightDiscount: '67.8%', freightRpp: '$ 86.50', freightProfit: '$ 34,511.69', freightOr: '0.39' },
+            { movement: '', mode: '', service: '', zone: '104', lane: 'US', volume: '52', adv: '0.2', pps: '1.0', weightPiece: '2.0', freightGrossSpent: '$ 4,921.00', freightNetSpent: '$ 1,073.00', freightDiscount: '78.2%', freightRpp: '$ 86.50', freightProfit: '$ 34,511.69', freightOr: '0.39' },
+            { movement: '', mode: '', service: '', zone: '105', lane: 'US', volume: '26', adv: '0.1', pps: '1.0', weightPiece: '2.0', freightGrossSpent: '$ 2,675.00', freightNetSpent: '$ 537.00', freightDiscount: '79.9%', freightRpp: '$ 86.50', freightProfit: '$ 34,511.69', freightOr: '0.39' },
+            { movement: '', mode: '', service: '', zone: '106', lane: 'US', volume: '26', adv: '0.1', pps: '1.0', weightPiece: '19.0', freightGrossSpent: '$ 7,004.00', freightNetSpent: '$ 1,352.00', freightDiscount: '80.7%', freightRpp: '$ 86.50', freightProfit: '$ 34,511.69', freightOr: '0.39' },
+            { movement: '', mode: '', service: '', zone: '107', lane: 'US', volume: '26', adv: '0.1', pps: '1.0', weightPiece: '16.0', freightGrossSpent: '$ 7,549.00', freightNetSpent: '$ 1,457.00', freightDiscount: '80.7%', freightRpp: '$ 86.50', freightProfit: '$ 34,511.69', freightOr: '0.39' },
+            { movement: '', mode: '', service: '', zone: '108', lane: 'US', volume: '52', adv: '0.2', pps: '1.0', weightPiece: '5.5', freightGrossSpent: '$ 8,614.00', freightNetSpent: '$ 1,662.00', freightDiscount: '80.7%', freightRpp: '$ 86.50', freightProfit: '$ 34,511.69', freightOr: '0.39' }
+          ]
+        }
+      ]
+    },
     { volume: '15', adv: '3', pps: '1', weightPiece: '14.87', freightGrossSpent: '$ 3,590.93', freightDiscount: '0.00%', freightRpp: '$ 239.40', freightNetSpent: '$ 3,590.93', freightProfit: '$ 2,865.14', freightOr: '0.20' },
-    { volume: '68', adv: '13.6', pps: '1', weightPiece: '11.09', freightGrossSpent: '$ 11,512.40', freightDiscount: '61.69%', freightRpp: '$ 64.86', freightNetSpent: '$ 4,410.17', freightProfit: '$ 2,413.15', freightOr: '0.45' },
-    { volume: '218', adv: '43.6', pps: '1', weightPiece: '5.45', freightGrossSpent: '$ 11,927.36', freightDiscount: '56.70%', freightRpp: '$ 23.69', freightNetSpent: '$ 5,163.96', freightProfit: '$ 1,724.03', freightOr: '0.67' },
+    {
+      serviceLabel: 'N-Next Day Air Saver',
+      expanded: true,
+      volume: '52', adv: '0.2', pps: '1.0', weightPiece: '15.0',
+      freightGrossSpent: '$ 11,806.00', freightNetSpent: '$ 2,420.00', freightDiscount: '79.5%',
+      freightRpp: '$ 64.86', freightProfit: '$ 2,413.15', freightOr: '0.45',
+      children: [
+        {
+          movement: '', mode: '', service: '',
+          pkgType: 'Commercial', pkgParentLabel: 'N-Next Day Air Saver', pkgCodes: 'FC, PP, TP',
+          zone: '-', lane: '-',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-',
+          freightGrossSpent: '-', freightNetSpent: '-', freightDiscount: '-', freightRpp: '-', freightProfit: '-', freightOr: '-'
+        },
+        {
+          movement: '', mode: '', service: '',
+          pkgType: 'Residential', pkgParentLabel: 'N-Next Day Air Saver', pkgCodes: 'FC, PP, TP',
+          zone: '-', lane: '-',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-',
+          freightGrossSpent: '-', freightNetSpent: '-', freightDiscount: '-', freightRpp: '-', freightProfit: '-', freightOr: '-'
+        }
+      ]
+    },
+    {
+      serviceLabel: 'N-2nd Day Air',
+      volume: '26', adv: '0.1', pps: '1.0', weightPiece: '17.0',
+      freightGrossSpent: '$ 3,014.00', freightNetSpent: '$ 820.00', freightDiscount: '72.8%',
+      freightRpp: '$ 23.69', freightProfit: '$ 1,724.03', freightOr: '0.67'
+    },
     { volume: '9', adv: '1.8', pps: '1', weightPiece: '13.89', freightGrossSpent: '$ 677.18', freightDiscount: '18.86%', freightRpp: '$ 61.05', freightNetSpent: '$ 549.49', freightProfit: '$ 351.08', freightOr: '0.36' },
-    { volume: '357', adv: '71.4', pps: '1', weightPiece: '12.38', freightGrossSpent: '$ 21,476.77', freightDiscount: '59.35%', freightRpp: '$ 24.46', freightNetSpent: '$ 8,730.82', freightProfit: '$ 3,870.04', freightOr: '0.56' },
+    {
+      serviceLabel: 'N-3 Day Select',
+      volume: '22100', adv: '85.0', pps: '3.4', weightPiece: '76.5',
+      freightGrossSpent: '$ 9,928,004.00', freightNetSpent: '$ 9,928,004.00', freightDiscount: '0.0%',
+      freightRpp: '$ 24.46', freightProfit: '$ 3,870.04', freightOr: '0.56'
+    },
     { volume: '20953', adv: '4190.6', pps: '1', weightPiece: '13.01', freightGrossSpent: '$ 444,324.98', freightDiscount: '58.02%', freightRpp: '$ 8.90', freightNetSpent: '$ 186,522.07', freightProfit: '$ -63,128.55', freightOr: '1.34' },
     { volume: '62796', adv: '12559.2', pps: '1', weightPiece: '3.59', freightGrossSpent: '$ 1,077,840.91', freightDiscount: '48.86%', freightRpp: '$ 8.78', freightNetSpent: '$ 551,247.59', freightProfit: '$ -88,456.19', freightOr: '1.16' },
     { volume: '1497', adv: '299.4', pps: '1', weightPiece: '12.12', freightGrossSpent: '$ 21,525.93', freightDiscount: '37.83%', freightRpp: '$ 8.94', freightNetSpent: '$ 13,382.90', freightProfit: '$ 380.12', freightOr: '0.97' }
