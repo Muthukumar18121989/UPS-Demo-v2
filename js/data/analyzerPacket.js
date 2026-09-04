@@ -159,22 +159,92 @@
     { volume: '1497', adv: '299.4', pps: '1', weightPiece: '12.12', freightGrossSpent: '$ 21,525.93', freightDiscount: '37.83%', freightRpp: '$ 8.94', freightNetSpent: '$ 13,382.90', freightProfit: '$ 380.12', freightOr: '0.97' }
   ]);
 
-  /** Accessorial charges: a parent total over the services that incurred it. */
+  /**
+   * Accessorial charges: a parent total over the services that incurred it.
+   * Row headers/hierarchy taken from the client's reference screenshot
+   * (Analyzer > Charges update). Two rows -- Additional Handling Packaging
+   * and Delivery Area Commercial -- show broken-out children there; every
+   * other row is collapsed in that screenshot with its contents not shown,
+   * so it's kept as a leaf here rather than inventing unseen child rows.
+   * Units/ADU/Discount figures are placeholders (the screenshot's own
+   * Discount column was cut off and unreadable), formatted to match this
+   * table's existing convention (no thousands separators on Units/ADU,
+   * "$ #,###.00" on revenue, one-decimal "%") rather than the screenshot's.
+   */
   DA.data.shippingProfileAccessorial = [
     {
       type: 'Fuel Surcharge',
       group: 'Fuel Surcharge',
       detail: 'Fuel Surcharge',
+      totalUnits: '17888.0', pctTotalVolume: '97.2%', adu: '596.3',
+      grossRevenue: '$ 65,904,390.00', netRevenue: '$ 65,903,160.00', discount: '0.0%'
+    },
+    {
+      type: 'Transportation Charges',
+      group: 'Additional Handling',
+      detail: 'Additional Handling Packaging',
       expanded: true,
-      totalUnits: '86546.0', pctTotalVolume: '100.8%', adu: '17309.2',
-      grossRevenue: '$ 427,712.00', netRevenue: '$ 121,670.00', discount: '71.6%',
+      totalUnits: '9360.0', pctTotalVolume: '18.1%', adu: '312.0',
+      grossRevenue: '$ 340,236.00', netRevenue: '$ 340,236.00', discount: '0.0%',
       children: [
-        { type: '', group: '', detail: '3 Day Select', totalUnits: '357.0', pctTotalVolume: '0.4%', adu: '71.4', grossRevenue: '$ 4,906.00', netRevenue: '$ 1,226.00', discount: '75.0%' },
-        { type: '', group: '', detail: 'Next Day Air', totalUnits: '652.0', pctTotalVolume: '0.8%', adu: '130.4', grossRevenue: '$ 23,572.00', netRevenue: '$ 7,175.00', discount: '69.6%' },
-        { type: '', group: '', detail: '2nd Day Air A.M.', totalUnits: '9.0', pctTotalVolume: '0.0%', adu: '1.8', grossRevenue: '$ 139.00', netRevenue: '$ 68.00', discount: '51.3%' },
-        { type: '', group: '', detail: 'Ground Saver > 1 lbs', totalUnits: '62796.0', pctTotalVolume: '73.1%', adu: '12559.2', grossRevenue: '$ 258,502.00', netRevenue: '$ 77,395.00', discount: '70.1%' },
-        { type: '', group: '', detail: 'Next Day Air Saver', totalUnits: '68.0', pctTotalVolume: '0.1%', adu: '13.6', grossRevenue: '$ 2,377.00', netRevenue: '$ 547.00', discount: '77.0%' }
+        { type: '', group: '', detail: 'Worldwide Express Saver', totalUnits: '6760.0', pctTotalVolume: '13.1%', adu: '225.3', grossRevenue: '$ 245,726.00', netRevenue: '$ 245,726.00', discount: '0.0%' },
+        { type: '', group: '', detail: 'Worldwide Express Midday', totalUnits: '2600.0', pctTotalVolume: '5.0%', adu: '260.0', grossRevenue: '$ 94,510.00', netRevenue: '$ 94,510.00', discount: '0.0%' }
       ]
+    },
+    {
+      type: 'Transportation Charges',
+      group: 'Delivery Area',
+      detail: 'Delivery Area Commercial',
+      expanded: true,
+      totalUnits: '104.0', pctTotalVolume: '0.6%', adu: '10.4',
+      grossRevenue: '$ 468.00', netRevenue: '$ 210.00', discount: '55.0%',
+      children: [
+        { type: '', group: '', detail: 'Next Day Air Saver', totalUnits: '26.0', pctTotalVolume: '0.1%', adu: '2.6', grossRevenue: '$ 117.00', netRevenue: '$ 53.00', discount: '55.0%' },
+        { type: '', group: '', detail: '2nd Day Air', totalUnits: '26.0', pctTotalVolume: '0.1%', adu: '2.6', grossRevenue: '$ 117.00', netRevenue: '$ 53.00', discount: '55.0%' },
+        { type: '', group: '', detail: 'Ground', totalUnits: '52.0', pctTotalVolume: '0.3%', adu: '5.2', grossRevenue: '$ 234.00', netRevenue: '$ 105.00', discount: '55.0%' }
+      ]
+    },
+    {
+      type: 'Transportation Charges',
+      group: 'Delivery Area',
+      detail: 'Delivery Area Residential',
+      totalUnits: '260.0', pctTotalVolume: '1.4%', adu: '26.0',
+      grossRevenue: '$ 681.00', netRevenue: '$ 307.00', discount: '55.0%'
+    },
+    {
+      type: 'Transportation Charges',
+      group: 'Large Package',
+      detail: 'Large Package Commercial',
+      totalUnits: '29380.0', pctTotalVolume: '56.8%', adu: '1469.0',
+      grossRevenue: '$ 7,748,780.00', netRevenue: '$ 7,748,780.00', discount: '0.0%'
+    },
+    {
+      type: 'Transportation Charges',
+      group: 'Over Maximum Limits',
+      detail: 'Over Max Weight Surcharge',
+      totalUnits: '19240.0', pctTotalVolume: '37.2%', adu: '1924.0',
+      grossRevenue: '$ 36,075,000.00', netRevenue: '$ 36,075,000.00', discount: '0.0%'
+    },
+    {
+      type: 'Transportation Charges',
+      group: 'Residential Surcharge',
+      detail: 'Residential Surcharge',
+      totalUnits: '9620.0', pctTotalVolume: '52.3%', adu: '320.7',
+      grossRevenue: '$ 65,910.00', netRevenue: '$ 63,047.00', discount: '4.5%'
+    },
+    {
+      type: 'Other Charges',
+      group: 'Other Charges',
+      detail: 'Address Correction',
+      totalUnits: '26.0', pctTotalVolume: '0.1%', adu: '2.6',
+      grossRevenue: '$ 656.00', netRevenue: '$ 328.00', discount: '50.0%'
+    },
+    {
+      type: 'Other Charges',
+      group: 'Other Charges',
+      detail: 'Third Party Billing Service',
+      totalUnits: '520.0', pctTotalVolume: '2.8%', adu: '52.0',
+      grossRevenue: '$ 427.00', netRevenue: '$ 171.00', discount: '60.0%'
     }
   ];
 
