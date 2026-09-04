@@ -3399,19 +3399,9 @@
 }
 
 /* The base accordion panel has no top padding, so its dark table header
-   sat flush against the shaded trigger above it with no breathing room.
-   Left/right padding is dropped too (base rule's own var(--space-4) each
-   side) -- the comparison table inside is the one thing in this panel
-   that benefits from real width, and at the panel's usual half-of-a-
-   two-column-grid share it was already losing columns to horizontal
-   scroll; going edge to edge hands those 32px back to it instead of
-   leaving them as unused margin either side. The "Current"/"Scenario 1"
-   trigger row above keeps its own padding, so only the table below it
-   goes full-bleed. */
+   sat flush against the shaded trigger above it with no breathing room. */
 .accordion--filled > .accordion__panel {
   padding-top: var(--space-4);
-  padding-right: 0;
-  padding-left: 0;
 }
 
 /* Row-label column, held visually apart from the figures beside it --
