@@ -112,7 +112,7 @@
       return Boolean(column.spanRepeats && nextRow && !nextRow[column.key]);
     }
 
-    function cell(column, row, depth, index, nextRow) {
+    function cell(column, row, depth, index, nextRow, nextDepth) {
       var content = column.render ? column.render(row) : row[column.key];
       var isNode = content instanceof Node;
       var children = column.key === options.expandKey ? childrenOf(row) : null;
@@ -144,9 +144,24 @@
         }
         inner.push(label);
 
+        // Opt-in (`column.mergeExpanded`) rather than every expand-key
+        // column's own default: Cost Details/Zones/Weight & Cube's own
+        // Core Service column reads as one merged block for as long as
+        // the next row is still nested (depth > 0) under some expanded
+        // parent -- a real Core Service group's own row through every
+        // package/zone row it opens onto -- rather than a fresh divider
+        // between each. The line only comes back once the next row is
+        // itself a top-level (depth 0) entry, the same "still inside the
+        // same run" idea spanRepeats columns use, just keyed off nesting
+        // depth instead of a repeated blank value. Comparisons/Charges/
+        // Accounts' own expand-key columns don't set this, so they keep
+        // their existing borders on every row exactly as before.
+        var groupContinues = column.mergeExpanded && nextRow != null && nextDepth > 0;
+
         return el('td', {
           className: (column.className || '') + ' has-expander' +
-            (depth ? ' is-child-cell' : '') + (frozen ? ' ' + frozen.className : ''),
+            (depth ? ' is-child-cell' : '') + (frozen ? ' ' + frozen.className : '') +
+            (groupContinues ? ' is-span-continuation' : ''),
           style: Object.assign(
             depth ? { 'padding-left': (depth * 20 + 12) + 'px' } : {},
             frozen ? { position: frozen.position, left: frozen.left } : {}
@@ -166,11 +181,11 @@
       }, isNode ? [content] : null);
     }
 
-    function addRow(row, depth, nextRow) {
+    function addRow(row, depth, nextRow, nextDepth) {
       body.appendChild(el('tr', {
         className: (options.rowClassName ? options.rowClassName(row) : '') +
           (depth ? ' is-child-row' : '')
-      }, columns.map(function (column, index) { return cell(column, row, depth, index, nextRow); })));
+      }, columns.map(function (column, index) { return cell(column, row, depth, index, nextRow, nextDepth); })));
     }
 
     /**
@@ -212,7 +227,7 @@
       var flat = flatten();
       flat.forEach(function (entry, index) {
         var next = flat[index + 1];
-        addRow(entry.row, entry.depth, next ? next.row : null);
+        addRow(entry.row, entry.depth, next ? next.row : null, next ? next.depth : null);
       });
     }
 

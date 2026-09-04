@@ -687,6 +687,12 @@
           label: 'Core Service',
           width: '220px',
           className: 'is-rowhead',
+          // A Core Service group's own row, its package row and every
+          // zone/lane row underneath read as one merged block -- no
+          // divider between them -- rather than each carrying its own
+          // separator; the line only returns once a fresh, top-level
+          // Core Service row starts.
+          mergeExpanded: true,
           render: function (row) {
             if (row.pkgType) {
               return el('span', { className: 'service-pkg' }, [
@@ -998,7 +1004,10 @@
               // Services tab) renders a package-type row's two-line
               // "UPS <service> -Pkg <type>" plus superscript codes, and a
               // plain row's own service name otherwise -- reused as-is.
-              { key: 'service', label: 'Core Service', width: '220px', className: 'is-rowhead', render: serviceLabel },
+              // mergeExpanded matches Cost Details/Zones' own Core Service
+              // column: no divider between a service row and the
+              // package/billable-weight rows it opens onto.
+              { key: 'service', label: 'Core Service', width: '220px', className: 'is-rowhead', render: serviceLabel, mergeExpanded: true },
               { key: 'billable', label: 'Billable', width: '85px', className: 'is-numeric is-end' },
               numeric('volume', 'Volume', { link: true, width: '95px' }),
               numeric('adv', 'ADV', { link: true, width: '80px' }),
