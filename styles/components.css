@@ -600,8 +600,11 @@
   background-color: var(--color-surface);
 }
 
+/* Shadow removed per explicit request -- the frozen group's own right
+   border is enough to mark where it ends; z-index/background/sticky
+   positioning above are unaffected. */
 .data-table--frozen .is-frozen-edge {
-  box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.15);
+  box-shadow: none;
 }
 
 .data-table tbody tr {
