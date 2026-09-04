@@ -3438,6 +3438,16 @@
   background-color: var(--color-surface-muted-strong);
 }
 
+/* Opt-in (`noRowheadHover`, e.g. Pricing Terms > Accessorials' own
+   incentive plan table) rather than every DataTable's own default --
+   only the value cells shift shade on row hover; the row-header column
+   stays at its normal resting color instead of also darkening. Every
+   other DataTable keeps the two-tone hover above exactly as before. */
+.data-table--no-rowhead-hover tbody tr:hover td.is-rowhead,
+.data-table--no-rowhead-hover tbody tr:focus-within td.is-rowhead {
+  background-color: var(--color-surface-muted);
+}
+
 /* A package-type child row's two-line label (Services > a service's
    Commercial/Residential breakdown) -- "UPS <service>" over "-Pkg
    <type>" with its product/rate codes in superscript beside it.
@@ -4100,6 +4110,17 @@
 
 .matrix tbody tr:hover td {
   background-color: var(--color-surface-hover);
+}
+
+/* Opt-in (weightBreakGrid's own table only) -- the row-header pair (its
+   "from" <th> already stays put on hover since the rule above only
+   targets <td>; its "to" cell is a <td> carrying .matrix__rowhead, so
+   without this it mismatched its own sibling by picking up the value
+   cells' hover tint instead of staying at rest like "from" does).
+   Reapplies .matrix__rowhead's own resting background so both halves of
+   the pair read identically regardless of hover. */
+.matrix--rowhead-no-hover tbody tr:hover td.matrix__rowhead {
+  background-color: var(--color-surface-muted-strong);
 }
 
 .matrix tbody tr:nth-child(even) td {

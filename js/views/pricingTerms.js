@@ -221,7 +221,7 @@
     }
 
     function buildTable() {
-      return el('table', { className: 'matrix matrix--sticky-head' }, [
+      return el('table', { className: 'matrix matrix--sticky-head matrix--rowhead-no-hover' }, [
         el('caption', { className: 'u-visually-hidden', text: 'Weight break incentives by zone' }),
         el('thead', {}, [
           el('tr', {}, [
@@ -834,6 +834,10 @@
         // Single Core Service column now, so nothing left to freeze as a
         // group -- the row-header column freezes on its own regardless.
         freezeColumns: 1,
+        // Row hover here should read on the incentive figures alone --
+        // the Core Service column stays at its normal resting color
+        // instead of also darkening.
+        noRowheadHover: true,
         columns: [
           {
             // Movement, Mode, Service Group and the leaf's own name joined

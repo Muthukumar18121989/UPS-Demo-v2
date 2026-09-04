@@ -236,7 +236,8 @@
       className: 'data-table' +
         (options.embedded ? ' data-table--auto' : '') +
         (options.headerTone ? ' data-table--' + options.headerTone : '') +
-        (options.tinted ? ' data-table--tinted' : '')
+        (options.tinted ? ' data-table--tinted' : '') +
+        (options.noRowheadHover ? ' data-table--no-rowhead-hover' : '')
     }, [
       options.caption
         ? el('caption', { className: 'u-visually-hidden', text: options.caption })
