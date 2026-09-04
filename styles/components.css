@@ -2369,6 +2369,17 @@
   padding: var(--space-4);
 }
 
+/* The bid table sits directly in the panel, not wrapped in .card the
+   way most tables in this app are -- .data-table__viewport's own
+   border is top-only (everywhere else, .card's full border closes the
+   frame around it), so left, right, and bottom edges were open and
+   the table read as unbounded. Completed here instead of widening
+   .data-table__viewport's own border, which would double up on every
+   .card-wrapped table elsewhere. */
+.scenario__panel .data-table__viewport {
+  border: 1px solid var(--color-border);
+}
+
 .scenario__panel[hidden] {
   display: none;
 }
