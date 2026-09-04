@@ -21,33 +21,188 @@
 
     /* ---- Packet summary -------------------------------------------------- */
 
-    var summary = C.SummaryPanel({
-      ariaLabel: 'Analyzer packet summary',
-      headline: [
-        { label: 'Analyzer Packet ID', value: packet.packetId },
-        { label: 'Customer Name', value: packet.customerName },
-        { label: 'Reference Number', value: packet.referenceNumber }
-      ],
-      columns: [
-        [
-          { label: 'Analyzer Packet Description', value: packet.description },
-          { label: 'Shipping Profile From', value: packet.from },
-          { label: 'Shipping Profile To', value: packet.to }
+    /** Both ends of the window on one line -- a range, not two fields.
+        Option 1 only: Option 2 lists From/To as their own fields. */
+    function shippingProfileRange() {
+      if (!packet.from && !packet.to) return null;
+      return (packet.from || '-') + '  –  ' + (packet.to || '-');
+    }
+
+    /** Two sparse, optional linked-record IDs -- paired rather than each
+        claiming a full row for what's usually just a dash. Option 1 only. */
+    function linkedRecords() {
+      return 'PQR ' + (packet.pqr || '-') + '   ·   OPPs ' + (packet.opps || '-');
+    }
+
+    /** Option 1: the panel's original flat layout, fields side by side. */
+    function flatSummary() {
+      return C.SummaryPanelFlat({
+        ariaLabel: 'Analyzer packet summary',
+        headline: [
+          { label: 'Analyzer Packet ID', value: packet.packetId },
+          { label: 'Customer Name', value: packet.customerName },
+          { label: 'Reference Number', value: packet.referenceNumber }
         ],
-        [
-          { label: 'Customer Hierarchy', value: packet.hierarchy },
-          { label: 'Industry', value: packet.industry },
-          { label: 'PQR', value: packet.pqr },
-          { label: 'OPPs', value: packet.opps }
+        columns: [
+          [
+            { label: 'Customer Hierarchy', value: packet.hierarchy },
+            { label: 'Industry', value: packet.industry },
+            { label: 'Linked Records', value: linkedRecords() },
+            { label: 'Shipping Profile', value: shippingProfileRange() }
+          ],
+          [
+            { label: 'Owner', value: owner },
+            { label: 'Created Date', value: packet.createdAt },
+            { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
+            { label: 'Last Modified Date', value: packet.lastModifiedAt }
+          ]
         ],
-        [
-          { label: 'Owner', value: owner },
-          { label: 'Created Date', value: packet.createdAt },
-          { label: 'Last Modified By', value: packet.lastModifiedBy || owner },
-          { label: 'Last Modified Date', value: packet.lastModifiedAt }
+        rows: [
+          { label: 'Analyzer Packet Description', value: packet.description, wide: true }
         ]
-      ]
+      });
+    }
+
+    /** The three Packet/Customer/User field groups Option 2's sections and
+        Option 3's columns both render from -- one shared source rather
+        than the same field lists typed out twice. */
+    function summarySections() {
+      return [
+        {
+          title: 'Packet Information',
+          columns: 3,
+          fields: [
+            { label: 'Analyzer Packet ID', value: packet.packetId },
+            { label: 'Customer Name', value: packet.customerName },
+            { label: 'Reference Number', value: packet.referenceNumber },
+            { label: 'Analyzer Packet Description', value: packet.description }
+          ]
+        },
+        {
+          title: 'Customer Information',
+          columns: 3,
+          fields: [
+            { label: 'Customer Hierarchy', value: packet.hierarchy },
+            { label: 'Shipping Profile From', value: packet.from },
+            { label: 'Shipping Profile To', value: packet.to },
+            { label: 'Industry', value: packet.industry },
+            { label: 'PQR', value: packet.pqr },
+            { label: 'OPPs', value: packet.opps }
+          ]
+        },
+        {
+          title: 'User Information',
+          columns: 3,
+          fields: [
+            { label: 'Owner', value: owner },
+            { label: 'Created Date', value: packet.createdAt },
+            { label: 'Last Modified Date', value: packet.lastModifiedAt },
+            // Last, and wide -- a username can run long enough to wrap
+            // onto two lines, which a single 1-of-4 column was too
+            // narrow for; giving it the whole row (same as Packet
+            // Information's own Description field) means it wraps
+            // wide instead of squeezed, and lands on its own row the
+            // same way every other section's own extra field does.
+            { label: 'Last Modified By', value: packet.lastModifiedBy || owner, wide: true }
+          ]
+        }
+      ];
+    }
+
+    /** Option 2: fields grouped into titled Packet/Customer/User sections. */
+    function groupedSummary() {
+      return C.SummaryPanel({
+        ariaLabel: 'Analyzer packet summary',
+        headline: [
+          { label: 'Analyzer Packet ID', value: packet.packetId },
+          { label: 'Customer Name', value: packet.customerName },
+          { label: 'Reference Number', value: packet.referenceNumber }
+        ],
+        sections: summarySections()
+      });
+    }
+
+    /**
+     * Option 3's body: the same three groups as columns side by side
+     * instead of titled boxes stacked one under another -- a reference
+     * screen's own layout (three cards, a title over "Label : Value"
+     * rows), but with that screen's own sample titles/fields swapped out
+     * for Option 2's real ones (Packet/Customer/User Information and
+     * their actual fields), not copied verbatim.
+     */
+    function columnsSummary() {
+      return el('div', { className: 'summary-columns' },
+        summarySections().map(function (group) {
+          return el('div', { className: 'summary-columns__col' }, [
+            el('p', { className: 'summary-panel__section-title', text: group.title }),
+            el('div', { className: 'summary-columns__fields' },
+              group.fields.map(function (field) {
+                // `wide` is meaningless here -- every field already has
+                // the column's full width to itself in a single-column
+                // stack.
+                return C.Detail({ label: field.label, value: field.value, chip: field.chip });
+              })
+            )
+          ]);
+        })
+      );
+    }
+
+    /**
+     * Option 3: the same collapsible header/body shell Option 1/2 use,
+     * carrying the same 3-field headline Option 2's own collapsed state
+     * shows (Packet ID, Customer Name, Reference Number) -- but with the
+     * disclosure chevron on the header's right edge instead of the left,
+     * Option 3's own placement.
+     */
+    function columnsSummaryPanel() {
+      return C.SummaryPanel({
+        ariaLabel: 'Analyzer packet summary',
+        chevronPosition: 'end',
+        headline: [
+          { label: 'Analyzer Packet ID', value: packet.packetId },
+          { label: 'Customer Name', value: packet.customerName },
+          { label: 'Reference Number', value: packet.referenceNumber }
+        ],
+        bodyContent: [columnsSummary()]
+      });
+    }
+
+    // All three layouts stay live side by side behind a switch -- not a
+    // decision made once and thrown away -- so any can be pulled up on
+    // demand while presenting, without a code change. Option 1 is the
+    // default: its collapsed header carries Packet ID, Customer Name and
+    // Reference Number together, where Option 2's collapsed header only
+    // carries Packet ID (plus Customer Name as a secondary) and drops
+    // Reference Number entirely. Option 3's collapsed header matches
+    // Option 1's own three fields, with its chevron on the right instead
+    // of the left.
+    var summaryMount = el('div', {});
+    var summaryOption = 'option1';
+
+    function renderSummary() {
+      DA.dom.clear(summaryMount).appendChild(
+        summaryOption === 'option1' ? flatSummary()
+          : summaryOption === 'option3' ? columnsSummaryPanel()
+          : groupedSummary()
+      );
+    }
+
+    var summaryOptionSwitch = C.SegmentedControl({
+      ariaLabel: 'Packet summary layout',
+      value: summaryOption,
+      items: [
+        { value: 'option1', label: 'Option 1' },
+        { value: 'option2', label: 'Option 2' },
+        { value: 'option3', label: 'Option 3' }
+      ],
+      onChange: function (value) {
+        summaryOption = value;
+        renderSummary();
+      }
     });
+
+    renderSummary();
 
     /* ---- Scenarios -------------------------------------------------------- */
 
@@ -82,8 +237,7 @@
 
       var descriptionField = C.Field({
         label: 'Scenario Description',
-        multiline: true,
-        hideLabel: true
+        multiline: true
       });
 
       var drawer = C.Modal({
@@ -105,7 +259,7 @@
               shape: 'pill',
               onClick: function () {
                 var source = scenarios.filter(function (scenario) {
-                  return scenario.title === copyFrom.select.value;
+                  return scenario.title === copyFrom.getValue();
                 })[0] || scenarios[0];
 
                 // The new scenario opens; the others fold away behind it.
@@ -143,7 +297,8 @@
 
     var panel = el('section', { className: 'panel panel--auto' }, [
       el('div', { className: 'panel__content' }, [
-        summary,
+        el('div', { className: 'summary-option-switch' }, [summaryOptionSwitch]),
+        summaryMount,
         C.Alert({ message: 'Active Bids sourced for existing customers' }),
         scenarioList,
         el('div', {}, [createScenarioButton])

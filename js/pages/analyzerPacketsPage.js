@@ -13,33 +13,43 @@
 
   var SCOPE = { MINE: 'mine', ALL: 'all' };
 
-  var COLUMNS = [
-    {
-      key: 'packetId',
-      label: 'Analyzer Packet ID',
-      width: '150px',
-      render: function (row) {
-        return C.RecordLink({
-          label: row.packetId,
-          href: '#packet-' + row.packetId,
-          ariaLabel: 'Open analyzer packet ' + row.packetId
-        });
-      }
-    },
-    { key: 'customerName', label: 'Customer Name', width: '155px' },
-    { key: 'customerNumber', label: 'Customer Number', width: '135px', className: 'is-numeric is-muted' },
-    { key: 'owner', label: 'Owner', width: '150px' },
-    {
-      key: 'status',
-      label: 'Status',
-      width: '175px',
-      render: function (row) { return C.StatusBadge(row.status); }
-    },
-    { key: 'createdDate', label: 'Created Date', width: '105px', className: 'is-numeric' },
-    { key: 'lastModifiedDate', label: 'Last Modified Date', width: '140px', className: 'is-numeric' },
-    { key: 'scenarios', label: 'Scenarios', width: '90px', className: 'is-numeric' },
-    { key: 'customerHierarchy', label: 'Customer Hierarchy', width: '145px' }
-  ];
+  /** `onOpenPacket` is threaded through from the page's own options each render. */
+  function columns(onOpenPacket) {
+    return [
+      {
+        key: 'packetId',
+        label: 'Analyzer Packet ID',
+        width: '150px',
+        render: function (row) {
+          return C.RecordLink({
+            label: row.packetId,
+            href: '#packet-' + row.packetId,
+            ariaLabel: 'Open analyzer packet ' + row.packetId,
+            onClick: function () { if (onOpenPacket) onOpenPacket(row); }
+          });
+        }
+      },
+      { key: 'customerName', label: 'Customer Name', width: '155px' },
+      { key: 'customerNumber', label: 'Customer Number', width: '135px', className: 'is-numeric is-muted' },
+      { key: 'owner', label: 'Owner', width: '150px' },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '175px',
+        // The badge itself sizes to its own text (StatusBadge is used
+        // elsewhere as an inline label, where that's correct), so left
+        // alone "Sourcing Data" and "Error Occurred" come out different
+        // widths in the same column -- is-status stretches it to fill the
+        // cell here instead, so every row's pill lines up the same width.
+        className: 'is-status',
+        render: function (row) { return C.StatusBadge(row.status); }
+      },
+      { key: 'createdDate', label: 'Created Date', width: '105px', className: 'is-numeric' },
+      { key: 'lastModifiedDate', label: 'Last Modified Date', width: '140px', className: 'is-numeric' },
+      { key: 'scenarios', label: 'Scenarios', width: '90px', className: 'is-numeric' },
+      { key: 'customerHierarchy', label: 'Customer Hierarchy', width: '145px' }
+    ];
+  }
 
   function matchesQuery(row, query) {
     if (!query) return true;
@@ -98,7 +108,7 @@
       DA.dom.clear(tableMount).appendChild(
         C.DataTable({
           caption: 'Analyzer packets',
-          columns: COLUMNS,
+          columns: columns(options.onOpenPacket),
           rows: rows,
           emptyState: emptyStateFor(state)
         })

@@ -46,17 +46,44 @@
     });
   };
 
-  /** Split an accessorial charge across the services that incurred it. */
-  DA.data.serviceBreakdown = function serviceBreakdown(row, labelKey, additive) {
+  /**
+   * Split a service's volume across the two package types it shipped as --
+   * the Commercial/Residential children a Services row opens onto,
+   * replacing a flat Zone split that doesn't apply to this view. Shares
+   * come from the reference screen's own N-Ground example (415 / 14,511
+   * of 14,926, ~2.8% Commercial to ~97.2% Residential) and are reused
+   * for every service, the same way zoneBreakdown() reuses one fixed
+   * zone mix everywhere rather than a per-service ratio. Both children
+   * carry the same product/rate code list the reference screen shows on
+   * each -- there's no per-service or per-package variant of it here.
+   */
+  DA.data.packageBreakdown = function packageBreakdown(row, labelKey, additive) {
     var shares = [
-      { label: 'Next Day Air', share: 0.05 },
-      { label: 'Ground', share: 0.72 },
-      { label: '2nd Day Air', share: 0.23 }
+      { pkgType: 'Commercial', share: 0.0278 },
+      { pkgType: 'Residential', share: 0.9722 }
     ];
     return shares.map(function (entry) {
-      var overrides = { group: '' };
-      overrides[labelKey] = entry.label;
+      var overrides = {
+        pkgType: entry.pkgType,
+        pkgCodes: 'FC, PP, RS, RTP, TP'
+      };
+      overrides[labelKey] = row[labelKey];
       return scaleRow(row, entry.share, additive, overrides);
+    });
+  };
+
+  /**
+   * Split a service's volume across the billable weight tiers it shipped
+   * in -- the numbered rows a Weight & Cube service opens onto. `labelKey`
+   * is blanked (like accessorial's children), since the tier number in
+   * `billable` is what identifies the row once it's under its service.
+   */
+  DA.data.weightBreakdown = function weightBreakdown(row, labelKey, additive) {
+    var shares = [0.32, 0.24, 0.18, 0.14, 0.12];
+    return shares.map(function (share, index) {
+      var overrides = { billable: String(index + 1) };
+      overrides[labelKey] = '';
+      return scaleRow(row, share, additive, overrides);
     });
   };
 
@@ -64,7 +91,6 @@
     cost: ['volume', 'adv'],
     zone: ['volume', 'adv', 'freightGrossSpent', 'freightNetSpent', 'freightProfit'],
     service: ['volume', 'adv', 'baseGrossRev', 'baseNetRev', 'baseProfit'],
-    accessorial: ['totalUnits', 'pctTotalVolume', 'adu', 'grossRevenue', 'netRevenue'],
     summary: ['adv', 'annRev']
   };
 })(window.DA);

@@ -9,10 +9,14 @@
 }
 
 html {
+  height: 100%;
+  overflow: hidden;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
+  height: 100%;
+  overflow: hidden;
   margin: 0;
   background-color: var(--color-bg);
   color: var(--color-text-primary);
@@ -97,6 +101,10 @@ textarea:focus-visible,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.u-italic {
+  font-style: italic;
 }
 
 /*

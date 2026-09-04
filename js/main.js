@@ -21,7 +21,11 @@
         return DA.pages.AnalyzerPacketsPage({
           rows: DA.data.analyzerPackets,
           currentUser: DA.session.currentUser,
-          onNewPacket: function () { navigate('customer-details'); }
+          onNewPacket: function () { navigate('customer-details'); },
+          onOpenPacket: function (row) {
+            current.packet = DA.data.packetFromRow(row, DA.session.currentUser);
+            navigate('analyzer-packet');
+          }
         });
       }
     },
@@ -47,7 +51,20 @@
           onOpenAccounts: function (bid, scenario) {
             navigate('account-association', { bid: bid, scenario: scenario });
           },
-          onProceed: function () { navigate('analyzer-packet'); }
+          onProceed: function () {
+            // Reaching the Analyzer Packet page is what makes a packet real
+            // enough to list -- add it once, so it shows under My Analyzers
+            // from here on without duplicating on a repeat visit.
+            var alreadyListed = current.packet && DA.data.analyzerPackets.some(function (row) {
+              return row.packetId === current.packet.packetId;
+            });
+            if (current.packet && !alreadyListed) {
+              DA.data.analyzerPackets.unshift(
+                DA.data.summarizePacket(current.packet, DA.session.currentUser)
+              );
+            }
+            navigate('analyzer-packet');
+          }
         });
       }
     },
@@ -77,11 +94,25 @@
           onBack: function () { navigate('create-scenarios'); }
         });
       }
+    },
+
+    'style-guide': {
+      // Reachable from the header on any screen, so it returns to whichever
+      // one that was rather than always landing back on the packets list.
+      render: function () {
+        return DA.pages.StyleGuidePage({ onBack: function () { navigate(lastViewName); } });
+      }
     }
   };
 
+  // The view style-guide should return to -- not itself, so revisiting the
+  // style guide from the style guide (unlikely, but a stray click away)
+  // doesn't get stuck pointing at its own route.
+  var lastViewName = 'packets';
+
   function navigate(name, params) {
     var view = views[name] || views.packets;
+    if (name !== 'style-guide') lastViewName = name;
     var header = view.header ? view.header() : {};
 
     DA.dom.clear(headerSlot).appendChild(

@@ -110,11 +110,11 @@
     );
   }
 
-  function check(size) {
+  function check(size, className) {
     return svg(
       '<path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" ' +
       'stroke-linejoin="round" d="m6 12.4 4 4 8-8.8"/>',
-      { size: size || 16 }
+      { size: size || 16, className: className || '' }
     );
   }
 
@@ -132,6 +132,53 @@
       '<path ' + STROKE + ' d="m3.8 7.4 8.2 4.5 8.2-4.5M12 20.8v-8.9"/>' +
       '<path ' + STROKE + ' d="m3 3 18 18"/>',
       { size: size || 26 }
+    );
+  }
+
+  /*
+   * Choose Service tree's own top-level category icons (Domestic / Export /
+   * Import) -- swapped in for the one generic `box` every top-level group
+   * used to share, so each of the three reads as what it actually is at a
+   * glance rather than three identical packages. `box` itself stays defined
+   * above (still used elsewhere) and now free to mean "a package" again
+   * instead of doubling as "Domestic".
+   */
+  function home(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M4.5 12 12 5l7.5 7"/>' +
+      '<path ' + STROKE +
+      ' d="M6.8 10.3v8a1 1 0 0 0 1 1H9.9v-5h4.2v5h2.1a1 1 0 0 0 1-1v-8"/>',
+      { size: size || 26, className: className || '' }
+    );
+  }
+
+  /*
+   * A plain corner-to-corner diagonal arrow, same drawing technique as
+   * `trendingUp` above (a line plus an open-corner chevron at the tip, no
+   * arrowhead fill needed) -- reads as "outbound" without reusing
+   * `upload`'s tray-and-vertical-arrow shape, which servicePlan() already
+   * shows right next to this same tree for a completely different action
+   * ("Upload Net Rate Values"). Deliberately no circle/globe around it --
+   * a circle plus a single diagonal arrow through it is the ♂ (Mars/male)
+   * symbol, confirmed by rendering an earlier draft large and comparing.
+   */
+  function exportArrow(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M6 18 18 6"/>' +
+      '<path ' + STROKE + ' d="M18 6v6M18 6h-6"/>',
+      { size: size || 26, className: className || '' }
+    );
+  }
+
+  /* exportArrow's mirror -- the same diagonal, open-corner chevron at the
+     near tip instead of the far one, so the arrow reads as arriving rather
+     than leaving (the same "which end has the corner" logic `trendingUp`'s
+     own chevron placement already relies on). */
+  function importArrow(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M18 6 6 18"/>' +
+      '<path ' + STROKE + ' d="M6 18v-6M6 18h6"/>',
+      { size: size || 26, className: className || '' }
     );
   }
 
@@ -208,24 +255,120 @@
     );
   }
 
+  /*
+   * Key Scenario Drivers' per-metric icons -- ADV already had a natural
+   * fit in `box` (shipping volume), so only the other 6 metrics needed a
+   * new glyph: a discount %, a discount tag, stacked coins, a rising
+   * trend line, a gauge (a ratio read at a glance) and a dollar figure.
+   */
+  function percent(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M18 6 6 18"/>' +
+      '<circle cx="7.5" cy="7.5" r="1.9" fill="currentColor"/>' +
+      '<circle cx="16.5" cy="16.5" r="1.9" fill="currentColor"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function tag(size, className) {
+    return svg(
+      '<path ' + STROKE +
+      ' d="M11.7 4.5H6.8a2.3 2.3 0 0 0-2.3 2.3v4.9c0 .4.16.78.44 1.06l8.6 8.6a1.5 1.5 0 0 0 2.12 0l4.9-4.9a1.5 1.5 0 0 0 0-2.12l-8.6-8.6a1.5 1.5 0 0 0-1.06-.44Z"/>' +
+      '<circle cx="8.3" cy="8.3" r="1.3" fill="currentColor"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function coins(size, className) {
+    return svg(
+      '<circle ' + STROKE + ' cx="9" cy="9" r="5"/>' +
+      '<circle ' + STROKE + ' cx="15.2" cy="15.2" r="5"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function trendingUp(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M4 16.5 9.8 10.7 13.2 14.1 20 7.3"/>' +
+      '<path ' + STROKE + ' d="M14.6 7.3H20v5.4"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function gauge(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M4 16.5a8 8 0 0 1 16 0"/>' +
+      '<path ' + STROKE + ' d="M12 16.5 15.3 11"/>' +
+      '<circle cx="12" cy="16.5" r="1.3" fill="currentColor"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function dollarCircle(size, className) {
+    return svg(
+      '<circle ' + STROKE + ' cx="12" cy="12" r="8.5"/>' +
+      '<path ' + STROKE + ' d="M12 6.8v10.4"/>' +
+      '<path ' + STROKE +
+      ' d="M14.6 9.4c0-1.05-1.16-1.9-2.6-1.9s-2.6.85-2.6 1.9c0 2.5 5.2 1.15 5.2 3.65 0 1.05-1.16 1.9-2.6 1.9s-2.6-.85-2.6-1.9"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  /* A column-header sort affordance -- up chevron over down chevron,
+     the same "unsorted, but sortable" glyph most data grids use. Purely
+     decorative here (no column in this app actually sorts yet), matching
+     the same convention Base/Zone's Incentive Amount header already set. */
+  function sort(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M6 9.5 9 6.5 12 9.5"/>' +
+      '<path ' + STROKE + ' d="M6 12.5 9 15.5 12 12.5"/>',
+      { size: size || 14, className: className || '' }
+    );
+  }
+
+  /* Four squares in a 2x2 grid -- the "tile" half of a Tile view /
+     Table view icon toggle. */
+  function gridView(size, className) {
+    return svg(
+      '<rect ' + STROKE + ' x="3.5" y="3.5" width="7.5" height="7.5" rx="1.2"/>' +
+      '<rect ' + STROKE + ' x="13" y="3.5" width="7.5" height="7.5" rx="1.2"/>' +
+      '<rect ' + STROKE + ' x="3.5" y="13" width="7.5" height="7.5" rx="1.2"/>' +
+      '<rect ' + STROKE + ' x="13" y="13" width="7.5" height="7.5" rx="1.2"/>',
+      { size: size || 16, className: className || '' }
+    );
+  }
+
+  /* A bordered grid with one row and one column divider -- the "table"
+     half of the same toggle. */
+  function tableViewIcon(size, className) {
+    return svg(
+      '<rect ' + STROKE + ' x="3.5" y="4.5" width="17" height="15" rx="1.5"/>' +
+      '<path ' + STROKE + ' d="M3.5 9.7h17M9.3 9.7v9.8"/>',
+      { size: size || 16, className: className || '' }
+    );
+  }
+
   /**
-   * UPS shield mark — simplified in-code placeholder.
-   * Swap for the official brand asset before any external release.
+   * The real UPS shield mark (traced from the brand's own SVG, not the
+   * hand-built approximation this replaced), scaled to the header's
+   * previous 60px height at its native ~0.816 aspect ratio (39.4 x 48.3)
+   * instead of being stretched into the old placeholder's 52 x 60 box --
+   * see .app-header__logo in components.css for the matching width change.
+   * The two brand colors (#341b14 / #ffb406 in the source file) are wired
+   * to the same --color-brand-brown / --color-brand-shield tokens the old
+   * mark used, so the shield still follows the Style Guide's live Token
+   * Editor instead of carrying hardcoded colors of its own.
    */
   function upsShield() {
-    var node = DA.dom.svg('', { viewBox: '0 0 52 60', size: 0 });
-    node.setAttribute('width', '52');
+    var node = DA.dom.svg('', { viewBox: '0 0 39.4 48.3', size: 0 });
+    node.setAttribute('width', '49');
     node.setAttribute('height', '60');
     node.innerHTML =
-      '<path d="M8.5 3.5h35a6 6 0 0 1 6 6v23.9c0 12.2-9.4 19.9-23.5 24.2C11.9 53.3 2.5 45.6 2.5 33.4V9.5a6 6 0 0 1 6-6Z" ' +
-      'fill="var(--color-brand-shield)"/>' +
-      '<path d="M13.5 15.5c3.6-4.4 8-6.6 12.5-6.6s8.9 2.2 12.5 6.6" fill="none" ' +
-      'stroke="var(--color-brand-brown)" stroke-width="2.6" stroke-linecap="round"/>' +
-      '<path d="M26 8.9c-1.9 0-3.1 1.3-3.1 2.7 0 1.5 1.3 2.5 3.1 2.5s3.1-1 3.1-2.5c0-1.4-1.2-2.7-3.1-2.7Z" ' +
-      'fill="var(--color-brand-brown)"/>' +
-      '<text x="26" y="42.5" text-anchor="middle" fill="var(--color-brand-brown)" ' +
-      'font-family="var(--font-family-base)" font-size="20" font-weight="700" ' +
-      'letter-spacing="-0.5">ups</text>';
+      '<path fill="var(--color-brand-brown)" d="M19.7 46.5c.4-.2 10.8-4.7 14.1-7.4 3.4-2.8 5.2-6.8 5.2-11.6V5l-.3-.1C30.4.4 20.1.7 19.6.7 19.2.7 8.9.4.6 4.9L.4 5v22.6c0 4.8 1.8 8.8 5.2 11.6 3.3 2.7 13.7 7.2 14.1 7.3"/>' +
+      '<path fill="var(--color-brand-shield)" d="M19.7 47s-11-4.8-14.4-7.5C1.7 36.5 0 32.4 0 27.7V4.3C8.7-.4 19.7 0 19.7 0s11-.4 19.7 4.3v23.3c0 4.7-1.7 8.8-5.3 11.8-3.4 2.8-14.4 7.6-14.4 7.6M1.6 27.7c0 4.4 1.6 8 4.7 10.5 2.8 2.3 11.1 6 13.4 7 2.3-1 10.7-4.8 13.4-7 3.1-2.5 4.7-6.2 4.7-10.5v-23c-11.6-1.1-25.4-.5-36.2 9.5v13.5z"/>' +
+      '<path fill="var(--color-brand-shield)" d="M30.8 24.4c1.5.9 2.1 1.5 2.2 2.6 0 1.2-.8 1.9-2.1 1.9-1.1 0-2.4-.6-3.3-1.4v3.2c1.1.6 2.4 1.1 3.8 1.1 3.4 0 5-2.4 5-4.6.1-2-.5-3.6-3.4-5.3-1.3-.8-2.3-1.3-2.3-2.5s1.1-1.7 2-1.7c1.2 0 2.4.7 3.1 1.4v-3c-.6-.5-1.9-1.2-3.8-1.1-2.3.1-4.7 1.7-4.7 4.5.1 1.9.7 3.3 3.5 4.9M19 31.6c.3.1.8.2 1.6.2 3.9 0 6.1-3.5 6.1-8.5 0-5.1-2.3-8.2-6.4-8.2-1.9 0-3.4.4-4.7 1.2v22.6H19v-7.3zM19 18c.3-.1.8-.3 1.2-.3 2 0 2.8 1.6 2.8 5.5 0 3.8-1 5.6-3 5.6-.5 0-.9-.1-1.1-.2V18zM8.5 31.8c2.1 0 3.9-.5 5.2-1.4V15.3h-3.5v13.1c-.4.3-.9.4-1.6.4-1.6 0-1.8-1.5-1.8-2.4V15.3H3.3v10.9c0 3.7 1.8 5.6 5.2 5.6"/>' +
+      '<path fill="var(--color-brand-shield)" d="M31.8 45.3v2.3h.4v-.9h.1l.6.9h.5s-.6-.9-.7-1c.3-.1.5-.3.5-.6s-.2-.7-.8-.7h-.6zm.6.3c.3 0 .4.2.4.3 0 .2-.1.4-.5.4h-.1v-.7h.2z"/>' +
+      '<path fill="var(--color-brand-shield)" d="M34 46.4c0 .8-.7 1.5-1.5 1.5s-1.5-.7-1.5-1.5.7-1.5 1.5-1.5c.9 0 1.5.7 1.5 1.5m-1.5-1.9c-1 0-1.9.8-1.9 1.9 0 1 .8 1.9 1.9 1.9 1 0 1.9-.8 1.9-1.9 0-1-.9-1.9-1.9-1.9"/>';
     return node;
   }
 
@@ -251,11 +394,23 @@
     filter: filter,
     box: box,
     boxOff: boxOff,
+    home: home,
+    exportArrow: exportArrow,
+    importArrow: importArrow,
     settings: settings,
     plusCircle: plusCircle,
     file: file,
     plus: plus,
     inbox: inbox,
+    percent: percent,
+    tag: tag,
+    coins: coins,
+    trendingUp: trendingUp,
+    gauge: gauge,
+    dollarCircle: dollarCircle,
+    sort: sort,
+    gridView: gridView,
+    tableViewIcon: tableViewIcon,
     upsShield: upsShield
   };
 })(window.DA);
