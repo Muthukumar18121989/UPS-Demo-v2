@@ -905,12 +905,29 @@
             headerTone: 'warm',
             tinted: true,
             expandKey: 'service',
-            // A service opens onto the billable weight tiers behind it.
+            // A service opens onto the billable weight tiers behind it --
+            // unless it already carries a real `children` array of its own
+            // (the package-type row and the billable rows under it, on the
+            // 2 services Weight & Cube's own reference screen breaks out),
+            // which wins over the generic split. A package-type row with
+            // no real children of its own (shown collapsed in that
+            // reference, contents not given) stays a leaf rather than
+            // falling through to it. A row that's already a billable-
+            // weight-tier leaf (a real `billable` number of its own, not
+            // the '-' every Core Service/package row carries) stays a
+            // leaf too, rather than breaking down a second time.
             getChildren: function (row) {
+              if (row.children) return row.children;
+              if (row.pkgType) return null;
+              if (row.billable !== '-') return null;
               return DA.data.weightBreakdown(row, 'service', DA.data.additive.service);
             },
             columns: [
-              { key: 'service', label: 'Core Service', width: '220px', className: 'is-rowhead' },
+              // serviceLabel() (defined above, already used by the
+              // Services tab) renders a package-type row's two-line
+              // "UPS <service> -Pkg <type>" plus superscript codes, and a
+              // plain row's own service name otherwise -- reused as-is.
+              { key: 'service', label: 'Core Service', width: '220px', className: 'is-rowhead', render: serviceLabel },
               { key: 'billable', label: 'Billable', width: '85px', className: 'is-numeric is-end' },
               numeric('volume', 'Volume', { link: true, width: '95px' }),
               numeric('adv', 'ADV', { link: true, width: '80px' }),

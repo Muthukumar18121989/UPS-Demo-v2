@@ -611,26 +611,97 @@
    * Rows behind Analyzer > Weight & Cube: the same core services Services
    * lists, opening onto the billable weight tiers behind each (derived via
    * weightBreakdown, so a tier's figures always add back up to its
-   * service's).
+   * service's) -- except N-Next Day Air and N-Next Day Air Saver, which
+   * carry a real `children` of their own instead, per the client's
+   * reference screenshot (Analyzer > Weight & Cube update).
+   *
+   * Same scope/precedent as the Cost Details, Zones and Charges updates:
+   * of the 5 rows the screenshot shows, only N-Next Day Air and N-Next Day
+   * Air Saver get the package-type middle tier (a "UPS <service> -Pkg
+   * <type>" row, superscript product/rate codes, showing "-" for its own
+   * figures -- real numbers surface one level deeper, on the row's own
+   * chevron). N-Next Day Air's package row (Residential, "FC, PP, RS,
+   * RTP, TP") opens onto 5 real billable-weight rows straight from the
+   * screenshot (Volume and ADV both sum back to the parent's 234/0.9).
+   * N-Next Day Air Saver's two package rows (Commercial/Residential,
+   * "FC, PP, TP") are shown collapsed with contents not visible, so left
+   * as leaves. N-2nd Day Air, N-3 Day Select and N-Ground get the
+   * screenshot's own visible figures and (N-3 Day Select/N-Ground) are
+   * new rows the table didn't carry before, but keep the table's existing
+   * generic weightBreakdown() split -- the screenshot doesn't show a
+   * package tier for any of them.
+   *
+   * Base RPP/Base Profit/Base OR aren't visible in the screenshot for any
+   * row (cut off past Base Gross Rev/Net Rev/Disc) or, for the two new
+   * rows, anywhere in this table before now -- N-Next Day Air, N-Next Day
+   * Air Saver and N-2nd Day Air (and, in turn, N-Next Day Air's own new
+   * billable-weight children) keep each row's own pre-existing
+   * placeholder figures for those three columns; N-3 Day Select and
+   * N-Ground reuse the same-named service's own figures already on file
+   * in DA.data.packetServices below, rather than inventing new ones.
    */
   DA.data.packetWeightCube = [
     {
       service: 'N-Next Day Air', billable: '-',
-      volume: '890', adv: '13.7', pps: '1.0', weightPiece: '8.8',
-      baseGrossRev: '$164,299', baseNetRev: '$29,249', baseDisc: '82.2%',
-      baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50'
+      expanded: true,
+      volume: '234', adv: '0.9', pps: '1.0', weightPiece: '5.8',
+      baseGrossRev: '$34,098', baseNetRev: '$7,154', baseDisc: '79.0%',
+      baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50',
+      children: [
+        {
+          service: 'N-Next Day Air', billable: '-',
+          expanded: true,
+          pkgType: 'Residential', pkgCodes: 'FC, PP, RS, RTP, TP',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-',
+          baseGrossRev: '-', baseNetRev: '-', baseDisc: '-', baseRpp: '-', baseProfit: '-', baseOr: '-',
+          children: [
+            { service: '', billable: '2', volume: '104', adv: '0.4', pps: '1.0', weightPiece: '1.0', baseGrossRev: '$11,012', baseNetRev: '$2,269', baseDisc: '79.4%', baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50' },
+            { service: '', billable: '9', volume: '26', adv: '0.1', pps: '1.0', weightPiece: '9.0', baseGrossRev: '$5,199', baseNetRev: '$1,003', baseDisc: '80.7%', baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50' },
+            { service: '', billable: '10', volume: '52', adv: '0.2', pps: '1.0', weightPiece: '9.5', baseGrossRev: '$3,334', baseNetRev: '$1,073', baseDisc: '67.8%', baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50' },
+            { service: '', billable: '16', volume: '26', adv: '0.1', pps: '1.0', weightPiece: '15.0', baseGrossRev: '$7,549', baseNetRev: '$1,457', baseDisc: '80.7%', baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50' },
+            { service: '', billable: '19', volume: '26', adv: '0.1', pps: '1.0', weightPiece: '5.0', baseGrossRev: '$7,004', baseNetRev: '$1,352', baseDisc: '80.7%', baseRpp: '$32.85', baseProfit: '$5,037', baseOr: '0.50' }
+          ]
+        }
+      ]
     },
     {
       service: 'N-Next Day Air Saver', billable: '-',
-      volume: '1', adv: '0', pps: '1.0', weightPiece: '-',
-      baseGrossRev: '$59', baseNetRev: '$12', baseDisc: '79.6%',
-      baseRpp: '$11.98', baseProfit: '$0', baseOr: '0.99'
+      expanded: true,
+      volume: '52', adv: '0.2', pps: '1.0', weightPiece: '10.0',
+      baseGrossRev: '$11,806', baseNetRev: '$2,420', baseDisc: '79.5%',
+      baseRpp: '$11.98', baseProfit: '$0', baseOr: '0.99',
+      children: [
+        {
+          service: 'N-Next Day Air Saver', billable: '-',
+          pkgType: 'Commercial', pkgCodes: 'FC, PP, TP',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-',
+          baseGrossRev: '-', baseNetRev: '-', baseDisc: '-', baseRpp: '-', baseProfit: '-', baseOr: '-'
+        },
+        {
+          service: 'N-Next Day Air Saver', billable: '-',
+          pkgType: 'Residential', pkgCodes: 'FC, PP, TP',
+          volume: '-', adv: '-', pps: '-', weightPiece: '-',
+          baseGrossRev: '-', baseNetRev: '-', baseDisc: '-', baseRpp: '-', baseProfit: '-', baseOr: '-'
+        }
+      ]
     },
     {
-      service: 'N-2nd Day Air', billable: '-', expanded: true,
-      volume: '4203', adv: '64.7', pps: '1.0', weightPiece: '8.5',
-      baseGrossRev: '$407,142', baseNetRev: '$82,709', baseDisc: '79.7%',
+      service: 'N-2nd Day Air', billable: '-',
+      volume: '26', adv: '0.1', pps: '1.0', weightPiece: '15.0',
+      baseGrossRev: '$3,014', baseNetRev: '$820', baseDisc: '72.8%',
       baseRpp: '$19.68', baseProfit: '$ -341', baseOr: '0.52'
+    },
+    {
+      service: 'N-3 Day Select', billable: '-',
+      volume: '22100', adv: '85.0', pps: '3.4', weightPiece: '368.5',
+      baseGrossRev: '$9,928,004', baseNetRev: '$9,928,004', baseDisc: '0.0%',
+      baseRpp: '$19.18', baseProfit: '$2,046', baseOr: '0.86'
+    },
+    {
+      service: 'N-Ground', billable: '-',
+      volume: '1716', adv: '6.6', pps: '1.0', weightPiece: '153.3',
+      baseGrossRev: '$240,236', baseNetRev: '$236,326', baseDisc: '1.6%',
+      baseRpp: '$8.83', baseProfit: '$18,213', baseOr: '0.86'
     }
   ];
 
