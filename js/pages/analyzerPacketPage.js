@@ -1105,9 +1105,15 @@
 
     /**
      * One scenario's rate grid: zones across, weight tiers down, a $ figure
-     * per cell -- the same 2-row-header shape servicePlan()'s own weight
-     * break grid uses (a merged corner label over two matrix__rowhead
-     * columns, zone/weight-break headers spanning both header rows).
+     * per cell. The corner cell carries both axis labels on a diagonal --
+     * "Zones" upper right, "Weight" lower left -- in one header row/cell
+     * instead of two stacked ones; the row-header column is a single
+     * <th colspan="2"> per row (was an empty <th> plus a separate <td>),
+     * both per explicit request: the merge centers the weight figure under
+     * the corner's own full width, and -- since a real <th> is naturally
+     * excluded from .matrix's own tr:hover td rule -- also removes the
+     * hover highlight that was catching the "to be" a <td> weight cell
+     * along with the row's real values.
      * Net is the only basis with reference data; Gross and Volume show the
      * table's own empty state rather than invented figures.
      */
@@ -1121,19 +1127,18 @@
 
       var head = el('thead', {}, [
         el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'col', colspan: 2 }, text: 'Zones' })
+          el('th', { className: 'matrix__rowhead matrix__corner', attrs: { scope: 'col', colspan: 2 } }, [
+            el('span', { className: 'matrix__corner-label matrix__corner-label--zones', text: 'Zones' }),
+            el('span', { className: 'matrix__corner-label matrix__corner-label--weight', text: 'Weight' })
+          ])
         ].concat(zones.map(function (zone) {
-          return el('th', { attrs: { scope: 'col', rowspan: 2 }, text: zone });
-        }))),
-        el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'col', colspan: 2 }, text: 'Weight' })
-        ])
+          return el('th', { attrs: { scope: 'col' }, text: zone });
+        })))
       ]);
 
       var body = el('tbody', {}, data.rows.map(function (row) {
         return el('tr', {}, [
-          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row' } }),
-          el('td', { className: 'matrix__rowhead', text: row.weight })
+          el('th', { className: 'matrix__rowhead', attrs: { scope: 'row', colspan: 2 }, text: row.weight })
         ].concat(row.net.map(function (rate) {
           // A plain <a> here, same as every other report table's linked
           // figure -- it's what makes the value read as link-blue and

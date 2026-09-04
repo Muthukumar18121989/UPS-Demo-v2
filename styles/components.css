@@ -4123,6 +4123,44 @@
   text-align: center;
 }
 
+/*
+ * rateChartGrid's own corner cell: "Zones" (the column axis, upper right)
+ * and "Weight" (the row axis, lower left) share one cell, split by a
+ * diagonal rather than stacked as two header rows -- the same
+ * light-on-dark divider line every other seam in this dark header uses,
+ * just drawn corner to corner instead of straight down. min-height gives
+ * the diagonal (and the two labels sitting on it) room to actually read
+ * as a rectangle split in two, rather than a near-flat line across a
+ * cell only as tall as one line of text needs.
+ */
+.matrix__corner {
+  position: relative;
+  height: 52px;
+  padding: 0;
+  background-image: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 1px),
+    rgba(255, 255, 255, 0.3) calc(50% - 1px),
+    rgba(255, 255, 255, 0.3) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
+.matrix__corner-label {
+  position: absolute;
+  font-size: var(--font-size-2xs);
+}
+
+.matrix__corner-label--zones {
+  top: var(--space-2);
+  right: var(--space-3);
+}
+
+.matrix__corner-label--weight {
+  bottom: var(--space-2);
+  left: var(--space-3);
+}
+
 .matrix__cell {
   text-align: right;
   font-variant-numeric: tabular-nums;
