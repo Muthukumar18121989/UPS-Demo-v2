@@ -1690,6 +1690,13 @@
   text-align: left;
 }
 
+/* Option 3's own chevron placement: the headline sits at the row's left
+   edge same as always, the chevron pushed out to its right edge instead
+   of sitting beside the headline at the left. */
+.summary-panel__header--chevron-end {
+  justify-content: space-between;
+}
+
 .summary-panel__title {
   flex: 1 1 auto;
   min-width: 0;
@@ -1736,6 +1743,13 @@
      instead of the icon's width leaving them out of line. */
   padding: var(--space-4) var(--space-5) var(--space-5) calc(var(--space-5) + 16px + var(--space-3));
   border-top: 1px solid var(--color-border-subtle);
+}
+
+/* Option 3's chevron sits at the header's right edge, not its left, so
+   there's no icon width for the body's left edge to line up against --
+   back to the same left padding as every other edge. */
+.summary-panel__body--chevron-end {
+  padding-left: var(--space-5);
 }
 
 /* SummaryPanelFlat's own body layout: fields side by side in plain columns
@@ -1821,16 +1835,14 @@
    titled boxes, laid out side by side instead -- a title over its own
    "Label : Value" rows per column, with a thin rule between columns
    (not a border round each) since they read as one continuous card,
-   not three separate ones. Always visible -- there's no collapsed
-   single-line header the way Option 1/2's own accordion has. */
+   not three separate ones. Sits inside .summary-panel__body (the same
+   collapsible header/body shell Option 1/2 use, chevron on the right
+   instead of the left), which already supplies the border/background/
+   padding -- this only needs the column grid itself. */
 .summary-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-5);
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-container);
-  background-color: var(--color-surface);
 }
 
 .summary-columns__col {

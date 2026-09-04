@@ -123,32 +123,49 @@
     }
 
     /**
-     * Option 3: the same three groups as columns side by side instead of
-     * titled boxes stacked one under another -- a reference screen's own
-     * layout (three cards, a title over "Label : Value" rows), but with
-     * that screen's own sample titles/fields swapped out for Option 2's
-     * real ones (Packet/Customer/User Information and their actual
-     * fields), not copied verbatim. Always shown in full -- the
-     * reference has no collapsed single-line state to fall back to the
-     * way Option 1/2's own accordion header does, so this one doesn't
-     * either.
+     * Option 3's body: the same three groups as columns side by side
+     * instead of titled boxes stacked one under another -- a reference
+     * screen's own layout (three cards, a title over "Label : Value"
+     * rows), but with that screen's own sample titles/fields swapped out
+     * for Option 2's real ones (Packet/Customer/User Information and
+     * their actual fields), not copied verbatim.
      */
     function columnsSummary() {
-      return el('div', {
-        className: 'summary-columns',
-        attrs: { 'aria-label': 'Analyzer packet summary' }
-      }, summarySections().map(function (group) {
-        return el('div', { className: 'summary-columns__col' }, [
-          el('p', { className: 'summary-panel__section-title', text: group.title }),
-          el('div', { className: 'summary-columns__fields' },
-            group.fields.map(function (field) {
-              // `wide` is meaningless here -- every field already has the
-              // column's full width to itself in a single-column stack.
-              return C.Detail({ label: field.label, value: field.value, chip: field.chip });
-            })
-          )
-        ]);
-      }));
+      return el('div', { className: 'summary-columns' },
+        summarySections().map(function (group) {
+          return el('div', { className: 'summary-columns__col' }, [
+            el('p', { className: 'summary-panel__section-title', text: group.title }),
+            el('div', { className: 'summary-columns__fields' },
+              group.fields.map(function (field) {
+                // `wide` is meaningless here -- every field already has
+                // the column's full width to itself in a single-column
+                // stack.
+                return C.Detail({ label: field.label, value: field.value, chip: field.chip });
+              })
+            )
+          ]);
+        })
+      );
+    }
+
+    /**
+     * Option 3: the same collapsible header/body shell Option 1/2 use,
+     * carrying the same 3-field headline Option 2's own collapsed state
+     * shows (Packet ID, Customer Name, Reference Number) -- but with the
+     * disclosure chevron on the header's right edge instead of the left,
+     * Option 3's own placement.
+     */
+    function columnsSummaryPanel() {
+      return C.SummaryPanel({
+        ariaLabel: 'Analyzer packet summary',
+        chevronPosition: 'end',
+        headline: [
+          { label: 'Analyzer Packet ID', value: packet.packetId },
+          { label: 'Customer Name', value: packet.customerName },
+          { label: 'Reference Number', value: packet.referenceNumber }
+        ],
+        bodyContent: [columnsSummary()]
+      });
     }
 
     // All three layouts stay live side by side behind a switch -- not a
@@ -157,14 +174,16 @@
     // default: its collapsed header carries Packet ID, Customer Name and
     // Reference Number together, where Option 2's collapsed header only
     // carries Packet ID (plus Customer Name as a secondary) and drops
-    // Reference Number entirely. Option 3 has no collapsed state at all.
+    // Reference Number entirely. Option 3's collapsed header matches
+    // Option 1's own three fields, with its chevron on the right instead
+    // of the left.
     var summaryMount = el('div', {});
     var summaryOption = 'option1';
 
     function renderSummary() {
       DA.dom.clear(summaryMount).appendChild(
         summaryOption === 'option1' ? flatSummary()
-          : summaryOption === 'option3' ? columnsSummary()
+          : summaryOption === 'option3' ? columnsSummaryPanel()
           : groupedSummary()
       );
     }

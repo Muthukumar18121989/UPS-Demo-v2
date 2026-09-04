@@ -108,19 +108,42 @@
     }, [header, body]);
   };
 
+  /**
+   * `bodyContent` renders in place of `sections` for a caller with its own
+   * body markup already built (Option 3's column layout) rather than the
+   * titled-section shape `sections` maps into. `chevronPosition: 'end'`
+   * moves the disclosure chevron to the header's right edge instead of
+   * its usual left -- Option 3's own placement, distinct from Option 1/2's
+   * shared left-chevron convention, so this is opt-in per call rather
+   * than a change to the default.
+   */
   DA.components.SummaryPanel = function SummaryPanel(options) {
     options = options || {};
     uid += 1;
     var bodyId = 'summary-panel-' + uid;
     var expanded = options.expanded !== false;
+    var chevronEnd = options.chevronPosition === 'end';
 
+    var bodyChildren = options.bodyContent || (options.sections || []).map(section);
     var body = el('div', {
-      className: 'summary-panel__body',
+      className: 'summary-panel__body' + (chevronEnd ? ' summary-panel__body--chevron-end' : ''),
       attrs: { id: bodyId, hidden: !expanded }
-    }, (options.sections || []).map(section));
+    }, bodyChildren);
+
+    var chevron = DA.icons.chevronRight(16, 'summary-panel__icon');
+    // Same header row SummaryPanelFlat's collapsed state uses -- Packet
+    // ID, Customer Name and Reference Number side by side in the same
+    // .summary-panel__header-items grid -- instead of one flat title
+    // string, so the collapsed header carries the same information
+    // regardless of which option is showing.
+    var headlineItems = el('span', { className: 'summary-panel__header-items' },
+      (options.headline || []).map(function (item) {
+        return DA.components.Detail(item);
+      })
+    );
 
     var header = el('button', {
-      className: 'summary-panel__header',
+      className: 'summary-panel__header' + (chevronEnd ? ' summary-panel__header--chevron-end' : ''),
       attrs: {
         type: 'button',
         'aria-expanded': expanded ? 'true' : 'false',
@@ -133,19 +156,7 @@
           body.hidden = !expanded;
         }
       }
-    }, [
-      DA.icons.chevronRight(16, 'summary-panel__icon'),
-      // Same header row SummaryPanelFlat's collapsed state uses -- Packet
-      // ID, Customer Name and Reference Number side by side in the same
-      // .summary-panel__header-items grid -- instead of one flat title
-      // string, so the collapsed header carries the same information
-      // regardless of which option is showing.
-      el('span', { className: 'summary-panel__header-items' },
-        (options.headline || []).map(function (item) {
-          return DA.components.Detail(item);
-        })
-      )
-    ]);
+    }, chevronEnd ? [headlineItems, chevron] : [chevron, headlineItems]);
 
     return el('section', {
       className: 'summary-panel',
