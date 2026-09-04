@@ -2514,10 +2514,12 @@
   margin-top: var(--space-5);
 }
 
-/* Add Accessorial Incentive Plan's own filter row: Search Table takes the
-   rest of the row, Filter stays a fixed width beside it -- matching the
-   reference screen's proportions rather than the generic filter-grid's
-   equal-width columns. */
+/* Add Accessorial/Service Incentive Plan's own filter row: Search Table
+   and Filter sit at their own natural widths, side by side at the row's
+   left edge, rather than Search Table stretching to fill the row and
+   pushing Filter out to the far right on a wide dialog (matching the
+   reference screen's own tight grouping, with the leftover row width
+   simply left empty). */
 .accessorial-picker__filters {
   display: flex;
   align-items: flex-start;
@@ -2526,7 +2528,7 @@
 }
 
 .accessorial-picker__search {
-  flex: 1 1 auto;
+  flex: 0 1 360px;
   min-width: 0;
 }
 
