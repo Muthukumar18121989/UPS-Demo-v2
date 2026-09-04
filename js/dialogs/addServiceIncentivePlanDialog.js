@@ -75,9 +75,9 @@
           columns: [
             { key: 'select', label: '', width: '48px', render: radioCell },
             { key: 'movement', label: 'Movement', width: '150px', className: 'is-rowhead' },
-            { key: 'mode', label: 'Mode', width: '130px' },
-            { key: 'serviceGroup', label: 'Service Group', width: '180px' },
-            { key: 'service', label: 'Service', width: '220px' }
+            { key: 'mode', label: 'Mode', width: '130px', className: 'is-plain' },
+            { key: 'serviceGroup', label: 'Service Group', width: '180px', className: 'is-plain' },
+            { key: 'service', label: 'Service', width: '220px', className: 'is-plain' }
           ],
           rows: rows.filter(matches),
           emptyState: el('p', { className: 'table-empty', text: 'No services match your search.' })
@@ -92,21 +92,23 @@
         el('div', { className: 'accessorial-picker__search' }, [
           C.SearchField({
             label: 'Search Table',
-            placeholder: 'Search Table',
+            labeled: true,
             clearable: true,
             onSearch: function (value) { query = value; renderTable(); }
           })
         ]),
-        C.SelectField({
-          label: 'Filter',
-          value: filter,
-          options: [
-            { value: 'All', label: 'All' },
-            { value: 'Air', label: 'Air' },
-            { value: 'Ground', label: 'Ground' }
-          ],
-          onChange: function (value) { filter = value; renderTable(); }
-        })
+        el('div', { className: 'accessorial-picker__filter' }, [
+          C.SelectField({
+            label: 'Filter',
+            value: filter,
+            options: [
+              { value: 'All', label: 'All' },
+              { value: 'Air', label: 'Air' },
+              { value: 'Ground', label: 'Ground' }
+            ],
+            onChange: function (value) { filter = value; renderTable(); }
+          })
+        ])
       ]),
       el('p', { className: 'accessorial-picker__note', text: 'Select one service to proceed.' }),
       tableMount,

@@ -298,6 +298,53 @@
   cursor: pointer;
 }
 
+/* labeled: the field's own bordered box, matching .dropdown__trigger's
+   chrome exactly (same height/padding/border/radius tokens) so a
+   labeled search field sits flush beside a Filter dropdown at the same
+   height -- the icon and a stacked label/input column inside one box,
+   instead of the plain icon-and-placeholder bar used everywhere else
+   this component appears. */
+.search-field--labeled {
+  max-width: none;
+  gap: var(--space-2);
+  min-height: var(--field-height);
+  padding: 0 var(--field-padding-x);
+  background-color: var(--color-field-bg);
+  border: 1px solid var(--color-field-border-filled);
+  border-radius: var(--radius-control);
+}
+
+.search-field--labeled .search-field__icon {
+  position: static;
+  flex: 0 0 auto;
+}
+
+.search-field--labeled .search-field__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.search-field--labeled .search-field__label {
+  color: var(--color-field-label);
+  font-size: var(--font-size-2xs);
+  line-height: 1.1;
+}
+
+.search-field--labeled .search-field__input {
+  min-height: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  font-size: var(--font-size-md);
+}
+
+.search-field--labeled .search-field__input:focus {
+  box-shadow: none;
+}
+
 /* --------------------------------------------------------------------------
    Panel  (a white content surface on the grey page)
    -------------------------------------------------------------------------- */
@@ -2519,7 +2566,8 @@
    left edge, rather than Search Table stretching to fill the row and
    pushing Filter out to the far right on a wide dialog (matching the
    reference screen's own tight grouping, with the leftover row width
-   simply left empty). */
+   simply left empty). Both share the same flex-basis so the two fields
+   read as a matched pair. */
 .accessorial-picker__filters {
   display: flex;
   align-items: flex-start;
@@ -2527,8 +2575,9 @@
   margin-bottom: var(--space-4);
 }
 
-.accessorial-picker__search {
-  flex: 0 1 360px;
+.accessorial-picker__search,
+.accessorial-picker__filter {
+  flex: 0 1 260px;
   min-width: 0;
 }
 

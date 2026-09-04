@@ -55,6 +55,24 @@
       input.addEventListener('input', function () { clear.hidden = !input.value; });
     }
 
+    // `labeled` sits the field's own name above the input, inside a
+    // bordered box, the same "label over value" convention a dropdown
+    // trigger uses (Dropdown's own __label/__value) -- for a search field
+    // that needs to read as a titled field next to one (Add Accessorial/
+    // Service Incentive Plan's Search Table beside its Filter), not the
+    // plain icon-and-placeholder bar this component renders everywhere
+    // else.
+    if (options.labeled) {
+      return el('div', { className: 'search-field search-field--labeled' }, [
+        icon,
+        el('div', { className: 'search-field__text' }, [
+          options.label ? el('label', { className: 'search-field__label', text: options.label, attrs: { for: id } }) : null,
+          input
+        ]),
+        clear
+      ]);
+    }
+
     return el('div', {
       className: 'search-field' + (options.clearable ? ' search-field--clearable' : '')
     }, [

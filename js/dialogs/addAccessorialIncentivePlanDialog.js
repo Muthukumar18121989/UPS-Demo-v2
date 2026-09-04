@@ -75,9 +75,9 @@
           columns: [
             { key: 'select', label: '', width: '48px', render: radioCell },
             { key: 'accessorialType', label: 'Accessorial Type', width: '190px', className: 'is-rowhead' },
-            { key: 'productType', label: 'Type', width: '150px' },
-            { key: 'group', label: 'Group', width: '220px' },
-            { key: 'detail', label: 'Detail', width: '280px' }
+            { key: 'productType', label: 'Type', width: '150px', className: 'is-plain' },
+            { key: 'group', label: 'Group', width: '220px', className: 'is-plain' },
+            { key: 'detail', label: 'Detail', width: '280px', className: 'is-plain' }
           ],
           rows: rows.filter(matches),
           emptyState: el('p', { className: 'table-empty', text: 'No accessorials match your search.' })
@@ -92,21 +92,23 @@
         el('div', { className: 'accessorial-picker__search' }, [
           C.SearchField({
             label: 'Search Table',
-            placeholder: 'Search Table',
+            labeled: true,
             clearable: true,
             onSearch: function (value) { query = value; renderTable(); }
           })
         ]),
-        C.SelectField({
-          label: 'Filter',
-          value: filter,
-          options: [
-            { value: 'All', label: 'All' },
-            { value: 'Product', label: 'Product' },
-            { value: 'Non-Product', label: 'Non-Product' }
-          ],
-          onChange: function (value) { filter = value; renderTable(); }
-        })
+        el('div', { className: 'accessorial-picker__filter' }, [
+          C.SelectField({
+            label: 'Filter',
+            value: filter,
+            options: [
+              { value: 'All', label: 'All' },
+              { value: 'Product', label: 'Product' },
+              { value: 'Non-Product', label: 'Non-Product' }
+            ],
+            onChange: function (value) { filter = value; renderTable(); }
+          })
+        ])
       ]),
       el('p', {
         className: 'accessorial-picker__note',
