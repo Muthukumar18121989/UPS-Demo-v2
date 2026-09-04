@@ -430,22 +430,26 @@
 
     if (defaultLeaf) showPlan(defaultLeaf);
 
-    // A real dialog when the caller wired one up (Accessorials); otherwise
-    // the link just follows its placeholder href, as it always has
-    // (Services has no picker dialog behind it yet).
-    var addLink = el('a', {
-      className: 'link-with-icon',
-      attrs: { href: options.addHref },
-      on: options.onAddClick
-        ? { click: function (event) { event.preventDefault(); options.onAddClick(); } }
-        : {}
-    }, [
-      DA.icons.plusCircle(18),
-      el('span', { text: options.addLabel })
-    ]);
+    // Accessorials wires a real dialog behind its own add link; Services
+    // has no add entry point at all -- omitted rather than left as a
+    // dead link, since planPicker's callers no longer all pass one.
+    var addLink = options.addLabel
+      ? el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+          el('a', {
+            className: 'link-with-icon',
+            attrs: { href: options.addHref },
+            on: options.onAddClick
+              ? { click: function (event) { event.preventDefault(); options.onAddClick(); } }
+              : {}
+          }, [
+            DA.icons.plusCircle(18),
+            el('span', { text: options.addLabel })
+          ])
+        ])
+      : null;
 
     return el('div', {}, [
-      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [addLink]),
+      addLink,
       el('div', { className: 'view-filters' }, [
         el('div', { className: 'view-filters__field' }, [select])
       ]),
@@ -453,20 +457,14 @@
     ]);
   }
 
-  /** Shared by all three Services layouts -- same trigger, same dialog. */
-  function openAddServicePlanDialog() {
-    DA.dialogs.AddServiceIncentivePlanDialog().open();
-  }
-
-  /** Option 2: the searchable single-select tree dropdown, current default. */
+  /** Option 2: the searchable single-select tree dropdown, current default.
+      No "Add Service Incentive Plan" entry point -- Accessorials keeps its
+      own, Services doesn't need one. */
   function servicesView() {
     return planPicker({
       tree: DA.data.pricingServiceTree,
       leafRender: servicePlan,
-      selectLabel: 'Choose Service',
-      addHref: '#add-plan',
-      addLabel: 'Add Service Incentive Plan',
-      onAddClick: openAddServicePlanDialog
+      selectLabel: 'Choose Service'
     });
   }
 
@@ -499,16 +497,6 @@
    */
   function servicesTreeView() {
     return el('div', {}, [
-      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
-        el('a', {
-          className: 'link-with-icon',
-          attrs: { href: '#add-plan' },
-          on: { click: function (event) { event.preventDefault(); openAddServicePlanDialog(); } }
-        }, [
-          DA.icons.plusCircle(18),
-          el('span', { text: 'Add Service Incentive Plan' })
-        ])
-      ]),
       el('div', { className: 'plan-tree' }, DA.data.pricingServiceTree.map(function (region) {
         return planNode({ label: region.label, children: region.children, expanded: true }, servicePlan);
       }))
@@ -663,31 +651,34 @@
       detailMount
     ]);
 
-    var addLink = el('a', {
-      className: 'link-with-icon',
-      attrs: { href: options.addHref },
-      on: options.onAddClick
-        ? { click: function (event) { event.preventDefault(); options.onAddClick(); } }
-        : {}
-    }, [
-      DA.icons.plusCircle(18),
-      el('span', { text: options.addLabel })
-    ]);
+    // Accessorials wires a real dialog behind its own add link; Services
+    // has no add entry point at all -- omitted rather than left as a
+    // dead link, since planSidebar's callers no longer all pass one.
+    var addLink = options.addLabel
+      ? el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [
+          el('a', {
+            className: 'link-with-icon',
+            attrs: { href: options.addHref },
+            on: options.onAddClick
+              ? { click: function (event) { event.preventDefault(); options.onAddClick(); } }
+              : {}
+          }, [
+            DA.icons.plusCircle(18),
+            el('span', { text: options.addLabel })
+          ])
+        ])
+      : null;
 
-    return el('div', {}, [
-      el('div', { style: { padding: 'var(--space-4) var(--space-4) 0' } }, [addLink]),
-      wrap
-    ]);
+    return el('div', {}, [addLink, wrap]);
   }
 
+  /** No "Add Service Incentive Plan" entry point -- Accessorials keeps its
+      own, Services doesn't need one. */
   function servicesSidebarView() {
     return planSidebar({
       tree: DA.data.pricingServiceTree,
       leafRender: servicePlan,
-      selectLabel: 'Choose Service',
-      addHref: '#add-plan',
-      addLabel: 'Add Service Incentive Plan',
-      onAddClick: openAddServicePlanDialog
+      selectLabel: 'Choose Service'
     });
   }
 
