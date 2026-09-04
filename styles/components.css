@@ -980,7 +980,11 @@
 
 .comparison-card {
   padding: var(--space-3) var(--space-4);
-  background-color: var(--color-surface-muted);
+  /* Lighter than the card's original --color-surface-muted (#f0f0f0),
+     per explicit client feedback that the row fill read as dull --
+     --color-surface-sunken (#fafafa) is the next, already-existing
+     step up in the surface scale, not a new color. */
+  background-color: var(--color-surface-sunken);
   border: 1px solid transparent;
   border-radius: var(--radius-container);
 }
@@ -995,7 +999,12 @@
 .comparison-card__field {
   min-width: 0;
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  /* Darker than --color-text-primary (#2b2b2b, already the darkest text
+     token defined) -- no existing token goes further, so this is a
+     scoped literal rather than a new global one, per the same explicit
+     feedback that the row text should read heavier against the
+     (now lighter) row fill above. */
+  color: #1a1a1a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
