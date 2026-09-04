@@ -671,7 +671,13 @@
 
 .col-driver-card__flow {
   display: flex;
-  align-items: center;
+  /* center (the flex default) put the arrow level with the gap between
+     each step's own two lines -- the label row above, the value row
+     below -- since the arrow is one line tall against the step's full
+     two-line height. flex-end lines it up with the step's bottom edge
+     instead, where the value sits, so it reads level with the figures
+     it's pointing between rather than floating above them. */
+  align-items: flex-end;
   gap: var(--space-1);
 }
 
@@ -728,11 +734,6 @@
 }
 
 .col-driver-card__delta--flat {
-  color: var(--color-text-secondary);
-}
-
-.col-driver-card__impact-label {
-  font-size: var(--font-size-3xs);
   color: var(--color-text-secondary);
 }
 

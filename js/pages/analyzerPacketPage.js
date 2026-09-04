@@ -295,12 +295,14 @@
         ]));
         var delta = change[key];
         if (delta != null && delta !== '-') {
+          // No "Scenario impact" caption -- it repeated identically on
+          // all 7 cards, adding nothing the arrow + colored figure
+          // didn't already say on its own.
           card.appendChild(el('div', { className: 'col-driver-card__impact' }, [
             el('span', { className: 'col-driver-card__delta col-driver-card__delta--' + dir }, [
               dir === 'down' ? DA.icons.chevronDown(12) : DA.icons.chevronUp(12),
               el('span', { text: signed(asPointChange(delta)) })
-            ]),
-            el('span', { className: 'col-driver-card__impact-label', text: 'Scenario impact' })
+            ])
           ]));
         }
         return card;
