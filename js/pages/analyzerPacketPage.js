@@ -528,7 +528,7 @@
       var sync = summaryComparisonSync();
 
       var grid = el('div', { className: 'comparison-grid' },
-        scenarios.map(function (scenario) {
+        scenarios.map(function (scenario, index) {
           var rows = trees[scenario.name] || trees.Current;
           var table = C.DataTable({
             caption: scenario.name + ' summary',
@@ -544,15 +544,20 @@
             title: scenario.name,
             expanded: true,
             className: 'accordion--filled',
+            // Lives in the first scenario's own header row, at the right
+            // edge, instead of a standalone row above the whole grid --
+            // one global control, so it only needs to appear once, and
+            // the first accordion's header already has the width to
+            // spare that a row of its own was wasting.
+            headerExtra: index === 0
+              ? el('div', { className: 'comparison-sync-toggle' }, [sync.toggle])
+              : null,
             content: [table]
           });
         })
       );
 
-      return el('div', {}, [
-        el('div', { className: 'comparison-sync-toggle' }, [sync.toggle]),
-        grid
-      ]);
+      return grid;
     }
 
     /* ---- Shipping Profiles tab -------------------------------------------- */

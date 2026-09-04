@@ -1473,6 +1473,23 @@
   color: var(--color-text-link);
 }
 
+/* When a caller supplies headerExtra (a control that has to sit
+   outside the trigger <button> rather than inside it), the trigger no
+   longer owns the header row alone -- it shares it with that extra
+   control, so it drops its own width: 100% and grows to fill
+   whatever the extra control leaves instead. */
+.accordion__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-right: var(--space-4);
+}
+
+.accordion__header .accordion__trigger {
+  width: auto;
+  flex: 1 1 auto;
+}
+
 .accordion__icon {
   color: var(--color-text-secondary);
   transition: transform var(--duration-base) var(--easing-standard);
@@ -3258,6 +3275,15 @@
   padding: var(--space-1) var(--space-5) 0;
 }
 
+/* Now living in the first scenario accordion's own header row
+   (headerExtra) instead of a standalone row above the whole grid --
+   drop the padding/justify meant for that full-width row, since it's
+   a shrink-to-fit flex item there instead. */
+.accordion__header .comparison-sync-toggle {
+  flex: 0 0 auto;
+  padding: 0;
+}
+
 .comparison-sync-toggle .toggle-row {
   gap: var(--space-2);
   font-size: var(--font-size-3xs);
@@ -3286,9 +3312,20 @@
   box-shadow: inset 0 0 0 1px var(--color-info);
 }
 
-.accordion--filled > .accordion__trigger {
+/* The grey fill + rounded top corners belong to the whole header row
+   (direct child of .accordion) -- the trigger alone when there's no
+   headerExtra, .accordion__header when there is one, so a header with
+   a trailing control still reads as one continuous filled bar rather
+   than a grey button beside a plain white control. font-weight
+   targets the trigger specifically either way (a descendant selector,
+   not a direct-child one, since headerExtra nests it a level deeper). */
+.accordion--filled > .accordion__trigger,
+.accordion--filled > .accordion__header {
   background-color: var(--color-surface-muted);
   border-radius: var(--radius-container) var(--radius-container) 0 0;
+}
+
+.accordion--filled .accordion__trigger {
   font-weight: var(--font-weight-medium);
 }
 
