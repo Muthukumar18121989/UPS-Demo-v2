@@ -2328,6 +2328,22 @@
   min-width: 0;
 }
 
+/*
+ * Opt-in (Analyzer > Comparisons/Services/Charges/Accounts/Cost Details/
+ * Zones/Weight & Cube's own tables, via the `scrollable` option) rather
+ * than every embedded table's own default -- caps the viewport's own
+ * height instead of letting it grow to fit every row (a long expandable
+ * tree could otherwise push the whole page well past the fold with no
+ * scrollbar at all). .data-table__viewport's own `overflow: auto` already
+ * handles the rest once height is actually constrained: both the sticky
+ * header row and the frozen row-header column keep working, since neither
+ * cares whether this viewport happens to scroll -- they're sticky against
+ * it either way.
+ */
+.data-table__viewport--scrollable {
+  max-height: 520px;
+}
+
 .data-table--warm thead th {
   background-color: var(--color-surface-inverse-warm);
 }

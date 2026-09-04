@@ -578,6 +578,7 @@
           var table = C.DataTable({
             caption: scenario.name + ' summary',
             embedded: true,
+            scrollable: true,
             headerTone: 'warm',
             expandKey: 'label',
             getChildren: function (row) { return row.children; },
@@ -746,6 +747,7 @@
           C.DataTable({
             caption: options.caption,
             embedded: true,
+            scrollable: true,
             headerTone: 'warm',
             tinted: true,
             expandKey: 'coreService',
@@ -877,6 +879,7 @@
           C.DataTable({
             caption: 'Accessorial charges',
             embedded: true,
+            scrollable: true,
             headerTone: 'warm',
             tinted: true,
             expandKey: 'detail',
@@ -927,6 +930,7 @@
           C.DataTable({
             caption: 'Shipping profile services',
             embedded: true,
+            scrollable: true,
             headerTone: 'warm',
             tinted: true,
             expandKey: 'service',
@@ -971,6 +975,7 @@
           C.DataTable({
             caption: 'Accounts',
             embedded: true,
+            scrollable: true,
             headerTone: 'warm',
             tinted: true,
             expandKey: 'accountNumber',
@@ -1005,6 +1010,7 @@
           C.DataTable({
             caption: 'Weight and cube',
             embedded: true,
+            scrollable: true,
             headerTone: 'warm',
             tinted: true,
             expandKey: 'service',

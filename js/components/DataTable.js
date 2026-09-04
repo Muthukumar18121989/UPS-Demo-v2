@@ -16,6 +16,14 @@
  * row, and the callback fires with `{ column, headerCell }` so the caller can
  * float column-level detail beside it (see the scenario comparison band).
  * `index` and `info` are null once the pointer leaves the table.
+ *
+ * `embedded` sizes the viewport to its own rows (no scroll) by default --
+ * `scrollable` opts a (necessarily also embedded) table back into a capped-
+ * height, actually-scrolling viewport instead, so a long expandable tree
+ * scrolls within its own card rather than growing the whole page. The
+ * header (already unconditionally sticky) and the frozen row-header column
+ * both keep working during that scroll for free -- both already position
+ * sticky against this same viewport regardless of whether it scrolls.
  */
 (function (DA) {
   'use strict';
@@ -253,7 +261,8 @@
       'div',
       {
         className: 'data-table__viewport scroll-area' +
-          (options.embedded ? ' data-table__viewport--auto' : ''),
+          (options.embedded ? ' data-table__viewport--auto' : '') +
+          (options.scrollable ? ' data-table__viewport--scrollable' : ''),
         attrs: {
           tabindex: '0',
           role: 'region',
