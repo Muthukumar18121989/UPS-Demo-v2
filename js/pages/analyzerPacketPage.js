@@ -433,7 +433,10 @@
         {
           key: 'label',
           label: 'Cost Basis: FA',
-          width: '150px',
+          // Widened from 150px so labels like "E-Worldwide Express Midday"
+          // and "I-Standard from Canada" (added when the row hierarchy was
+          // replaced) show in full instead of truncating with an ellipsis.
+          width: '230px',
           className: 'is-rowhead',
           render: function (row) { return withCustomer(row.label); }
         },
