@@ -577,28 +577,37 @@
      * The Filters drawer shared by every Analyzer sub-tab from Services
      * through Weight & Cube (each reaches it through its own
      * profileFilters()/accessorialView()'s Filters button below) -- same
-     * drawer shell Create New Scenario uses. Choose Account, Choose
-     * Service and Choose Container Type are real, multi-select trees per
-     * the client's reference screenshots; Choose Accessorial reuses the
-     * app's own existing accessorial list. Choose Service Feature Code
-     * and Choose Movement Direction Code aren't in any reference
-     * screenshot yet, so each renders with only the field's own default
-     * "All" until the client supplies their real option lists.
+     * drawer shell Create New Scenario uses. All 6 fields are real,
+     * multi-select trees per the client's reference screenshots (Choose
+     * Account and Choose Service alone go a level deeper, into actual
+     * hierarchy rather than a flat list); every one of the 6 gets its own
+     * "Default" badge on the All row, matching every field's own
+     * screenshot. Choose Accessorial, Choose Service Feature Code and
+     * Choose Movement Direction Code each pull from their own flat list
+     * in js/data/analyzerPacket.js.
      */
     function openFiltersDrawer(trigger) {
       var fields = [
         C.TreeCheckboxField({ label: 'Choose Account', tree: DA.data.filterAccountTree, allBadge: 'Default' }),
-        C.TreeCheckboxField({ label: 'Choose Service', tree: DA.data.filterServiceTree }),
+        C.TreeCheckboxField({ label: 'Choose Service', tree: DA.data.filterServiceTree, allBadge: 'Default' }),
         C.TreeCheckboxField({
           label: 'Choose Accessorial',
-          tree: DA.data.filterOptions.accessorial
-            .filter(function (label) { return label !== 'All'; })
-            .map(function (label) { return { label: label }; })
+          allBadge: 'Default',
+          tree: DA.data.filterAccessorialTypes.map(function (label) { return { label: label }; })
         }),
-        C.TreeCheckboxField({ label: 'Choose Service Feature Code', tree: [] }),
-        C.TreeCheckboxField({ label: 'Choose Movement Direction Code', tree: [] }),
+        C.TreeCheckboxField({
+          label: 'Choose Service Feature Code',
+          allBadge: 'Default',
+          tree: DA.data.filterServiceFeatureCodes.map(function (label) { return { label: label }; })
+        }),
+        C.TreeCheckboxField({
+          label: 'Choose Movement Direction Code',
+          allBadge: 'Default',
+          tree: DA.data.filterMovementDirectionCodes.map(function (label) { return { label: label }; })
+        }),
         C.TreeCheckboxField({
           label: 'Choose Container Type',
+          allBadge: 'Default',
           tree: DA.data.filterContainerTypes.map(function (label) { return { label: label }; })
         })
       ];

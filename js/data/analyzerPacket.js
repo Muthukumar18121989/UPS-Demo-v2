@@ -97,6 +97,33 @@
   DA.data.filterContainerTypes = ['Package', 'DOC', 'PAK', 'PAL'];
 
   /**
+   * Choose Accessorial's own list for the Filters drawer -- distinct from
+   * filterOptions.accessorial above (that one feeds the flat Accessorial
+   * select elsewhere and carries a different, shorter set of names); this
+   * is the client's own reference screenshot for this drawer specifically.
+   */
+  DA.data.filterAccessorialTypes = [
+    'Fuel Surcharge',
+    'Transportation Charges',
+    'Pickup and Delivery',
+    'Returns',
+    'Other Charges',
+    'Customs Brokerage'
+  ];
+
+  DA.data.filterServiceFeatureCodes = [
+    'SCR - Single Piece Residential (Non-Blended Rate)',
+    'SPB - Single Piece Business (Commercial)',
+    'STC - Single Piece Residential Third Party (Non-Blended Rate)',
+    'STP - Single Piece Business (Commercial) Third Party',
+    'GFC - World Ease Multi-Piece Freight Collect',
+    'GPB - World Ease Multi-Piece Prepaid',
+    'MPB - Multi-Piece Prepaid'
+  ];
+
+  DA.data.filterMovementDirectionCodes = ['Domestic', 'Export', 'Import'];
+
+  /**
    * Differences between two scenarios, keyed "from|to". These come from the
    * source rather than being recomputed here: the figures above are rounded for
    * display, so subtracting them lands a unit off on Total Disc and Profit.
