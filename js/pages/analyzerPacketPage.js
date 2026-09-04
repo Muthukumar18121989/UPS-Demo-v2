@@ -343,16 +343,35 @@
         ]);
       }
 
+      // One cell list per metric column (Scenario excluded, per explicit
+      // request -- it's the row's own label, not a metric to compare),
+      // filled in as each cell below is built, then wired so hovering any
+      // one of them highlights every cell sharing that column, header
+      // included, instead of the row it sits in.
+      var columnCells = DRIVER_KEYS.map(function () { return []; });
+
       var header = el('div', {
         className: 'comparison-cards__header',
         attrs: { role: 'row' }
       }, [
         headerCell('Scenario', true, null)
-      ].concat(DRIVER_KEYS.map(function (item) {
-        return headerCell(item.label, false, METRIC_ICONS[item.key]);
+      ].concat(DRIVER_KEYS.map(function (item, index) {
+        var cell = headerCell(item.label, false, METRIC_ICONS[item.key]);
+        columnCells[index].push(cell);
+        return cell;
       })));
 
       var cards = rows.map(function (row) {
+        var metricFields = DRIVER_KEYS.map(function (item, index) {
+          var value = row[item.key];
+          var content = row.difference && value != null && value !== '-'
+            ? comparisonDelta(value)
+            : el('span', { text: value == null ? '-' : String(value) });
+          var cell = el('div', { className: 'comparison-card__field comparison-card__field--metric', attrs: { role: 'cell' } }, [content]);
+          columnCells[index].push(cell);
+          return cell;
+        });
+
         return el('div', {
           className: 'comparison-card',
           attrs: { role: 'row' }
@@ -360,13 +379,20 @@
           el('div', { className: 'comparison-card__field comparison-card__field--scenario', attrs: { role: 'cell' } }, [
             el('span', { text: row.scenario })
           ])
-        ].concat(DRIVER_KEYS.map(function (item) {
-          var value = row[item.key];
-          var content = row.difference && value != null && value !== '-'
-            ? comparisonDelta(value)
-            : el('span', { text: value == null ? '-' : String(value) });
-          return el('div', { className: 'comparison-card__field comparison-card__field--metric', attrs: { role: 'cell' } }, [content]);
-        })));
+        ].concat(metricFields));
+      });
+
+      // Every column's own cell list is complete once every row has been
+      // built above, so the hover wiring happens last.
+      columnCells.forEach(function (cells) {
+        cells.forEach(function (cell) {
+          cell.addEventListener('mouseenter', function () {
+            cells.forEach(function (c) { c.classList.add('is-col-highlight'); });
+          });
+          cell.addEventListener('mouseleave', function () {
+            cells.forEach(function (c) { c.classList.remove('is-col-highlight'); });
+          });
+        });
       });
 
       DA.dom.clear(comparisonBand).appendChild(

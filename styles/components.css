@@ -989,11 +989,22 @@
   border-radius: var(--radius-container);
 }
 
-/* A hover state any row can pick up on its own merit, rather than a fixed
-   marker permanently tied to one particular scenario. */
-.comparison-card:hover {
-  border-color: var(--color-brand-gold);
-  box-shadow: 0 0 0 1px var(--color-brand-gold);
+/*
+ * Column, not row, is the axis worth reading here -- comparing one metric
+ * (ADV, RPP, Profit...) across Current/Scenario 1/Change is the whole
+ * point of this table, so hovering any metric cell highlights every cell
+ * in that same column (header included) instead of the row it happens to
+ * sit in. Wired in renderComparisonCards() itself (mouseenter/mouseleave
+ * per cell, since this is a CSS-grid layout of plain <div>s, not a real
+ * <table> DataTable's own onColumnHover could key off). The Scenario
+ * column is excluded -- per explicit request, it isn't a metric to
+ * compare, just the row's own label. Same --color-primary-subtle tint
+ * DataTable's own (currently unused elsewhere) column-highlight rules
+ * use, for a consistent "column highlight" language app-wide.
+ */
+.comparison-card__field.is-col-highlight,
+.comparison-cards__header-cell.is-col-highlight {
+  background-color: var(--color-primary-subtle);
 }
 
 .comparison-card__field {
