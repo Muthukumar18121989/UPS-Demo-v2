@@ -1304,7 +1304,7 @@
       }
       renderGrid();
 
-      return el('div', {}, [
+      return el('div', { className: 'rate-chart-panel' }, [
         rateChartPanelFilters(),
         el('div', { className: 'card' }, [
           el('div', { className: 'card__body' }, [

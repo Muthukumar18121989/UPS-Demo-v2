@@ -3452,6 +3452,19 @@
   padding: var(--space-5) 0;
 }
 
+/* Rate Charts' own per-scenario column -- the filters, the scenario-name
+   card and the rate-grid card were plain siblings with no gap of their
+   own, so their borders sat flush against each other, touching top to
+   bottom (.comparison-grid's own gap above only spaces the two scenario
+   columns apart from each other, not the cards stacked within one).
+   Same var(--space-5) rhythm .comparison-grid and .panel__content both
+   already use for a vertical stack, not a new value. */
+.rate-chart-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
 /*
  * A compact variant of the standard switch, scoped to this one control --
  * the full-size 44x24 switch in its own padded row read as heavier than a
@@ -4269,12 +4282,21 @@
   min-width: 96px;
 }
 
+/*
+ * The divider line itself runs perpendicular to the gradient's own
+ * direction, not along it -- `to top right` (the gradient vector pointing
+ * toward the cell's upper-right corner) is what actually draws a line
+ * from the top-left corner down to the bottom-right one, matching where
+ * "Zones" (top-right) and "Weight" (bottom-left) sit on either side of
+ * it. `to bottom right` (the more intuitive-looking value) draws the
+ * opposite diagonal instead -- confirmed live, not just reasoned about.
+ */
 .matrix__corner {
   position: relative;
   height: 52px;
   padding: 0;
   background-image: linear-gradient(
-    to bottom right,
+    to top right,
     transparent calc(50% - 1px),
     rgba(255, 255, 255, 0.3) calc(50% - 1px),
     rgba(255, 255, 255, 0.3) calc(50% + 1px),
