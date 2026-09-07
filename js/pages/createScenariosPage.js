@@ -79,9 +79,17 @@
           title: 'Packet Information',
           columns: 3,
           fields: [
-            { label: 'Analyzer Packet Description', value: packet.description },
             { label: 'Shipping Profile From', value: packet.from },
-            { label: 'Shipping Profile To', value: packet.to }
+            { label: 'Shipping Profile To', value: packet.to },
+            // Last, and wide -- a description can run onto two or three
+            // lines, which one of three grid columns was too narrow for
+            // (Option 2's own section-grid; Option 3's columns already
+            // stack every field full-width regardless, `wide` is a no-op
+            // there per columnsSummary()'s own comment). `wide` claims the
+            // whole row, and From/To already fill the first row's other
+            // two columns, so it lands on its own row beneath them instead
+            // of squeezed into the row's last column.
+            { label: 'Analyzer Packet Description', value: packet.description, wide: true }
           ]
         },
         {
