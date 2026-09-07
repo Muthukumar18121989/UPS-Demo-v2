@@ -1287,7 +1287,7 @@
       }));
 
       return el('div', { className: 'grid-scroll scroll-area' }, [
-        el('table', { className: 'matrix' }, [
+        el('table', { className: 'matrix matrix--sticky-head' }, [
           el('caption', { className: 'u-visually-hidden', text: scenario.name + ' rate chart' }),
           head,
           body
