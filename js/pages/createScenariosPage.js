@@ -69,13 +69,19 @@
     function summarySections() {
       return [
         {
+          // Packet ID, Customer Name and Reference Number dropped -- all
+          // three already sit in the collapsed headline row above (see
+          // groupedSummary()/columnsSummaryPanel()'s own `headline`), so
+          // repeating them again here in the expanded body was redundant.
+          // Shipping Profile From/To moved in from Customer Information --
+          // the packet's own sourcing window reads as packet-level detail,
+          // not a property of the customer record.
           title: 'Packet Information',
           columns: 3,
           fields: [
-            { label: 'Analyzer Packet ID', value: packet.packetId },
-            { label: 'Customer Name', value: packet.customerName },
-            { label: 'Reference Number', value: packet.referenceNumber },
-            { label: 'Analyzer Packet Description', value: packet.description }
+            { label: 'Analyzer Packet Description', value: packet.description },
+            { label: 'Shipping Profile From', value: packet.from },
+            { label: 'Shipping Profile To', value: packet.to }
           ]
         },
         {
@@ -83,8 +89,6 @@
           columns: 3,
           fields: [
             { label: 'Customer Hierarchy', value: packet.hierarchy },
-            { label: 'Shipping Profile From', value: packet.from },
-            { label: 'Shipping Profile To', value: packet.to },
             { label: 'Industry', value: packet.industry },
             { label: 'PQR', value: packet.pqr },
             { label: 'OPPs', value: packet.opps }
