@@ -833,7 +833,18 @@
       // parent became -- that's the real height to cap nav to.
       var content = detailMount.firstElementChild;
       var h = content ? content.getBoundingClientRect().height : 0;
-      navEl.style.maxHeight = h > 0 ? h + 'px' : '';
+      // An explicit height, not max-height: max-height only ever caps nav
+      // from above, so if the tree's own real content happened to be
+      // *shorter* than detail (a short table, a long tree), stretch was
+      // still free to pad nav out to match detail's height anyway -- the
+      // cap never stopped that, since nav wasn't hitting it. Nav's real
+      // content then stopped short of its own now-taller box, leaving
+      // blank space below it before its own border, which is exactly the
+      // "still doesn't match" case reported. An explicit height overrides
+      // stretch outright, so nav is always exactly this tall -- content
+      // scrolling to fit it (already overflow-y: auto) if there's more
+      // than this, never padded if there's less.
+      navEl.style.height = h > 0 ? h + 'px' : '';
     };
     // Called once right away -- getBoundingClientRect() forces layout to
     // settle first, so this doesn't need to wait for anything -- rather
