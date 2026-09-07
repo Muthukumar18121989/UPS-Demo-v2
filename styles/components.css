@@ -855,9 +855,18 @@
   background-color: var(--color-primary);
 }
 
+/*
+ * center, not flex-start: the title (15px, its own small uppercase type)
+ * and the metric icon (20px, u-tap-target's own floor) don't share a
+ * height, so flex-start only lined up their top edges -- level on that
+ * one edge, but visibly off-center against each other by the ~2.5px
+ * difference, on every card, confirmed live via getBoundingClientRect()
+ * before this fix. center lines up their actual midpoints instead, so
+ * the icon reads as sitting on the same line as the title beside it.
+ */
 .driver-card__head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   margin-bottom: var(--space-3);
