@@ -438,14 +438,24 @@
             });
 
             // The fill above is deliberately per-seam (it only has to cover
-            // a gap, not read as a straight edge) -- the left/right teal
-            // border is different: drawn per-cell, that same header-vs-card
+            // a gap, not read as a straight edge) -- the outline is
+            // different: drawn per-cell, that same header-vs-card
             // sub-pixel gap means each row's own border segment lands a
             // hair left or right of its neighbors', and stacked down a
             // column that reads as a visibly kinked line rather than a
             // straight one. One outline spanning every cell's own
             // top/bottom/left/right union, drawn once, is a single
             // rectangle -- it has no seams to kink at.
+            //
+            // Padded a few px beyond that exact union on the top and
+            // bottom (not left/right -- those already sit flush against
+            // the column's own divider) so the rounded border reads as a
+            // ring around the header/value text with some breathing room,
+            // rather than a box clipped tight against it. The outline
+            // itself has no fill, so this just leaves a thin margin of
+            // plain background between its edge and the text -- nothing
+            // else (the per-cell tint, the connectors) needs to change.
+            var outlinePadY = 6;
             var outlineLeft = Math.min.apply(null, rects.map(function (r) { return r.left; }));
             var outlineRight = Math.max.apply(null, rects.map(function (r) { return r.right; }));
             connectorLayer.appendChild(el('div', {
@@ -453,8 +463,8 @@
               style: {
                 left: (outlineLeft - layerRect.left) + 'px',
                 width: (outlineRight - outlineLeft) + 'px',
-                top: (rects[0].top - layerRect.top) + 'px',
-                height: (rects[rects.length - 1].bottom - rects[0].top) + 'px'
+                top: (rects[0].top - layerRect.top - outlinePadY) + 'px',
+                height: (rects[rects.length - 1].bottom - rects[0].top + outlinePadY * 2) + 'px'
               }
             }));
           });

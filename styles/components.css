@@ -934,19 +934,30 @@
 }
 
 /*
- * The one straight teal edge for a highlighted column -- drawn once, as a
+ * The one straight teal ring for a highlighted column -- drawn once, as a
  * single rectangle spanning every one of that column's cells (header
- * through the last row), instead of each cell drawing its own left/right
- * border. Per-cell borders looked kinked column-to-column: the header and
- * each card are independent grids sharing the same template, but a
- * browser can still round their fractional 1fr tracks a sub-pixel apart,
- * so every row's own border segment could land a hair left or right of
- * its neighbors'. One rectangle has no seams to kink at.
+ * through the last row, padded top/bottom in JS -- see
+ * renderComparisonCards()), instead of each cell drawing its own border.
+ * Per-cell borders looked kinked column-to-column: the header and each
+ * card are independent grids sharing the same template, but a browser can
+ * still round their fractional 1fr tracks a sub-pixel apart, so every
+ * row's own border segment could land a hair left or right of its
+ * neighbors'. One rectangle has no seams to kink at.
+ *
+ * All four sides now (not just left/right) so the rounded corners below
+ * read as an actual ring rather than a box with two open ends. The
+ * border itself is a translucent tint of --color-primary-text (the same
+ * teal every table's own value text already uses) instead of that color
+ * at full strength -- a softer highlight ring reads better against the
+ * tint it's already wrapping than a hard, saturated line does. The
+ * shadow lifts the ring a touch off the surface, same reasoning as any
+ * other floated-above-content overlay in this app.
  */
 .comparison-cards__col-outline {
   position: absolute;
-  border-left: 1px solid var(--color-primary-text);
-  border-right: 1px solid var(--color-primary-text);
+  border: 1px solid rgba(0, 133, 125, 0.4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .comparison-cards__header,
