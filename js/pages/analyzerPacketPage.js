@@ -670,7 +670,7 @@
      * so the toggle mounted into the slot is replaced along with it rather
      * than reused across renders.
      */
-    function summaryView(toggleSlot) {
+    function summaryOption1(toggleSlot) {
       var trees = DA.data.packetSummaryTrees;
       var sync = summaryComparisonSync();
 
@@ -680,7 +680,7 @@
         );
       }
 
-      var grid = el('div', { className: 'comparison-grid' },
+      return el('div', { className: 'comparison-grid' },
         scenarios.map(function (scenario) {
           var rows = trees[scenario.name] || trees.Current;
           var table = C.DataTable({
@@ -702,8 +702,225 @@
           });
         })
       );
+    }
 
-      return grid;
+    /**
+     * Option 2: the same figures as Option 1's per-scenario panels, but as
+     * one table instead of one per scenario -- each metric column (ADV,
+     * Base Frt, ...) splits into one sub-column per scenario (Current,
+     * Scenario 1, ...) under a shared group header, rather than repeating
+     * the whole row-label column and card chrome per panel. Reads better
+     * once there are only 2-3 scenarios open at once; Option 1 still scales
+     * better past that, since Option 2's own column count multiplies by
+     * scenario count.
+     *
+     * Built by hand rather than through DataTable: DataTable's own columns
+     * are flat (one header cell each), with no notion of a header cell
+     * spanning several grouped sub-columns, which this table's whole shape
+     * depends on. The row hierarchy (expand/collapse, indentation, "-"
+     * placeholders) is reimplemented to match DataTable's own behavior
+     * rather than reused, for the same reason.
+     *
+     * Rows come from one reference scenario's tree (the first one open --
+     * "Current" whenever it's included, same as Option 1's own panel
+     * order); every other scenario's figures for that row are looked up by
+     * label against its own tree, the same match-by-label approach
+     * summaryComparisonSync() already relies on for its hover/scroll sync
+     * across Option 1's separate panels. A label missing from a given
+     * scenario's tree (shouldn't happen with this demo's parallel trees,
+     * but not assumed) renders "-" rather than throwing.
+     */
+    function mergedSummaryTable() {
+      var trees = DA.data.packetSummaryTrees;
+      var metricColumns = summaryColumns().slice(1); // drop the row-label column -- built separately below
+      var referenceTree = trees[scenarios[0] && scenarios[0].name] || trees.Current;
+
+      function indexByLabel(tree) {
+        var map = {};
+        (function walk(list) {
+          (list || []).forEach(function (row) {
+            map[row.label] = row;
+            if (row.children) walk(row.children);
+          });
+        })(tree);
+        return map;
+      }
+
+      var scenarioIndexes = scenarios.map(function (scenario) {
+        return { name: scenario.name, index: indexByLabel(trees[scenario.name] || trees.Current) };
+      });
+
+      // Frozen-column styling to match, since this table is hand-built
+      // rather than routed through DataTable's own frozenStyle()/colgroup.
+      var rowheadFrozenStyle = { position: 'sticky', left: '0' };
+
+      var colgroup = el('colgroup', {}, [el('col', { style: { width: '220px' } })].concat(
+        metricColumns.reduce(function (cols, metric) {
+          scenarios.forEach(function () {
+            cols.push(el('col', { style: { width: metric.width || '110px' } }));
+          });
+          return cols;
+        }, [])
+      ));
+
+      var thead = el('thead', {}, [
+        el('tr', {}, [
+          el('th', {
+            className: 'is-rowhead is-frozen-col is-frozen-edge',
+            attrs: { scope: 'col', rowspan: '2' },
+            style: rowheadFrozenStyle,
+            text: 'Cost Basis: FA'
+          })
+        ].concat(metricColumns.map(function (metric) {
+          return el('th', {
+            className: metric.headerClassName || '',
+            attrs: { scope: 'colgroup', colspan: String(scenarios.length) },
+            text: metric.label
+          });
+        }))),
+        el('tr', {}, metricColumns.reduce(function (cells, metric) {
+          return cells.concat(scenarios.map(function (scenario) {
+            return el('th', { className: metric.headerClassName || '', attrs: { scope: 'col' }, text: scenario.name });
+          }));
+        }, []))
+      ]);
+
+      var tbody = el('tbody');
+      var open = [];
+      (function seed(list) {
+        (list || []).forEach(function (row) {
+          if (row.expanded) open.push(row);
+          if (row.children) seed(row.children);
+        });
+      })(referenceTree);
+
+      function childrenOf(row) { return row.children && row.children.length ? row.children : null; }
+
+      function addRow(row, depth) {
+        var expanded = open.indexOf(row) !== -1;
+        var children = childrenOf(row);
+
+        var toggle = children
+          ? el('button', {
+              className: 'row-toggle u-tap-target',
+              attrs: {
+                type: 'button',
+                'aria-expanded': expanded ? 'true' : 'false',
+                'aria-label': (expanded ? 'Collapse ' : 'Expand ') + row.label
+              },
+              on: {
+                click: function () {
+                  var at = open.indexOf(row);
+                  if (at === -1) open.push(row); else open.splice(at, 1);
+                  renderRows();
+                }
+              }
+            }, [expanded ? DA.icons.chevronDown(14) : DA.icons.chevronRight(14, '')])
+          : null;
+
+        var labelCell = el('td', {
+          className: 'is-rowhead is-frozen-col is-frozen-edge has-expander' + (depth ? ' is-child-cell' : ''),
+          style: Object.assign({}, rowheadFrozenStyle, depth ? { 'padding-left': (depth * 20 + 12) + 'px' } : {})
+        }, [
+          el('span', { className: 'expand-cell' }, [toggle, el('span', { text: withCustomer(row.label) })])
+        ]);
+
+        var valueCells = metricColumns.reduce(function (cells, metric) {
+          return cells.concat(scenarioIndexes.map(function (scenario) {
+            var matched = scenario.index[row.label];
+            var value = matched ? matched[metric.key] : null;
+            // Reuses summaryColumns()'s own render (the drill-down link,
+            // same as Option 1's panels), fed a stand-in row carrying only
+            // this one metric's value -- the same shape numeric()'s own
+            // render(row) already expects.
+            var fakeRow = {};
+            fakeRow[metric.key] = value;
+            var content = metric.render ? metric.render(fakeRow) : (value == null ? '-' : value);
+            var isNode = content instanceof Node;
+            return el('td', { className: metric.className, text: isNode ? null : content }, isNode ? [content] : null);
+          }));
+        }, []);
+
+        tbody.appendChild(el('tr', { className: depth ? 'is-child-row' : '' }, [labelCell].concat(valueCells)));
+      }
+
+      // flatten (row, depth) pairs depth-first so a parent's own row renders
+      // immediately before its (currently open) children, same order/shape
+      // DataTable's own flatten() produces.
+      function flatten() {
+        var flat = [];
+        function visit(row, depth) {
+          flat.push({ row: row, depth: depth });
+          if (open.indexOf(row) !== -1) {
+            (childrenOf(row) || []).forEach(function (child) { visit(child, depth + 1); });
+          }
+        }
+        referenceTree.forEach(function (row) { visit(row, 0); });
+        return flat;
+      }
+
+      function renderRows() {
+        DA.dom.clear(tbody);
+        flatten().forEach(function (entry) { addRow(entry.row, entry.depth); });
+      }
+
+      renderRows();
+
+      var table = el('table', {
+        className: 'data-table data-table--auto data-table--warm data-table--frozen'
+      }, [
+        el('caption', { className: 'u-visually-hidden', text: 'Scenario comparison, merged' }),
+        colgroup,
+        thead,
+        tbody
+      ]);
+
+      return el('div', {
+        className: 'data-table__viewport scroll-area data-table__viewport--auto',
+        attrs: { tabindex: '0', role: 'region', 'aria-label': 'Scenario comparison' }
+      }, [table]);
+    }
+
+    /**
+     * Comparisons tab: Option 1 (today's side-by-side per-scenario panels)
+     * or Option 2 (one merged table, each metric split into a sub-column
+     * per scenario), swapped live -- same switcher pattern Pricing Terms'
+     * Services/Accessorials tabs already use for their own Option 1/2/3.
+     */
+    function summaryView(toggleSlot) {
+      var option = 'option1';
+      var mount = el('div', {});
+
+      function render() {
+        if (option === 'option2') {
+          if (toggleSlot) DA.dom.clear(toggleSlot);
+          DA.dom.clear(mount).appendChild(
+            el('div', { className: 'card' }, [mergedSummaryTable()])
+          );
+        } else {
+          DA.dom.clear(mount).appendChild(summaryOption1(toggleSlot));
+        }
+      }
+
+      var switcher = C.SegmentedControl({
+        ariaLabel: 'Comparisons view layout',
+        value: option,
+        items: [
+          { value: 'option1', label: 'Option 1' },
+          { value: 'option2', label: 'Option 2' }
+        ],
+        onChange: function (value) {
+          option = value;
+          render();
+        }
+      });
+
+      render();
+
+      return el('div', {}, [
+        el('div', { className: 'plan-view-option-switch' }, [switcher]),
+        mount
+      ]);
     }
 
     /* ---- Shipping Profiles tab -------------------------------------------- */
