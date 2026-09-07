@@ -451,18 +451,46 @@
             // bottom (not left/right -- those already sit flush against
             // the column's own divider) so the rounded border reads as a
             // ring around the header/value text with some breathing room,
-            // rather than a box clipped tight against it. The outline
-            // itself has no fill, so this just leaves a thin margin of
-            // plain background between its edge and the text -- nothing
-            // else (the per-cell tint, the connectors) needs to change.
+            // rather than a box clipped tight against it.
             var outlinePadY = 6;
             var outlineLeft = Math.min.apply(null, rects.map(function (r) { return r.left; }));
             var outlineRight = Math.max.apply(null, rects.map(function (r) { return r.right; }));
+            var outlineWidthPx = outlineRight - outlineLeft;
+            var outlineLeftPx = outlineLeft - layerRect.left;
+
+            // The outline itself has no fill (just the ring), so the pad
+            // above left those top/bottom margins plain background instead
+            // of tinted -- reuse the same fill strips the seam connectors
+            // above use, sized to exactly that padding, so the tint runs
+            // the ring's full height instead of stopping at the header/
+            // last row's own edges. --cap-top/--cap-bottom round the two
+            // outer corners of each strip to match the ring's own radius --
+            // plain square corners here would poke past the ring's curve,
+            // since the pad is no taller than the radius itself.
+            connectorLayer.appendChild(el('div', {
+              className: 'comparison-cards__connector comparison-cards__connector--cap-top',
+              style: {
+                left: outlineLeftPx + 'px',
+                width: outlineWidthPx + 'px',
+                top: (rects[0].top - layerRect.top - outlinePadY) + 'px',
+                height: outlinePadY + 'px'
+              }
+            }));
+            connectorLayer.appendChild(el('div', {
+              className: 'comparison-cards__connector comparison-cards__connector--cap-bottom',
+              style: {
+                left: outlineLeftPx + 'px',
+                width: outlineWidthPx + 'px',
+                top: (rects[rects.length - 1].bottom - layerRect.top) + 'px',
+                height: outlinePadY + 'px'
+              }
+            }));
+
             connectorLayer.appendChild(el('div', {
               className: 'comparison-cards__col-outline',
               style: {
-                left: (outlineLeft - layerRect.left) + 'px',
-                width: (outlineRight - outlineLeft) + 'px',
+                left: outlineLeftPx + 'px',
+                width: outlineWidthPx + 'px',
                 top: (rects[0].top - layerRect.top - outlinePadY) + 'px',
                 height: (rects[rects.length - 1].bottom - rects[0].top + outlinePadY * 2) + 'px'
               }

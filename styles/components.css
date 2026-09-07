@@ -933,6 +933,19 @@
   background-color: var(--color-primary-subtle);
 }
 
+/* The two connector fills that cap the ring's own top/bottom padding
+   (renderComparisonCards()) round their outer corners to match
+   .comparison-cards__col-outline's own radius -- otherwise their plain
+   square corners poke past the ring's curve there, since the padding
+   strip is no taller than the radius itself. */
+.comparison-cards__connector--cap-top {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.comparison-cards__connector--cap-bottom {
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
 /*
  * The one straight teal ring for a highlighted column -- drawn once, as a
  * single rectangle spanning every one of that column's cells (header
