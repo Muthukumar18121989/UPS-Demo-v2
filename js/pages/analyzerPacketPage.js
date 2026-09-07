@@ -586,7 +586,12 @@
           if (!enabled || suppressScroll) return;
           suppressScroll = true;
           panels.forEach(function (p) {
-            if (p !== entry) p.viewport.scrollLeft = viewport.scrollLeft;
+            if (p === entry) return;
+            p.viewport.scrollLeft = viewport.scrollLeft;
+            // Vertical too -- each panel's own DataTable viewport now
+            // scrolls both ways (the `scrollable` option), and the toggle
+            // reads as "sync scroll", not "sync horizontal scroll".
+            p.viewport.scrollTop = viewport.scrollTop;
           });
           suppressScroll = false;
         });

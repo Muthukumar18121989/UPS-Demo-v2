@@ -3592,6 +3592,21 @@
 }
 
 /*
+ * The resting tint above (a class + element selector on every cell) beats
+ * the base `tr:hover td` rule's own specificity, so without this, hovering
+ * a child row visibly darkened only its row-header cell -- the value
+ * columns stayed frozen at their resting sunken shade, and the row never
+ * read as hovered the way a top-level row does. Same --color-surface-hover
+ * every other row's hover already uses, just re-stated with enough
+ * specificity (the extra .is-child-row class) to win over the resting rule
+ * above it.
+ */
+.data-table tbody tr.is-child-row:hover td:not(.is-rowhead),
+.data-table tbody tr.is-child-row:focus-within td:not(.is-rowhead) {
+  background-color: var(--color-surface-hover);
+}
+
+/*
  * Every table value reads in the app's brand teal, not just the ones
  * already rendered as links -- a plain figure with no drill-down (Disc,
  * a Tier Incentives % cell) gets the same color as one that does, so a
