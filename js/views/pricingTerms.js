@@ -808,66 +808,23 @@
 
     DA.dom.append(wrap, [navEl, expandButton, detailMount]);
 
-    // The nav column and the detail pane sit side by side with
-    // align-items: stretch, which -- when the tree has more rows than the
-    // selected leaf's own plan needs -- stretches the *shorter* side
-    // (detail) down to match the *taller* one (nav) instead of the other
-    // way around: nav's own bordered box ends up genuinely as tall as the
-    // row gets, while detail's real content stops well short of its own
-    // (borderless, so invisible) box of the same height. Nav then reads as
-    // taller than the table beside it, even though the two boxes are
-    // technically equal. Capping nav's own max-height to detail's real
-    // (content) height -- not the stretched box's -- and letting the tree
-    // scroll internally past that (already overflow-y: auto, from the
-    // shared .dropdown__tree rule) makes nav match what's actually visible
-    // on the right instead of an invisible stretched box. Re-measured on
-    // every resize/content change (a new leaf's table is usually a
-    // different height), not just once at mount.
-    var syncNavHeight = function () {
-      // detailMount itself is the flex item align-items: stretch already
-      // inflates to match nav -- measuring it directly here would just
-      // feed that inflated height straight back into nav's own cap,
-      // accomplishing nothing. Its child (.plan-detail-panel, replaced
-      // wholesale on every select()) is a plain block box one level in,
-      // sized by its own content regardless of how tall its stretched
-      // parent became -- that's the real height to cap nav to.
-      var content = detailMount.firstElementChild;
-      var h = content ? content.getBoundingClientRect().height : 0;
-      // An explicit height, not max-height: max-height only ever caps nav
-      // from above, so if the tree's own real content happened to be
-      // *shorter* than detail (a short table, a long tree), stretch was
-      // still free to pad nav out to match detail's height anyway -- the
-      // cap never stopped that, since nav wasn't hitting it. Nav's real
-      // content then stopped short of its own now-taller box, leaving
-      // blank space below it before its own border, which is exactly the
-      // "still doesn't match" case reported. An explicit height overrides
-      // stretch outright, so nav is always exactly this tall -- content
-      // scrolling to fit it (already overflow-y: auto) if there's more
-      // than this, never padded if there's less.
-      navEl.style.height = h > 0 ? h + 'px' : '';
-    };
-    // Called once right away -- getBoundingClientRect() forces layout to
-    // settle first, so this doesn't need to wait for anything -- rather
-    // than depending solely on ResizeObserver's own first callback (also
-    // wired below, for every later leaf switch) to reach the browser
-    // before anything gets painted at the old, unsynced size.
-    syncNavHeight();
-    if (typeof ResizeObserver !== 'undefined') {
-      new ResizeObserver(syncNavHeight).observe(detailMount);
-    }
-    // Purely a window-resize reflow (e.g. opening DevTools, or just
-    // narrowing the browser) doesn't reliably retrigger the observer
-    // above: detailMount is the *stretched* flex item, so its own
-    // rendered box only ever grows to match nav's current (already-set)
-    // height -- when nav is still holding an old, narrower-viewport
-    // value, detailMount never visibly changes size even though its
-    // child's true content did, and the observer stays silent. A plain
-    // resize listener re-measures from the actual content (via the same
-    // syncNavHeight) regardless of what detailMount's stretched box
-    // currently reports, so a DevTools-narrowed table (columns wrapping,
-    // a horizontal scrollbar appearing) doesn't leave nav stuck taller
-    // than the table actually needs once the viewport settles.
-    window.addEventListener('resize', syncNavHeight);
+    // Nav and detail matching heights is handled entirely by .plan-sidebar's
+    // own `align-items: stretch` (components.css) -- the row's height is
+    // set by whichever side's own content is naturally taller, and the
+    // other side's *outer box* (border included) stretches to match it,
+    // natively, on every reflow (resize, a new leaf's table, DevTools
+    // opening), with no JS and no stale measurement to go wrong. This used
+    // to be re-derived here in JS (measuring detailMount's child and
+    // setting an explicit navEl.style.height) -- an inline height always
+    // wins over stretch, so a measurement taken at the wrong moment (mid
+    // layout, or missing a later resize the observer didn't catch) left
+    // nav pinned to a stale, too-short height with nothing to self-correct
+    // it. Removed rather than patched again: confirmed live that clearing
+    // the inline height and letting stretch alone decide reproduces the
+    // exact same correct result at every width already tested, including
+    // the narrow-viewport case (a DevTools-narrowed table needing a
+    // horizontal scrollbar) that the JS version's own resize listener
+    // still didn't reliably catch.
 
     // Accessorials wires a real dialog behind its own add link; Services
     // has no add entry point at all -- omitted rather than left as a
