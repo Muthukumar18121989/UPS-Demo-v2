@@ -2354,6 +2354,25 @@
   padding: var(--space-5);
 }
 
+/*
+ * .panel__content's own gap, without its padding -- for a filters card
+ * immediately followed by a table card (profileFilters()/pricingFilters()/
+ * scenarioBidFilters(), each its own plain-sibling `el('div', {}, [...])`
+ * one level in from panel__content, so its own gap doesn't reach them).
+ * Plain siblings with no gap of their own sat flush border-to-border,
+ * reported against Analyzer > Services specifically but present wherever
+ * this same filters-then-table shape repeats -- every Analyzer sub-tab
+ * from Services through Weight & Cube, Adjustments, Other Terms > Dim
+ * Divisor, and every Pricing Terms sub-tab. Same var(--space-5) rhythm
+ * .comparison-grid/.rate-chart-panel/.panel__content all already use for
+ * a vertical stack, not a new value.
+ */
+.view-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
 /* Actions under a full-width panel rather than the narrow form card. */
 .page-actions--wide {
   max-width: none;

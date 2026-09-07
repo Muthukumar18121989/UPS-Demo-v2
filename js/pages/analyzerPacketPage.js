@@ -849,7 +849,7 @@
     }
 
     function profileTable(options) {
-      return el('div', {}, [
+      return el('div', { className: 'view-stack' }, [
         profileFilters(),
         el('div', { className: 'card' }, [
           C.DataTable({
@@ -981,7 +981,7 @@
         };
       }
 
-      return el('div', {}, [
+      return el('div', { className: 'view-stack' }, [
         profileFilters(),
         el('div', { className: 'card' }, [
           C.DataTable({
@@ -1032,7 +1032,7 @@
     }
 
     function serviceView() {
-      return el('div', {}, [
+      return el('div', { className: 'view-stack' }, [
         profileFilters(),
         el('div', { className: 'card' }, [
           C.DataTable({
@@ -1077,7 +1077,7 @@
         };
       }
 
-      return el('div', {}, [
+      return el('div', { className: 'view-stack' }, [
         profileFilters(),
         el('div', { className: 'card' }, [
           C.DataTable({
@@ -1112,7 +1112,7 @@
     }
 
     function weightCubeView() {
-      return el('div', {}, [
+      return el('div', { className: 'view-stack' }, [
         profileFilters(),
         el('div', { className: 'card' }, [
           C.DataTable({
@@ -1343,27 +1343,33 @@
      * editable figure.
      */
     function adjustmentsView() {
+      // Only the filters+table pair goes in view-stack -- updatePacketCta()
+      // stays outside it, as a plain sibling: .page-actions already carries
+      // its own margin-top for the gap above it, and stacking that on top
+      // of view-stack's own gap would double it up.
       return el('div', {}, [
-        scenarioBidFilters(),
-        el('div', { className: 'card' }, [
-          C.DataTable({
-            caption: 'Adjustments',
-            embedded: true,
-            headerTone: 'warm',
-            columns: [
-              {
-                key: 'amount',
-                label: 'Dollar Amount',
-                width: '330px',
-                render: function (row) { return editableCell(row.amount); }
-              }
-            ],
-            rows: [{ amount: '$0' }]
-          }),
-          el('div', { className: 'grid-footer' }, [
-            el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
-              DA.icons.save(15),
-              el('span', { text: 'Save Changes' })
+        el('div', { className: 'view-stack' }, [
+          scenarioBidFilters(),
+          el('div', { className: 'card' }, [
+            C.DataTable({
+              caption: 'Adjustments',
+              embedded: true,
+              headerTone: 'warm',
+              columns: [
+                {
+                  key: 'amount',
+                  label: 'Dollar Amount',
+                  width: '330px',
+                  render: function (row) { return editableCell(row.amount); }
+                }
+              ],
+              rows: [{ amount: '$0' }]
+            }),
+            el('div', { className: 'grid-footer' }, [
+              el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [
+                DA.icons.save(15),
+                el('span', { text: 'Save Changes' })
+              ])
             ])
           ])
         ]),
@@ -1373,75 +1379,82 @@
 
     /** Other Terms > Dim Divisor: the DIM weight divisor set per service. */
     function dimDivisorView() {
+      // Only the filters+table pair goes in view-stack -- updatePacketCta()
+      // stays outside it, as a plain sibling: .page-actions already carries
+      // its own margin-top for the gap above it, and stacking that on top
+      // of view-stack's own gap would double it up.
       return el('div', {}, [
-        scenarioBidFilters(),
-        el('div', { className: 'card' }, [
-          el('div', { style: { padding: 'var(--space-4)' } }, [
-            C.Button({ label: 'Add Service', variant: 'secondary', icon: DA.icons.plusCircle(16) })
-          ]),
-          C.DataTable({
-            caption: 'Dim divisor',
-            embedded: true,
-            headerTone: 'warm',
-            tinted: true,
-            // Single Core Service column now, so nothing left to freeze as
-            // a group.
-            freezeColumns: 1,
-            columns: [
-              {
-                // `coreServiceLabel`, when a row carries one, renders as
-                // plain text (packetDimDivisor's own real service names);
-                // otherwise falls back to Movement/Mode/Service Group
-                // joined into one label, the same "Core Service" pattern
-                // Analyzer's Cost Details/Zones tables use
-                // (profileKeyColumns()).
-                key: 'coreService',
-                label: 'Core Service',
-                width: '280px',
-                className: 'is-rowhead',
-                render: function (row) {
-                  if (row.coreServiceLabel) return row.coreServiceLabel;
-                  return [row.movement, row.mode, row.serviceGroup].join('-');
-                }
-              },
-              // is-plain -- "DIM Divisor" is a fixed label, not a value to
-              // edit or a link, so it shouldn't pick up the app-wide teal
-              // treatment every other (non-rowhead, non-plain) cell gets by
-              // default; dark text like the rest of the row instead.
-              { key: 'incentiveType', label: 'Incentive Type', width: '150px', className: 'is-plain' },
-              {
-                key: 'incentiveAmount',
-                label: 'Incentive Amount',
-                width: '160px',
-                // The threshold bands behind the divisor code live in the
-                // Details dialog, not as a flat figure on this row.
-                render: function (row) {
-                  return el('a', {
-                    className: 'link-with-icon',
-                    attrs: { href: '#structure-details-' + row.serviceGroup },
-                    on: {
-                      click: function (event) {
-                        event.preventDefault();
-                        DA.dialogs.DimDivisorDetailsDialog(row).open();
+        el('div', { className: 'view-stack' }, [
+          scenarioBidFilters(),
+          el('div', { className: 'card' }, [
+            el('div', { style: { padding: 'var(--space-4)' } }, [
+              C.Button({ label: 'Add Service', variant: 'secondary', icon: DA.icons.plusCircle(16) })
+            ]),
+            C.DataTable({
+              caption: 'Dim divisor',
+              embedded: true,
+              headerTone: 'warm',
+              tinted: true,
+              // Single Core Service column now, so nothing left to freeze
+              // as a group.
+              freezeColumns: 1,
+              columns: [
+                {
+                  // `coreServiceLabel`, when a row carries one, renders as
+                  // plain text (packetDimDivisor's own real service names);
+                  // otherwise falls back to Movement/Mode/Service Group
+                  // joined into one label, the same "Core Service" pattern
+                  // Analyzer's Cost Details/Zones tables use
+                  // (profileKeyColumns()).
+                  key: 'coreService',
+                  label: 'Core Service',
+                  width: '280px',
+                  className: 'is-rowhead',
+                  render: function (row) {
+                    if (row.coreServiceLabel) return row.coreServiceLabel;
+                    return [row.movement, row.mode, row.serviceGroup].join('-');
+                  }
+                },
+                // is-plain -- "DIM Divisor" is a fixed label, not a value
+                // to edit or a link, so it shouldn't pick up the app-wide
+                // teal treatment every other (non-rowhead, non-plain) cell
+                // gets by default; dark text like the rest of the row
+                // instead.
+                { key: 'incentiveType', label: 'Incentive Type', width: '150px', className: 'is-plain' },
+                {
+                  key: 'incentiveAmount',
+                  label: 'Incentive Amount',
+                  width: '160px',
+                  // The threshold bands behind the divisor code live in
+                  // the Details dialog, not as a flat figure on this row.
+                  render: function (row) {
+                    return el('a', {
+                      className: 'link-with-icon',
+                      attrs: { href: '#structure-details-' + row.serviceGroup },
+                      on: {
+                        click: function (event) {
+                          event.preventDefault();
+                          DA.dialogs.DimDivisorDetailsDialog(row).open();
+                        }
                       }
-                    }
-                  }, [el('span', { text: 'Structure Details' }), DA.icons.chevronRight(14, '')]);
+                    }, [el('span', { text: 'Structure Details' }), DA.icons.chevronRight(14, '')]);
+                  }
+                },
+                {
+                  key: 'remove',
+                  label: '',
+                  width: '56px',
+                  render: function () {
+                    return el('button', {
+                      className: 'icon-action icon-action--danger u-tap-target',
+                      attrs: { type: 'button', 'aria-label': 'Remove service' }
+                    }, [DA.icons.trash(14)]);
+                  }
                 }
-              },
-              {
-                key: 'remove',
-                label: '',
-                width: '56px',
-                render: function () {
-                  return el('button', {
-                    className: 'icon-action icon-action--danger u-tap-target',
-                    attrs: { type: 'button', 'aria-label': 'Remove service' }
-                  }, [DA.icons.trash(14)]);
-                }
-              }
-            ],
-            rows: DA.data.packetDimDivisor
-          })
+              ],
+              rows: DA.data.packetDimDivisor
+            })
+          ])
         ]),
         updatePacketCta()
       ]);

@@ -1078,17 +1078,34 @@
         ariaLabel: 'Pricing term views',
         value: 'tier-incentives',
         items: [
+          // Only the filters+content pair goes in view-stack --
+          // updatePacketCta() stays outside it, as a plain sibling:
+          // .page-actions already carries its own margin-top for the gap
+          // above it, and stacking that on top of view-stack's own gap
+          // would double it up.
           { id: 'tier-incentives', label: 'Tier Incentives', render: function () {
-            return el('div', {}, [context.filters(), tierIncentivesView(), updatePacketCta()]);
+            return el('div', {}, [
+              el('div', { className: 'view-stack' }, [context.filters(), tierIncentivesView()]),
+              updatePacketCta()
+            ]);
           } },
           { id: 'services', label: 'Services', render: function () {
-            return el('div', {}, [context.filters(), servicesViewSwitchable(), updatePacketCta()]);
+            return el('div', {}, [
+              el('div', { className: 'view-stack' }, [context.filters(), servicesViewSwitchable()]),
+              updatePacketCta()
+            ]);
           } },
           { id: 'accessorials', label: 'Accessorials', render: function () {
-            return el('div', {}, [context.filters(), accessorialsViewSwitchable(), updatePacketCta()]);
+            return el('div', {}, [
+              el('div', { className: 'view-stack' }, [context.filters(), accessorialsViewSwitchable()]),
+              updatePacketCta()
+            ]);
           } },
           { id: 'modifiers', label: 'Modifiers', render: function () {
-            return el('div', {}, [context.filters(), context.emptyView('Modifier')(), updatePacketCta()]);
+            return el('div', {}, [
+              el('div', { className: 'view-stack' }, [context.filters(), context.emptyView('Modifier')()]),
+              updatePacketCta()
+            ]);
           } }
         ]
       })
