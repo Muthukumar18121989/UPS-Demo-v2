@@ -628,6 +628,23 @@
   }
 
   /**
+   * A mode -- one level down from a top-level category -- gets its own
+   * icon too (Domestic's own Air/Ground), sized and colored a visible
+   * step down from categoryIcon()'s own: smaller (13px vs. 16px) and the
+   * app's standard muted text color instead of the default (near-black)
+   * icon color, via the same `dropdown__tree-subicon` class both share --
+   * so the hierarchy (which icon is a main category vs. a mode under one)
+   * still reads correctly even at a glance, not just from indentation.
+   * Anything not Air/Ground (Export/Import have no modes of their own
+   * yet) renders nothing, same as before this level had icons at all.
+   */
+  function subCategoryIcon(label) {
+    if (label === 'Air') return DA.icons.plane(13, 'dropdown__tree-subicon');
+    if (label === 'Ground') return DA.icons.truck(13, 'dropdown__tree-subicon');
+    return null;
+  }
+
+  /**
    * Option 3: the same hierarchy Option 1 shows, but as a persistent
    * left-hand pane instead of a stack of accordions -- built on the exact
    * .dropdown__tree/.dropdown__option markup Option 2's popover tree
@@ -709,10 +726,12 @@
         // expandable group" at a glance, collapsed or not, rather than
         // relying on the chevron alone -- and, now that there's more than
         // one top-level category, so each one reads as what it actually is
-        // rather than three identical packages (see icons.js). Nested
-        // levels (Air, Ground - Package) skip it -- the icon marks the main
-        // header, not every level down.
-        depth === 0 ? categoryIcon(node.label) : null,
+        // rather than three identical packages (see icons.js). One level
+        // down (Air, Ground) gets its own icon too, smaller and lighter
+        // (subCategoryIcon()) so the two levels stay visually distinct;
+        // deeper still (Ground - Package) has neither -- a mode is as
+        // granular as this hierarchy's icons go.
+        depth === 0 ? categoryIcon(node.label) : depth === 1 ? subCategoryIcon(node.label) : null,
         el('span', { className: 'dropdown__tree-label', text: node.label })
       ]);
 
@@ -742,16 +761,29 @@
       attrs: { type: 'button', 'aria-label': 'Collapse hierarchy panel', 'aria-expanded': 'true' }
     }, [DA.icons.chevronLeft(14)]);
 
+    // Every top-level category this particular tree actually has, in
+    // order -- Services' own tree gets Domestic/Export/Import,
+    // Accessorials' own gets whatever its own top-level groups are
+    // (categoryIcon()'s box fallback for anything not Domestic/Export/
+    // Import). Built from `tree` itself rather than hardcoded, so the
+    // collapsed strip stays correct for either caller instead of only
+    // ever describing Services'.
+    var collapsedCategoryIcons = tree
+      .filter(function (node) { return node.children; })
+      .map(function (node) { return categoryIcon(node.label); });
+
     var expandButton = el('button', {
       className: 'plan-sidebar__expand',
       attrs: { type: 'button', 'aria-label': 'Expand hierarchy panel' }
     }, [
       DA.icons.chevronRight(14, 'plan-sidebar__expand-chevron'),
-      // The whole hierarchy panel, collapsed -- not any one category (there
-      // are three different category icons now, see categoryIcon()), so
-      // this stays the plain, now Domestic-free `box` rather than echoing
-      // whichever one happens to be selected.
-      DA.icons.box(16)
+      // The real category icons, stacked -- not one generic placeholder --
+      // so the hierarchy this panel holds still reads (which categories,
+      // and how many) even collapsed down to a bare strip, instead of
+      // only once it's reopened. Modes (Air/Ground) are left out here:
+      // they're one level further in, already collapsed inside their own
+      // category, and wouldn't fit legibly at this width regardless.
+      el('div', { className: 'plan-sidebar__expand-icons' }, collapsedCategoryIcons)
     ]);
 
     var wrap = el('div', { className: 'plan-sidebar' });
@@ -764,17 +796,46 @@
     collapseButton.addEventListener('click', function () { setCollapsed(true); });
     expandButton.addEventListener('click', function () { setCollapsed(false); });
 
-    DA.dom.append(wrap, [
-      el('nav', { className: 'plan-sidebar__nav', attrs: { 'aria-label': options.selectLabel } }, [
-        el('div', { className: 'plan-sidebar__nav-head' }, [
-          el('span', { className: 'plan-sidebar__nav-title', text: options.selectLabel }),
-          collapseButton
-        ]),
-        el('div', { className: 'plan-sidebar__nav-body' }, [treeList])
+    var navEl = el('nav', { className: 'plan-sidebar__nav', attrs: { 'aria-label': options.selectLabel } }, [
+      el('div', { className: 'plan-sidebar__nav-head' }, [
+        el('span', { className: 'plan-sidebar__nav-title', text: options.selectLabel }),
+        collapseButton
       ]),
-      expandButton,
-      detailMount
+      el('div', { className: 'plan-sidebar__nav-body' }, [treeList])
     ]);
+
+    DA.dom.append(wrap, [navEl, expandButton, detailMount]);
+
+    // The nav column and the detail pane sit side by side with
+    // align-items: stretch, which -- when the tree has more rows than the
+    // selected leaf's own plan needs -- stretches the *shorter* side
+    // (detail) down to match the *taller* one (nav) instead of the other
+    // way around: nav's own bordered box ends up genuinely as tall as the
+    // row gets, while detail's real content stops well short of its own
+    // (borderless, so invisible) box of the same height. Nav then reads as
+    // taller than the table beside it, even though the two boxes are
+    // technically equal. Capping nav's own max-height to detail's real
+    // (content) height -- not the stretched box's -- and letting the tree
+    // scroll internally past that (already overflow-y: auto, from the
+    // shared .dropdown__tree rule) makes nav match what's actually visible
+    // on the right instead of an invisible stretched box. Re-measured on
+    // every resize/content change (a new leaf's table is usually a
+    // different height), not just once at mount.
+    if (typeof ResizeObserver !== 'undefined') {
+      var syncNavHeight = function () {
+        // detailMount itself is the flex item align-items: stretch already
+        // inflates to match nav -- measuring it directly here would just
+        // feed that inflated height straight back into nav's own cap,
+        // accomplishing nothing. Its child (.plan-detail-panel, replaced
+        // wholesale on every select()) is a plain block box one level in,
+        // sized by its own content regardless of how tall its stretched
+        // parent became -- that's the real height to cap nav to.
+        var content = detailMount.firstElementChild;
+        var h = content ? content.getBoundingClientRect().height : 0;
+        navEl.style.maxHeight = h > 0 ? h + 'px' : '';
+      };
+      new ResizeObserver(syncNavHeight).observe(detailMount);
+    }
 
     // Accessorials wires a real dialog behind its own add link; Services
     // has no add entry point at all -- omitted rather than left as a

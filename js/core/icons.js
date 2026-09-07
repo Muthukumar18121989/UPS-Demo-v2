@@ -182,6 +182,32 @@
     );
   }
 
+  /*
+   * Choose Service tree's own mode icons (Domestic > Air / Ground) -- a
+   * level below the category icons above, so they're sized and colored
+   * smaller/lighter by the caller (categoryIcon()/subCategoryIcon() in
+   * pricingTerms.js pass a smaller `size` and a class carrying a muted
+   * `color`, which these inherit via currentColor same as every other
+   * icon here) rather than being drawn as their own scaled-down variant.
+   */
+  function plane(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M22 2 11 13"/>' +
+      '<path ' + STROKE + ' d="M22 2 15 22l-4-9-9-4Z"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
+  function truck(size, className) {
+    return svg(
+      '<path ' + STROKE + ' d="M2 6h13v10H2Z"/>' +
+      '<path ' + STROKE + ' d="M15 10h4l3 3v3h-7"/>' +
+      '<circle ' + STROKE + ' cx="7" cy="18" r="1.8"/>' +
+      '<circle ' + STROKE + ' cx="17" cy="18" r="1.8"/>',
+      { size: size || 18, className: className || '' }
+    );
+  }
+
   function pencil(size) {
     return svg(
       '<path ' + STROKE + ' d="M4.5 19.5h3.2l9-9a2.26 2.26 0 0 0-3.2-3.2l-9 9Z"/>' +
@@ -397,6 +423,8 @@
     home: home,
     exportArrow: exportArrow,
     importArrow: importArrow,
+    plane: plane,
+    truck: truck,
     settings: settings,
     plusCircle: plusCircle,
     file: file,
