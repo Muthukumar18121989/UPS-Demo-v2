@@ -153,31 +153,31 @@
   }
 
   /*
-   * A plain corner-to-corner diagonal arrow, same drawing technique as
-   * `trendingUp` above (a line plus an open-corner chevron at the tip, no
-   * arrowhead fill needed) -- reads as "outbound" without reusing
-   * `upload`'s tray-and-vertical-arrow shape, which servicePlan() already
-   * shows right next to this same tree for a completely different action
-   * ("Upload Net Rate Values"). Deliberately no circle/globe around it --
-   * a circle plus a single diagonal arrow through it is the ♂ (Mars/male)
-   * symbol, confirmed by rendering an earlier draft large and comparing.
+   * A shipping crate with an arrow leaving/entering it -- a literal
+   * logistics object (a box, same register as Domestic's home and Air/
+   * Ground's own plane/truck below) rather than a bare diagonal arrow, per
+   * explicit request. Deliberately not `upload`'s tray-and-vertical-arrow
+   * shape, which servicePlan() already shows right next to this same tree
+   * for a completely different action ("Upload Net Rate Values") -- a
+   * rectangular crate below the arrow, not a curved tray, reads as its
+   * own distinct glyph even at a glance.
    */
-  function exportArrow(size, className) {
+  function exportBox(size, className) {
     return svg(
-      '<path ' + STROKE + ' d="M6 18 18 6"/>' +
-      '<path ' + STROKE + ' d="M18 6v6M18 6h-6"/>',
+      '<rect ' + STROKE + ' x="4" y="11" width="16" height="9" rx="1.2"/>' +
+      '<path ' + STROKE + ' d="M12 9V3"/>' +
+      '<path ' + STROKE + ' d="M8.5 6 12 3 15.5 6"/>',
       { size: size || 26, className: className || '' }
     );
   }
 
-  /* exportArrow's mirror -- the same diagonal, open-corner chevron at the
-     near tip instead of the far one, so the arrow reads as arriving rather
-     than leaving (the same "which end has the corner" logic `trendingUp`'s
-     own chevron placement already relies on). */
-  function importArrow(size, className) {
+  /* exportBox's mirror -- the same crate, with the arrow pointing down
+     into it (chevron at the near/bottom tip) instead of up out of it. */
+  function importBox(size, className) {
     return svg(
-      '<path ' + STROKE + ' d="M18 6 6 18"/>' +
-      '<path ' + STROKE + ' d="M6 18v-6M6 18h6"/>',
+      '<rect ' + STROKE + ' x="4" y="11" width="16" height="9" rx="1.2"/>' +
+      '<path ' + STROKE + ' d="M12 3V9"/>' +
+      '<path ' + STROKE + ' d="M8.5 6 12 9 15.5 6"/>',
       { size: size || 26, className: className || '' }
     );
   }
@@ -421,8 +421,8 @@
     box: box,
     boxOff: boxOff,
     home: home,
-    exportArrow: exportArrow,
-    importArrow: importArrow,
+    exportBox: exportBox,
+    importBox: importBox,
     plane: plane,
     truck: truck,
     settings: settings,

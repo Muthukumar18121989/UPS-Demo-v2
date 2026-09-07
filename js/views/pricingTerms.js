@@ -614,16 +614,18 @@
 
   /**
    * A top-level Choose Service category's own icon -- Domestic stays within
-   * one country (home); Export and Import both cross one, so they share the
-   * same diagonal-arrow pair, mirrored to show which direction. Anything
-   * not one of these three (a future category, or Option 1/2's own
-   * unrelated top-level groups like "Transportation Charges") falls back to
-   * the plain `box` every category used to share.
+   * one country (home); Export and Import both cross one, so they share a
+   * shipping-crate pair (exportBox/importBox, a literal logistics object --
+   * per explicit request, replacing an earlier plain-arrow pair), mirrored
+   * to show which direction the crate's own arrow points. Anything not one
+   * of these three (a future category, or Option 1/2's own unrelated
+   * top-level groups like "Transportation Charges") falls back to the
+   * plain `box` every category used to share.
    */
   function categoryIcon(label) {
     if (label === 'Domestic') return DA.icons.home(16);
-    if (label === 'Export') return DA.icons.exportArrow(16);
-    if (label === 'Import') return DA.icons.importArrow(16);
+    if (label === 'Export') return DA.icons.exportBox(16);
+    if (label === 'Import') return DA.icons.importBox(16);
     return DA.icons.box(16);
   }
 
@@ -821,19 +823,25 @@
     // on the right instead of an invisible stretched box. Re-measured on
     // every resize/content change (a new leaf's table is usually a
     // different height), not just once at mount.
+    var syncNavHeight = function () {
+      // detailMount itself is the flex item align-items: stretch already
+      // inflates to match nav -- measuring it directly here would just
+      // feed that inflated height straight back into nav's own cap,
+      // accomplishing nothing. Its child (.plan-detail-panel, replaced
+      // wholesale on every select()) is a plain block box one level in,
+      // sized by its own content regardless of how tall its stretched
+      // parent became -- that's the real height to cap nav to.
+      var content = detailMount.firstElementChild;
+      var h = content ? content.getBoundingClientRect().height : 0;
+      navEl.style.maxHeight = h > 0 ? h + 'px' : '';
+    };
+    // Called once right away -- getBoundingClientRect() forces layout to
+    // settle first, so this doesn't need to wait for anything -- rather
+    // than depending solely on ResizeObserver's own first callback (also
+    // wired below, for every later leaf switch or window resize) to reach
+    // the browser before anything gets painted at the old, unsynced size.
+    syncNavHeight();
     if (typeof ResizeObserver !== 'undefined') {
-      var syncNavHeight = function () {
-        // detailMount itself is the flex item align-items: stretch already
-        // inflates to match nav -- measuring it directly here would just
-        // feed that inflated height straight back into nav's own cap,
-        // accomplishing nothing. Its child (.plan-detail-panel, replaced
-        // wholesale on every select()) is a plain block box one level in,
-        // sized by its own content regardless of how tall its stretched
-        // parent became -- that's the real height to cap nav to.
-        var content = detailMount.firstElementChild;
-        var h = content ? content.getBoundingClientRect().height : 0;
-        navEl.style.maxHeight = h > 0 ? h + 'px' : '';
-      };
       new ResizeObserver(syncNavHeight).observe(detailMount);
     }
 
