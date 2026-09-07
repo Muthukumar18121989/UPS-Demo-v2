@@ -849,12 +849,25 @@
     // Called once right away -- getBoundingClientRect() forces layout to
     // settle first, so this doesn't need to wait for anything -- rather
     // than depending solely on ResizeObserver's own first callback (also
-    // wired below, for every later leaf switch or window resize) to reach
-    // the browser before anything gets painted at the old, unsynced size.
+    // wired below, for every later leaf switch) to reach the browser
+    // before anything gets painted at the old, unsynced size.
     syncNavHeight();
     if (typeof ResizeObserver !== 'undefined') {
       new ResizeObserver(syncNavHeight).observe(detailMount);
     }
+    // Purely a window-resize reflow (e.g. opening DevTools, or just
+    // narrowing the browser) doesn't reliably retrigger the observer
+    // above: detailMount is the *stretched* flex item, so its own
+    // rendered box only ever grows to match nav's current (already-set)
+    // height -- when nav is still holding an old, narrower-viewport
+    // value, detailMount never visibly changes size even though its
+    // child's true content did, and the observer stays silent. A plain
+    // resize listener re-measures from the actual content (via the same
+    // syncNavHeight) regardless of what detailMount's stretched box
+    // currently reports, so a DevTools-narrowed table (columns wrapping,
+    // a horizontal scrollbar appearing) doesn't leave nav stuck taller
+    // than the table actually needs once the viewport settles.
+    window.addEventListener('resize', syncNavHeight);
 
     // Accessorials wires a real dialog behind its own add link; Services
     // has no add entry point at all -- omitted rather than left as a
