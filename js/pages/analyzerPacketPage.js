@@ -705,82 +705,173 @@
     }
 
     /**
+     * Parses one of summaryColumns()'s own formatted figures ("198.8",
+     * "0.1%", "$2,859.09") into a number plus the prefix/suffix/decimal
+     * precision needed to format a same-styled delta back out. Returns null
+     * for "-"/blank/unparseable -- nothing to diff, so Change reads as "--"
+     * for these (a placeholder row like Sub-total's own ADV/Base Frt/Total
+     * Disc cells) rather than a fabricated zero.
+     */
+    function parseMetricFigure(raw) {
+      var str = raw == null ? '' : String(raw).trim();
+      if (!str || str === '-') return null;
+      // The app's own $ figures carry a space after the sign ("$ 2,914.29",
+      // see comparisonSummaryTree()) -- \$\s* here, not a literal \$, or
+      // every one of them would fail to match and silently read as "-- ".
+      var match = /^(\$\s*)?(-?[\d,]+(?:\.\d+)?)\s*(%)?$/.exec(str);
+      if (!match) return null;
+      var number = parseFloat(match[2].replace(/,/g, ''));
+      if (isNaN(number)) return null;
+      // Normalized to the app's own "$ " (always a space), regardless of
+      // whether this particular figure's own source string happened to
+      // have one -- so a delta reads the same style either way.
+      return { number: number, prefix: match[1] ? '$ ' : '', suffix: match[3] || '', decimals: (match[2].split('.')[1] || '').length };
+    }
+
+    /** 1234.5 -> "1,234.5", matching the comma grouping every other figure in this table already uses. */
+    function groupDigits(fixedString) {
+      var parts = fixedString.split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return parts.join('.');
+    }
+
+    /**
+     * Current -> Scenario's own delta, formatted in the scenario figure's
+     * own style (its $/% and decimal precision) with an explicit sign and
+     * direction arrow -- "+4.6 ↑" / "-2.1 ↓" -- or "--" when either side has
+     * nothing to compare, or the two round to the same displayed value (a
+     * real but sub-precision difference shouldn't read as a change neither
+     * figure itself shows).
+     */
+    function summaryChange(currentRaw, scenarioRaw) {
+      var current = parseMetricFigure(currentRaw);
+      var scenario = parseMetricFigure(scenarioRaw);
+      if (!current || !scenario) return { text: '—', direction: 'none' };
+      var delta = scenario.number - current.number;
+      var rounded = parseFloat(delta.toFixed(scenario.decimals));
+      if (rounded === 0) return { text: '—', direction: 'none' };
+      var direction = rounded > 0 ? 'up' : 'down';
+      var sign = rounded > 0 ? '+' : '−';
+      var magnitude = groupDigits(Math.abs(rounded).toFixed(scenario.decimals));
+      var arrow = rounded > 0 ? '↑' : '↓';
+      return { text: sign + scenario.prefix + magnitude + scenario.suffix + ' ' + arrow, direction: direction };
+    }
+
+    /**
      * Option 2: the same figures as Option 1's per-scenario panels, but as
-     * one table instead of one per scenario -- each metric column (ADV,
-     * Base Frt, ...) splits into one sub-column per scenario (Current,
-     * Scenario 1, ...) under a shared group header, rather than repeating
-     * the whole row-label column and card chrome per panel. Reads better
-     * once there are only 2-3 scenarios open at once; Option 1 still scales
-     * better past that, since Option 2's own column count multiplies by
-     * scenario count.
+     * one table instead of one per scenario, redesigned around the question
+     * this view exists to answer -- "what changes if I use Scenario 1
+     * instead of Current?" -- rather than around listing every scenario's
+     * own figures side by side. Each metric column (ADV, Base Frt, ...)
+     * still groups its own sub-columns under one shared header, but now as
+     * Current | Scenario | Change per non-baseline scenario, not one
+     * repeated sub-column per scenario: Current reads muted (it's the
+     * baseline, not the thing being evaluated), Scenario reads stronger
+     * (it's the proposal), and Change is its own compact, directional
+     * figure -- so the comparison this table exists for doesn't require
+     * mentally subtracting two columns by eye. Two scenarios (today's only
+     * case in this demo) means one Change column per metric; a third
+     * scenario would add its own Scenario/Change pair after it, each still
+     * diffed against the same baseline (scenarios[0]) rather than a chain.
      *
      * Built by hand rather than through DataTable: DataTable's own columns
      * are flat (one header cell each), with no notion of a header cell
      * spanning several grouped sub-columns, which this table's whole shape
      * depends on. The row hierarchy (expand/collapse, indentation, "-"
      * placeholders) is reimplemented to match DataTable's own behavior
-     * rather than reused, for the same reason.
+     * rather than reused, for the same reason. Deliberately not built on
+     * the shared .data-table/.matrix classes either -- this is a scoped,
+     * presentation-only redesign of this one table (Option 1, and every
+     * other table in the app, is unaffected), so its own visual rules live
+     * under their own .comparison-merged namespace in components.css
+     * instead of touching either shared pattern's rules.
      *
-     * Rows come from one reference scenario's tree (the first one open --
-     * "Current" whenever it's included, same as Option 1's own panel
-     * order); every other scenario's figures for that row are looked up by
-     * label against its own tree, the same match-by-label approach
-     * summaryComparisonSync() already relies on for its hover/scroll sync
-     * across Option 1's separate panels. A label missing from a given
-     * scenario's tree (shouldn't happen with this demo's parallel trees,
-     * but not assumed) renders "-" rather than throwing.
+     * Rows come from one reference scenario's tree (scenarios[0] -- the
+     * baseline every Change column diffs against, same as Option 1's own
+     * panel order); every other scenario's figures for that row are looked
+     * up against its own tree by full ancestor path (e.g. "Unincented PLD >
+     * Sub-total"), not bare label -- this tree has more than one row named
+     * "Sub-total" (one under Unincented PLD, another under Hormel 2024),
+     * and a plain label-keyed map collapses those into whichever one a
+     * given walk visits last, quietly showing one branch's figures under
+     * the other's row. A path missing from a given scenario's tree
+     * (shouldn't happen with this demo's parallel trees, but not assumed)
+     * renders "-" rather than throwing.
      */
     function mergedSummaryTable() {
       var trees = DA.data.packetSummaryTrees;
       var metricColumns = summaryColumns().slice(1); // drop the row-label column -- built separately below
-      var referenceTree = trees[scenarios[0] && scenarios[0].name] || trees.Current;
+      var baseline = scenarios[0] || { name: 'Current' };
+      var referenceTree = trees[baseline.name] || trees.Current;
 
-      function indexByLabel(tree) {
+      function indexByPath(tree) {
         var map = {};
-        (function walk(list) {
+        (function walk(list, ancestors) {
           (list || []).forEach(function (row) {
-            map[row.label] = row;
-            if (row.children) walk(row.children);
+            var path = ancestors.concat(row.label);
+            map[path.join(' > ')] = row;
+            if (row.children) walk(row.children, path);
           });
-        })(tree);
+        })(tree, []);
         return map;
       }
 
-      var scenarioIndexes = scenarios.map(function (scenario) {
-        return { name: scenario.name, index: indexByLabel(trees[scenario.name] || trees.Current) };
+      var indexByScenario = {};
+      scenarios.forEach(function (scenario) {
+        indexByScenario[scenario.name] = indexByPath(trees[scenario.name] || trees.Current);
       });
 
-      // Frozen-column styling to match, since this table is hand-built
-      // rather than routed through DataTable's own frozenStyle()/colgroup.
+      // One Current sub-column, then one Scenario+Change pair per
+      // non-baseline scenario -- every metric shares this same shape, so
+      // it's built once rather than per column. `groupStart` marks the
+      // first sub-column of each pair for the divider between metric
+      // groups (see .comparison-merged__group-start); Current alone never
+      // needs one since the frozen row-header column already borders it.
+      var subColumns = [{ kind: 'current', scenario: baseline }].concat(
+        scenarios.slice(1).reduce(function (cols, scenario) {
+          return cols.concat([
+            { kind: 'scenario', scenario: scenario, groupStart: true },
+            { kind: 'change', scenario: scenario, against: baseline }
+          ]);
+        }, [])
+      );
+
       var rowheadFrozenStyle = { position: 'sticky', left: '0' };
 
-      var colgroup = el('colgroup', {}, [el('col', { style: { width: '220px' } })].concat(
+      var colgroup = el('colgroup', {}, [el('col', { style: { width: '210px' } })].concat(
         metricColumns.reduce(function (cols, metric) {
-          scenarios.forEach(function () {
-            cols.push(el('col', { style: { width: metric.width || '110px' } }));
-          });
-          return cols;
+          return cols.concat(subColumns.map(function (sub) {
+            return el('col', { style: { width: sub.kind === 'change' ? '76px' : (metric.width || '96px') } });
+          }));
         }, [])
       ));
+
+      function subColClass(sub) {
+        return 'comparison-merged__col--' + sub.kind + (sub.groupStart ? ' comparison-merged__group-start' : '');
+      }
 
       var thead = el('thead', {}, [
         el('tr', {}, [
           el('th', {
-            className: 'is-rowhead is-frozen-col is-frozen-edge',
+            className: 'is-rowhead is-frozen-col is-frozen-edge comparison-merged__rowhead',
             attrs: { scope: 'col', rowspan: '2' },
             style: rowheadFrozenStyle,
             text: 'Cost Basis: FA'
           })
         ].concat(metricColumns.map(function (metric) {
           return el('th', {
-            className: metric.headerClassName || '',
-            attrs: { scope: 'colgroup', colspan: String(scenarios.length) },
+            className: 'comparison-merged__metric-head',
+            attrs: { scope: 'colgroup', colspan: String(subColumns.length) },
             text: metric.label
           });
         }))),
         el('tr', {}, metricColumns.reduce(function (cells, metric) {
-          return cells.concat(scenarios.map(function (scenario) {
-            return el('th', { className: metric.headerClassName || '', attrs: { scope: 'col' }, text: scenario.name });
+          return cells.concat(subColumns.map(function (sub) {
+            return el('th', {
+              className: subColClass(sub),
+              attrs: { scope: 'col' },
+              text: sub.kind === 'change' ? 'Change' : sub.scenario.name
+            });
           }));
         }, []))
       ]);
@@ -796,7 +887,7 @@
 
       function childrenOf(row) { return row.children && row.children.length ? row.children : null; }
 
-      function addRow(row, depth) {
+      function addRow(row, depth, path) {
         var expanded = open.indexOf(row) !== -1;
         var children = childrenOf(row);
 
@@ -819,64 +910,70 @@
           : null;
 
         var labelCell = el('td', {
-          className: 'is-rowhead is-frozen-col is-frozen-edge has-expander' + (depth ? ' is-child-cell' : ''),
+          className: 'is-rowhead is-frozen-col is-frozen-edge comparison-merged__rowhead has-expander' + (depth ? ' is-child-cell' : ''),
           style: Object.assign({}, rowheadFrozenStyle, depth ? { 'padding-left': (depth * 20 + 12) + 'px' } : {})
         }, [
           el('span', { className: 'expand-cell' }, [toggle, el('span', { text: withCustomer(row.label) })])
         ]);
 
         var valueCells = metricColumns.reduce(function (cells, metric) {
-          return cells.concat(scenarioIndexes.map(function (scenario) {
-            var matched = scenario.index[row.label];
-            var value = matched ? matched[metric.key] : null;
-            // Reuses summaryColumns()'s own render (the drill-down link,
-            // same as Option 1's panels), fed a stand-in row carrying only
-            // this one metric's value -- the same shape numeric()'s own
-            // render(row) already expects.
-            var fakeRow = {};
-            fakeRow[metric.key] = value;
-            var content = metric.render ? metric.render(fakeRow) : (value == null ? '-' : value);
-            var isNode = content instanceof Node;
-            return el('td', { className: metric.className, text: isNode ? null : content }, isNode ? [content] : null);
+          var matchedByScenario = {};
+          subColumns.forEach(function (sub) {
+            var matched = indexByScenario[sub.scenario.name][path];
+            matchedByScenario[sub.scenario.name] = matched ? matched[metric.key] : null;
+          });
+
+          return cells.concat(subColumns.map(function (sub) {
+            if (sub.kind === 'change') {
+              var change = summaryChange(matchedByScenario[sub.against.name], matchedByScenario[sub.scenario.name]);
+              return el('td', {
+                className: subColClass(sub) + ' comparison-merged__change comparison-merged__change--' + change.direction,
+                text: change.text
+              });
+            }
+            var value = matchedByScenario[sub.scenario.name];
+            return el('td', { className: subColClass(sub), text: value == null ? '-' : value });
           }));
         }, []);
 
         tbody.appendChild(el('tr', { className: depth ? 'is-child-row' : '' }, [labelCell].concat(valueCells)));
       }
 
-      // flatten (row, depth) pairs depth-first so a parent's own row renders
-      // immediately before its (currently open) children, same order/shape
-      // DataTable's own flatten() produces.
+      // flatten (row, depth, path) triples depth-first so a parent's own row
+      // renders immediately before its (currently open) children, same
+      // order/shape DataTable's own flatten() produces -- path carries each
+      // row's own full ancestor chain, the same key indexByPath() uses, so
+      // addRow() can look up the *this* "Sub-total", not just any row that
+      // happens to share its label elsewhere in the tree.
       function flatten() {
         var flat = [];
-        function visit(row, depth) {
-          flat.push({ row: row, depth: depth });
+        function visit(row, depth, ancestors) {
+          var path = ancestors.concat(row.label);
+          flat.push({ row: row, depth: depth, path: path.join(' > ') });
           if (open.indexOf(row) !== -1) {
-            (childrenOf(row) || []).forEach(function (child) { visit(child, depth + 1); });
+            (childrenOf(row) || []).forEach(function (child) { visit(child, depth + 1, path); });
           }
         }
-        referenceTree.forEach(function (row) { visit(row, 0); });
+        referenceTree.forEach(function (row) { visit(row, 0, []); });
         return flat;
       }
 
       function renderRows() {
         DA.dom.clear(tbody);
-        flatten().forEach(function (entry) { addRow(entry.row, entry.depth); });
+        flatten().forEach(function (entry) { addRow(entry.row, entry.depth, entry.path); });
       }
 
       renderRows();
 
-      var table = el('table', {
-        className: 'data-table data-table--auto data-table--warm data-table--frozen'
-      }, [
-        el('caption', { className: 'u-visually-hidden', text: 'Scenario comparison, merged' }),
+      var table = el('table', { className: 'comparison-merged' }, [
+        el('caption', { className: 'u-visually-hidden', text: 'Scenario comparison: Current vs Scenario, with Change' }),
         colgroup,
         thead,
         tbody
       ]);
 
       return el('div', {
-        className: 'data-table__viewport scroll-area data-table__viewport--auto',
+        className: 'comparison-merged__viewport scroll-area',
         attrs: { tabindex: '0', role: 'region', 'aria-label': 'Scenario comparison' }
       }, [table]);
     }

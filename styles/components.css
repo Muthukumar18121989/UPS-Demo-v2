@@ -4594,3 +4594,200 @@
 .data-table tbody tr.is-child-row td {
   color: var(--color-text-secondary);
 }
+
+/* --------------------------------------------------------------------------
+   Analyzer > Comparisons, Option 2 -- the merged Current/Scenario/Change
+   table (mergedSummaryTable() in analyzerPacketPage.js).
+
+   Entirely namespaced under .comparison-merged rather than built on
+   .data-table or .matrix: this is a presentation-only redesign of this one
+   table -- Option 1's own panels, and every other table in the app, use
+   their existing shared rules untouched. is-rowhead/is-frozen-col/
+   is-frozen-edge/is-child-row/has-expander/is-child-cell/row-toggle/
+   expand-cell are the only classes shared with the rest of the app here,
+   and only for their generic, non-visual behavior (sticky positioning,
+   indentation, the expand button) -- none of their own color/border rules
+   are selector-scoped broadly enough to reach a table that isn't also
+   .data-table, so reusing them doesn't pull in that table's look.
+
+   The redesign's own goal: answer "what changes in Scenario 1 vs Current"
+   by scanning, not by mentally subtracting two columns -- Current reads
+   muted (the baseline), Scenario reads stronger (the proposal being
+   evaluated), and Change is its own compact, directional figure, with a
+   two-row dark header (metric name, then Current/Scenario/Change) instead
+   of a grid of borders doing that work.
+   -------------------------------------------------------------------------- */
+.comparison-merged__viewport {
+  border-top: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  overflow: auto;
+}
+
+.comparison-merged {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.comparison-merged th,
+.comparison-merged td {
+  padding: var(--space-2) var(--space-3);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.comparison-merged__rowhead {
+  text-align: left;
+  background-color: var(--color-surface);
+}
+
+/* Metric-name row: one dark cell per metric, spanning its own Current/
+   Scenario/Change sub-columns -- the same header-inverse tone every other
+   table in the app already uses, so this redesign still reads as this
+   product's own table, not a different one. */
+.comparison-merged thead tr:first-child th {
+  background-color: var(--color-surface-inverse);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
+  height: var(--table-header-height);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-align: center;
+}
+
+.comparison-merged thead tr:first-child th:first-child {
+  border-top-left-radius: var(--radius-container);
+}
+
+.comparison-merged thead tr:first-child th:last-child {
+  border-top-right-radius: var(--radius-container);
+}
+
+/* Sub-header row (Current / Scenario 1 / Change): same dark band, a visible
+   step down in weight and a translucent-white text tone rather than a
+   second, competing background color -- reads as one two-line header block
+   ("ADV", then what's under it) instead of two stacked bars. */
+.comparison-merged thead tr:last-child th {
+  background-color: var(--color-surface-inverse);
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-xs);
+  height: 30px;
+  position: sticky;
+  top: var(--table-header-height);
+  z-index: 2;
+}
+
+.comparison-merged thead tr:first-child th.comparison-merged__rowhead,
+.comparison-merged thead tr:last-child th.comparison-merged__rowhead {
+  z-index: 3;
+}
+
+.comparison-merged tbody td {
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+
+.comparison-merged tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.comparison-merged tbody tr:hover td {
+  background-color: var(--color-surface-hover);
+}
+
+.comparison-merged tbody tr.is-child-row td {
+  color: var(--color-text-secondary);
+}
+
+/* The row-header column stays opaque and above scrolling content while
+   pinned via is-frozen-col (shared, generic sticky-positioning behavior --
+   see the block comment above); its own right edge is this table's only
+   vertical rule against the scrolling figures, replacing the shadow every
+   other frozen column in the app already skips in favor of a plain border. */
+.comparison-merged .is-frozen-col {
+  z-index: 1;
+  background-color: var(--color-surface);
+}
+
+.comparison-merged thead .is-frozen-col {
+  z-index: 3;
+}
+
+.comparison-merged .is-frozen-edge {
+  border-right: 1px solid var(--color-border);
+}
+
+.comparison-merged tbody tr:hover td.is-frozen-col {
+  background-color: var(--color-surface-hover);
+}
+
+/* One subtle divider between metric groups (before each metric's own
+   Scenario column, the frozen row-header column already borders the first)
+   -- everything else inside a group is told apart by typography alone, per
+   this redesign's own "avoid excessive borders" goal. */
+.comparison-merged .comparison-merged__group-start {
+  border-left: 1px solid var(--color-border);
+}
+
+/*
+ * .comparison-merged tbody tr.is-child-row td (0,2,3 -- .comparison-merged +
+ * .is-child-row, against tbody/tr/td) outweighs a plain tbody td rule
+ * (0,1,2), so a child row's own muted color would otherwise win over any of
+ * these on exactly the rows this table nests the deepest. Matched at the
+ * same specificity (an explicit `tr` standing in for is-child-row's own)
+ * and placed after it in the cascade, so these -- being later at an equal
+ * specificity -- read correctly on every row regardless of depth.
+ */
+
+/* Current: muted -- the baseline, not what's being evaluated. */
+.comparison-merged tbody tr td.comparison-merged__col--current {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Scenario: stronger emphasis -- the proposal this whole comparison exists
+   to evaluate -- plus a barely-there teal wash the full column height of,
+   marking which figures belong to "the scenario" at a glance even once
+   there are enough rows that the header has scrolled out of view. */
+.comparison-merged tbody tr td.comparison-merged__col--scenario {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  background-color: var(--color-primary-subtle);
+}
+
+.comparison-merged tbody tr:hover td.comparison-merged__col--scenario {
+  /* var(--color-surface-hover) alone would fight the teal wash (a cooler,
+     visibly different tint) right where hover should read as one flat tone
+     across the row -- a plain teal-at-low-opacity overlay one step deeper
+     than the resting wash instead, so the column still reads as "scenario"
+     mid-hover rather than reverting to the same hover tone every other
+     column gets. */
+  background-color: rgba(0, 133, 125, 0.14);
+}
+
+/* Change: compact and its own type scale -- distinct from both value
+   columns without competing with them for attention. Un-changed rows read
+   as a plain muted em dash; a real delta gets the figure plus a direction
+   arrow, colored only as the secondary cue requested (text color, no
+   fill/background) so the numbers stay the primary signal. */
+/* Same is-child-row specificity note as Current/Scenario above -- matched
+   the same way so a real Change color survives on a child row too, not
+   just the plain top-level rows testing happened to check first. */
+.comparison-merged tbody tr td.comparison-merged__change {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.comparison-merged tbody tr td.comparison-merged__change--up {
+  color: var(--color-success);
+}
+
+.comparison-merged tbody tr td.comparison-merged__change--down {
+  color: var(--color-error);
+}
