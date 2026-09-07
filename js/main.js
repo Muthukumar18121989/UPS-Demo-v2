@@ -134,7 +134,7 @@
     if (!root) return;
 
     DA.dom.clear(root).appendChild(
-      el('div', { className: 'app-shell' }, [headerSlot, viewport])
+      el('div', { className: 'app-shell' }, [headerSlot, viewport, DA.components.AppFooter()])
     );
     navigate('packets');
   }

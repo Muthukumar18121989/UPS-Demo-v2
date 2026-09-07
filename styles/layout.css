@@ -140,3 +140,19 @@
 .app-shell__header {
   flex: 0 0 auto;
 }
+
+/*
+ * A thin, always-present band under every screen -- flex: 0 0 auto, same
+ * as the header, so it takes only the height its own content (a 12px-tall
+ * mark plus a little breathing room) needs, never growing to compete with
+ * .app-shell__view for the vertical space between them.
+ */
+.app-footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border-subtle);
+}
