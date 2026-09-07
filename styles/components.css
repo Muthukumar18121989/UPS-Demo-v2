@@ -4666,6 +4666,13 @@
   top: 0;
   z-index: 2;
   text-align: center;
+  /* Without this, the metric-name tier and the Current/Scenario/Change
+     tier below it are the same flat dark color with no seam between
+     them -- reading as one blended band instead of two, so "ADV" doesn't
+     visibly own the 3 columns under it. Same light-on-dark divider every
+     other dark header in the app already uses between its own columns,
+     used here between the header's own two rows instead. */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .comparison-merged thead tr:first-child th:first-child {
@@ -4735,12 +4742,27 @@
   background-color: var(--color-surface-hover);
 }
 
-/* One subtle divider between metric groups (before each metric's own
-   Scenario column, the frozen row-header column already borders the first)
-   -- everything else inside a group is told apart by typography alone, per
-   this redesign's own "avoid excessive borders" goal. */
+/* One subtle divider between metric groups -- before each metric's own
+   first (Current) column, on every row this table has (both header tiers
+   down through the body), so it reads as one continuous line the full
+   height of the table rather than starting partway down; the frozen
+   row-header column already borders the very first metric, so this only
+   ever applies from the second metric on. Everything else inside a group
+   (Current vs Scenario vs Change) is told apart by typography alone, per
+   this redesign's own "avoid excessive borders" goal -- this is the one
+   deliberate exception, marking where one metric ends and the next
+   begins. */
 .comparison-merged .comparison-merged__group-start {
   border-left: 1px solid var(--color-border);
+}
+
+/* Same divider, against the dark header instead of the white body --
+   var(--color-border) (#dcdcdc) is built for a light surface and all but
+   disappears against var(--color-surface-inverse); the same light-on-dark
+   line every other dark table header in the app already dividers its own
+   columns with reads correctly here instead. */
+.comparison-merged thead .comparison-merged__group-start {
+  border-left-color: rgba(255, 255, 255, 0.3);
 }
 
 /*

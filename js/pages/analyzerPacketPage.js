@@ -823,14 +823,11 @@
 
       // One Current sub-column, then one Scenario+Change pair per
       // non-baseline scenario -- every metric shares this same shape, so
-      // it's built once rather than per column. `groupStart` marks the
-      // first sub-column of each pair for the divider between metric
-      // groups (see .comparison-merged__group-start); Current alone never
-      // needs one since the frozen row-header column already borders it.
+      // it's built once rather than per column.
       var subColumns = [{ kind: 'current', scenario: baseline }].concat(
         scenarios.slice(1).reduce(function (cols, scenario) {
           return cols.concat([
-            { kind: 'scenario', scenario: scenario, groupStart: true },
+            { kind: 'scenario', scenario: scenario },
             { kind: 'change', scenario: scenario, against: baseline }
           ]);
         }, [])
@@ -846,8 +843,17 @@
         }, [])
       ));
 
-      function subColClass(sub) {
-        return 'comparison-merged__col--' + sub.kind + (sub.groupStart ? ' comparison-merged__group-start' : '');
+      // The divider between one metric's own columns and the next
+      // (.comparison-merged__group-start) belongs on the FIRST sub-column
+      // of a metric group -- but only once that group is itself past the
+      // first metric, since the frozen row-header column already borders
+      // that one. `subColumns` is one shared, metric-agnostic array reused
+      // for every metric, so which sub-column is "first" is a per-metric
+      // fact (subIndex === 0), and whether it needs a divider at all is a
+      // per-metric-position fact (metricIndex > 0) -- neither belongs on
+      // the shared descriptor itself, so both are passed in here instead.
+      function subColClass(sub, isGroupStart) {
+        return 'comparison-merged__col--' + sub.kind + (isGroupStart ? ' comparison-merged__group-start' : '');
       }
 
       var thead = el('thead', {}, [
@@ -858,17 +864,17 @@
             style: rowheadFrozenStyle,
             text: 'Cost Basis: FA'
           })
-        ].concat(metricColumns.map(function (metric) {
+        ].concat(metricColumns.map(function (metric, metricIndex) {
           return el('th', {
-            className: 'comparison-merged__metric-head',
+            className: 'comparison-merged__metric-head' + (metricIndex > 0 ? ' comparison-merged__group-start' : ''),
             attrs: { scope: 'colgroup', colspan: String(subColumns.length) },
             text: metric.label
           });
         }))),
-        el('tr', {}, metricColumns.reduce(function (cells, metric) {
-          return cells.concat(subColumns.map(function (sub) {
+        el('tr', {}, metricColumns.reduce(function (cells, metric, metricIndex) {
+          return cells.concat(subColumns.map(function (sub, subIndex) {
             return el('th', {
-              className: subColClass(sub),
+              className: subColClass(sub, metricIndex > 0 && subIndex === 0),
               attrs: { scope: 'col' },
               text: sub.kind === 'change' ? 'Change' : sub.scenario.name
             });
@@ -916,23 +922,24 @@
           el('span', { className: 'expand-cell' }, [toggle, el('span', { text: withCustomer(row.label) })])
         ]);
 
-        var valueCells = metricColumns.reduce(function (cells, metric) {
+        var valueCells = metricColumns.reduce(function (cells, metric, metricIndex) {
           var matchedByScenario = {};
           subColumns.forEach(function (sub) {
             var matched = indexByScenario[sub.scenario.name][path];
             matchedByScenario[sub.scenario.name] = matched ? matched[metric.key] : null;
           });
 
-          return cells.concat(subColumns.map(function (sub) {
+          return cells.concat(subColumns.map(function (sub, subIndex) {
+            var groupStart = metricIndex > 0 && subIndex === 0;
             if (sub.kind === 'change') {
               var change = summaryChange(matchedByScenario[sub.against.name], matchedByScenario[sub.scenario.name]);
               return el('td', {
-                className: subColClass(sub) + ' comparison-merged__change comparison-merged__change--' + change.direction,
+                className: subColClass(sub, groupStart) + ' comparison-merged__change comparison-merged__change--' + change.direction,
                 text: change.text
               });
             }
             var value = matchedByScenario[sub.scenario.name];
-            return el('td', { className: subColClass(sub), text: value == null ? '-' : value });
+            return el('td', { className: subColClass(sub, groupStart), text: value == null ? '-' : value });
           }));
         }, []);
 
