@@ -4287,17 +4287,19 @@
   background-color: var(--color-surface-muted-strong);
 }
 
-.matrix tbody tr:nth-child(even) td {
-  background-color: var(--color-surface-sunken);
-}
-
-.matrix tbody tr:nth-child(even):hover td {
-  background-color: var(--color-surface-hover);
-}
-
-.matrix tbody tr:nth-child(even) .matrix__rowhead {
-  background-color: var(--color-surface-muted-strong);
-}
+/*
+ * No zebra striping -- every other table in the app (.data-table) keeps
+ * every row at the same resting background, distinguished only by hover
+ * and its borders, not an alternating tint. This table's own even rows
+ * used to get --color-surface-sunken on every value cell (and the same
+ * --color-surface-muted-strong .matrix__rowhead already rests at,
+ * redundantly, on the row-header pair) -- inconsistent with that rule,
+ * and since .matrix__rowhead's own resting shade is a darker, constant
+ * grey against alternating white/tinted value rows, it read as though
+ * the row-header itself were being highlighted every other row. Removed
+ * rather than fixed in place: nothing in this app's own table rules
+ * calls for alternating rows at all.
+ */
 
 .cell-value {
   display: inline-flex;
