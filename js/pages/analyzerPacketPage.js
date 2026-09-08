@@ -1468,7 +1468,7 @@
               // column: no divider between a service row and the
               // package/billable-weight rows it opens onto.
               { key: 'service', label: 'Core Service', width: '220px', className: 'is-rowhead', render: serviceLabel, mergeExpanded: true },
-              { key: 'billable', label: 'Billable', width: '85px', className: 'is-numeric is-end' },
+              { key: 'billable', label: 'Billable Wt', width: '100px', className: 'is-numeric is-end' },
               numeric('volume', 'Volume', { link: true, width: '95px' }),
               numeric('adv', 'ADV', { link: true, width: '80px' }),
               numeric('pps', 'PPS', { link: true, width: '80px' }),
