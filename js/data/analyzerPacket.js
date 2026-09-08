@@ -491,11 +491,24 @@
   /* ---- Pricing terms tab -------------------------------------------------- */
 
   /**
-   * Region > mode > service, as the service incentive plans are grouped.
-   * Export and Import are header-only for now, per client instruction --
-   * empty `children` still renders each as its own expandable category
-   * (icon, chevron, "you can open this") rather than a selectable leaf;
-   * their service lists are a separate, later addition.
+   * Region > mode > service, as the service incentive plans are grouped --
+   * Domestic/Export/Import each carrying their own real Air/Ground modes
+   * now, per the client's own exact hierarchy (Export and Import used to
+   * be header-only placeholders with no children of their own).
+   *
+   * Export's and Import's own Air leaves and Ground leaves share the
+   * same labels across both regions (e.g. "WorldwideExpress" under both,
+   * "StandardtoCanada" under both) -- left as plain `{ label }` nodes
+   * (no explicit `value`) like every other node here, same as the
+   * pre-existing tree. Confirmed this is safe before relying on it: every
+   * click path (planSidebar's own select(), TreeSelectField's own
+   * choose()) matches a row to its own leaf object by identity
+   * (`entry.leaf === leaf`), not by value/label text, so two rows
+   * sharing a label never cross-select each other. The one place a value
+   * string IS compared (TreeSelectField's initial `currentLeaf` lookup)
+   * only ever runs against firstLeaf(tree)'s own value, which is always
+   * Domestic's first Air leaf -- unique, never one of these later
+   * duplicates.
    */
   DA.data.pricingServiceTree = [
     {
@@ -504,19 +517,70 @@
         {
           label: 'Air',
           children: [
-            { label: '2nd Day Air' },
-            { label: '2nd Day Air A.M.' },
-            { label: '3 Day Select' },
-            { label: 'Next Day Air' },
             { label: 'Next Day Air Early' },
-            { label: 'Next Day Air Saver' }
+            { label: 'Next Day Air' },
+            { label: 'Next Day Air Saver' },
+            { label: '2nd Day Air A.M.' },
+            { label: '2nd Day Air' },
+            { label: '3 Day Select' }
           ]
         },
-        { label: 'Ground', children: [{ label: 'Ground - Package' }] }
+        {
+          label: 'Ground',
+          children: [
+            { label: 'Ground' },
+            { label: 'Ground Saver>1' },
+            { label: 'Ground Saver<1' }
+          ]
+        }
       ]
     },
-    { label: 'Export', children: [] },
-    { label: 'Import', children: [] }
+    {
+      label: 'Export',
+      children: [
+        {
+          label: 'Air',
+          children: [
+            { label: 'WorldwideExpress' },
+            { label: 'WorldwideSaver' },
+            { label: 'WorldwideExportExpress Freight Midday' },
+            { label: 'WorldwideExportExpress Freight' },
+            { label: 'WorldwideExpedited' },
+            { label: 'Worldwide Express Plus' }
+          ]
+        },
+        {
+          label: 'Ground',
+          children: [
+            { label: 'StandardtoCanada' },
+            { label: 'StandardtoMexico' }
+          ]
+        }
+      ]
+    },
+    {
+      label: 'Import',
+      children: [
+        {
+          label: 'Air',
+          children: [
+            { label: 'WorldwideExpress' },
+            { label: 'WorldwideSaver' },
+            { label: 'WorldwideImportExpress Freight Midday' },
+            { label: 'WorldwideImportExpress Freight' },
+            { label: 'WorldwideExpedited' },
+            { label: 'Worldwide Express Plus' }
+          ]
+        },
+        {
+          label: 'Ground',
+          children: [
+            { label: 'StandardtoCanada' },
+            { label: 'StandardtoMexico' }
+          ]
+        }
+      ]
+    }
   ];
 
   /** Zone columns and weight bands behind a service's incentive grid. */
