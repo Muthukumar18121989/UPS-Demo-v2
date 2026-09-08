@@ -1265,10 +1265,7 @@
           numeric('pd', 'PD', { link: true, width: '90px' }),
           numeric('dl', 'DL', { link: true, width: '90px' }),
           numeric('no', 'NO', { link: true, width: '90px' }),
-          numeric('oth', 'OTH', { link: true, width: '95px' }),
-          numeric('totalFreightCost', 'Total Freight Cost', { link: true, width: '160px' }),
-          numeric('costAdj', 'Cost Adj', { width: '105px' }),
-          numeric('newCost', 'New Cost', { link: true, width: '115px' })
+          numeric('totalFreightCost', 'Base Cost', { link: true, width: '160px' })
         ]
       });
     }
