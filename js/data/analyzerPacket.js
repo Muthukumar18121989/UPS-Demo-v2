@@ -153,35 +153,35 @@
    */
   function comparisonSummaryTree() {
     return [
-      { label: 'Total', total: true, adv: '198.8', baseFrt: '0.1%', totalDisc: '0.0%', rpp: '$ 2,859.09', annRev: '$ 147,780,476' },
+      { label: 'Total', total: true, adv: '198.8', baseFrt: '0.1%', totalDisc: '0.0%', rpp: '$ 2,859.09', annRev: '$ 147,780,476', or: '0.98', profit: '$ 2,955,610' },
       {
         label: 'Unincented PLD',
         expanded: true,
-        adv: '195.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,914.29', annRev: '$ 147,754,284',
+        adv: '195.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,914.29', annRev: '$ 147,754,284', or: '0.98', profit: '$ 2,955,086',
         children: [
-          { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 2,914.29', annRev: '$ 147,754,284' },
-          { label: 'N-3 Day Select', adv: '85.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,389.67', annRev: '$ 74,911,779' },
-          { label: 'E-Standard to Canada', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2.64', annRev: '$ 6,864' },
-          { label: 'I-Standard from Canada', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 6.60', annRev: '$ 3,432' },
-          { label: 'N-Ground', adv: '4.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,982.32', annRev: '$ 3,101,612' },
-          { label: 'E-Worldwide Express Saver', adv: '42.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,800.87', annRev: '$ 41,505,464' },
-          { label: 'I-Worldwide Express Saver', adv: '4.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,596.00', annRev: '$ 3,739,840' },
-          { label: 'E-Worldwide Express Midday', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,828.40', annRev: '$ 7,353,840' },
-          { label: 'I-Worldwide Express Midday', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 7,552.70', annRev: '$ 3,927,404' },
-          { label: 'E-Worldwide Express', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 96.78', annRev: '$ 251,628' },
-          { label: 'I-Worldwide Express', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 9,617.90', annRev: '$ 5,001,308' },
-          { label: 'E-Worldwide Expedited', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 96.78', annRev: '$ 251,628' },
-          { label: 'I-Worldwide Expedited', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 13,721.90', annRev: '$ 7,135,388' },
-          { label: 'E-Standard to Mexico', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2.64', annRev: '$ 6,864' },
-          { label: 'I-Standard from Mexico', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 1,071.60', annRev: '$ 557,232' }
+          { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 2,914.29', annRev: '$ 147,754,284', or: '0.98', profit: '$ 2,955,086' },
+          { label: 'N-3 Day Select', adv: '85.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,389.67', annRev: '$ 74,911,779', or: '0.91', profit: '$ 6,742,060' },
+          { label: 'E-Standard to Canada', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2.64', annRev: '$ 6,864', or: '1.15', profit: '$ -1,030' },
+          { label: 'I-Standard from Canada', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 6.60', annRev: '$ 3,432', or: '1.20', profit: '$ -686' },
+          { label: 'N-Ground', adv: '4.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,982.32', annRev: '$ 3,101,612', or: '0.88', profit: '$ 372,193' },
+          { label: 'E-Worldwide Express Saver', adv: '42.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,800.87', annRev: '$ 41,505,464', or: '0.93', profit: '$ 2,905,382' },
+          { label: 'I-Worldwide Express Saver', adv: '4.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,596.00', annRev: '$ 3,739,840', or: '0.82', profit: '$ 673,171' },
+          { label: 'E-Worldwide Express Midday', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,828.40', annRev: '$ 7,353,840', or: '0.95', profit: '$ 367,692' },
+          { label: 'I-Worldwide Express Midday', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 7,552.70', annRev: '$ 3,927,404', or: '0.79', profit: '$ 824,755' },
+          { label: 'E-Worldwide Express', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 96.78', annRev: '$ 251,628', or: '1.05', profit: '$ -12,581' },
+          { label: 'I-Worldwide Express', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 9,617.90', annRev: '$ 5,001,308', or: '0.86', profit: '$ 700,183' },
+          { label: 'E-Worldwide Expedited', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 96.78', annRev: '$ 251,628', or: '1.05', profit: '$ -12,581' },
+          { label: 'I-Worldwide Expedited', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 13,721.90', annRev: '$ 7,135,388', or: '0.83', profit: '$ 1,213,016' },
+          { label: 'E-Standard to Mexico', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2.64', annRev: '$ 6,864', or: '1.15', profit: '$ -1,030' },
+          { label: 'I-Standard from Mexico', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 1,071.60', annRev: '$ 557,232', or: '0.97', profit: '$ 16,717' }
         ]
       },
       {
         label: 'Hormel 2024',
         expanded: true,
-        adv: '3.8', baseFrt: '70.3%', totalDisc: '64.6%', rpp: '$ 26.51', annRev: '$ 26,191',
+        adv: '3.8', baseFrt: '70.3%', totalDisc: '64.6%', rpp: '$ 26.51', annRev: '$ 26,191', or: '0.64', profit: '$ 9,429',
         children: [
-          { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 26.51', annRev: '$ 26,191' }
+          { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 26.51', annRev: '$ 26,191', or: '0.64', profit: '$ 9,429' }
         ]
       }
     ];

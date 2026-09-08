@@ -573,7 +573,9 @@
         numeric('baseFrt', 'Base Frt', { link: true, width: '105px' }),
         numeric('totalDisc', 'Total Disc', { link: true, width: '110px' }),
         numeric('rpp', 'RPP', { link: true, width: '110px' }),
-        numeric('annRev', 'Ann Rev', { link: true, width: '140px' })
+        numeric('annRev', 'Annual Revenue', { link: true, width: '140px' }),
+        numeric('or', 'OR', { link: true, width: '90px' }),
+        numeric('profit', 'Annual Profit', { link: true, width: '130px' })
       ];
     }
 
