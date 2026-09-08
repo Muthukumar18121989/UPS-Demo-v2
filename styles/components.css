@@ -4656,9 +4656,15 @@
   white-space: nowrap;
 }
 
-.comparison-merged__rowhead {
+/*
+ * .comparison-merged th, .comparison-merged td (0,1,1: 1 class + 1 type)
+ * outweighs a bare .comparison-merged__rowhead (0,1,0), so left-alignment
+ * never actually applied -- confirmed live via getComputedStyle before
+ * this fix (textAlign came back "right"). Scoped under .comparison-merged
+ * to win instead.
+ */
+.comparison-merged .comparison-merged__rowhead {
   text-align: left;
-  background-color: var(--color-surface);
 }
 
 /* Metric-name row: one dark cell per metric, spanning its own Current/
@@ -4709,6 +4715,16 @@
 .comparison-merged thead tr:first-child th.comparison-merged__rowhead,
 .comparison-merged thead tr:last-child th.comparison-merged__rowhead {
   z-index: 3;
+  /*
+   * :first-child/:last-child are pseudo-*classes*, not type selectors --
+   * .comparison-merged thead tr:first-child th (2 classes + 3 types) still
+   * outweighs the earlier, simpler .comparison-merged .comparison-merged__
+   * rowhead fix (2 classes + 0 types), so "Cost Basis: FA" stayed centered
+   * like every other header cell even after that fix. This selector
+   * already matches (and beats, at 3 classes) both rules it needs to, so
+   * the override rides along here instead of a third one-off rule.
+   */
+  text-align: left;
 }
 
 .comparison-merged tbody td {
@@ -4748,6 +4764,23 @@
 
 .comparison-merged tbody tr:hover td.is-frozen-col {
   background-color: var(--color-surface-hover);
+}
+
+/*
+ * Grey row-header background, matching .data-table td.is-rowhead's own
+ * resting/hover shades elsewhere in the app -- .is-frozen-col's own white
+ * background above (needed generically, so a frozen column doesn't let
+ * scrolling content show through it) would otherwise win here too: same
+ * specificity issue as text-align above, fixed the same way (scoped to
+ * win on specificity for the resting shade; matched and placed after for
+ * the hover shade, where the specificities tie).
+ */
+.comparison-merged tbody td.comparison-merged__rowhead {
+  background-color: var(--color-surface-muted);
+}
+
+.comparison-merged tbody tr:hover td.comparison-merged__rowhead {
+  background-color: var(--color-surface-muted-strong);
 }
 
 /* One subtle divider between metric groups -- before each metric's own

@@ -143,13 +143,57 @@
   /* ---- Summary tab -------------------------------------------------------- */
 
   /**
+   * Scales a formatted comparison figure ("$ 2,914.29", "0.0%", "0.98",
+   * "-") by `factor`, preserving its own $ / % and decimal precision --
+   * used to derive Scenario 1's own figures from Current's below, so the
+   * Comparisons tab's Change column has a real (not universally "--")
+   * delta to show on every row without hand-typing a second full row set.
+   * "-" (a placeholder cell, not a real figure) passes through unscaled.
+   */
+  function scaleFigure(raw, factor) {
+    if (raw === '-') return raw;
+    var match = /^(\$\s*)?(-?[\d,]+(?:\.\d+)?)\s*(%)?$/.exec(raw);
+    if (!match) return raw;
+    var number = parseFloat(match[2].replace(/,/g, '')) * factor;
+    var decimals = (match[2].split('.')[1] || '').length;
+    var fixed = number.toFixed(decimals);
+    var negative = fixed.charAt(0) === '-';
+    if (negative) fixed = fixed.slice(1);
+    var grouped = fixed.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (match[1] || '') + (negative ? '-' : '') + grouped + (match[3] || '');
+  }
+
+  /**
+   * Applies a per-metric scale factor (adv/rpp/annRev/profit up, or down --
+   * baseFrt/totalDisc left alone, since they're 0.0% on nearly every row
+   * already and scaling zero by anything is still zero) to every row of a
+   * comparisonSummaryTree(), recursively through `children` -- Scenario 1's
+   * own version of Current's tree, not a second hand-typed copy.
+   */
+  var SCENARIO_1_SCALE = { adv: 1.03, rpp: 1.02, annRev: 1.025, or: 0.97, profit: 1.18 };
+
+  function scaledSummaryTree(rows, scale) {
+    return rows.map(function (row) {
+      var scaled = Object.assign({}, row);
+      Object.keys(scale).forEach(function (key) {
+        if (scaled[key] != null) scaled[key] = scaleFigure(scaled[key], scale[key]);
+      });
+      if (row.children) scaled.children = scaledSummaryTree(row.children, scale);
+      return scaled;
+    });
+  }
+
+  /**
    * Analyzer > Comparisons row hierarchy, as of the row-header/hierarchy-only
    * update: Total, an Unincented PLD group (broken out by individual
    * service/lane), and a Hormel 2024 group (its own Sub-total, no further
-   * children given). Current and Scenario 1 render the identical tree so the
-   * two panels line up row for row -- a fresh array per call (not one array
-   * shared by both panels) since each panel's own DataTable tracks its
-   * row-expanded state by row-object identity.
+   * children given). Current and Scenario 1 share the same row structure
+   * (labels, hierarchy) so the two panels line up row for row -- a fresh
+   * array per call (not one array shared by both panels) since each
+   * panel's own DataTable tracks its row-expanded state by row-object
+   * identity -- but Scenario 1's own figures are SCENARIO_1_SCALE's scaled
+   * version of Current's (see packetSummaryTrees below), not identical
+   * copies, so Comparisons' own Change column has real deltas to show.
    */
   function comparisonSummaryTree() {
     return [
@@ -189,7 +233,7 @@
 
   DA.data.packetSummaryTrees = {
     Current: comparisonSummaryTree(),
-    'Scenario 1': comparisonSummaryTree()
+    'Scenario 1': scaledSummaryTree(comparisonSummaryTree(), SCENARIO_1_SCALE)
   };
 
   /* ---- Shipping Profiles tab ---------------------------------------------- */
