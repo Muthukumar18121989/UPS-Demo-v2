@@ -4097,8 +4097,16 @@
 
 /* The outer .plan-sidebar padding + gap already spaces the detail pane on
    every side -- plan-detail-panel's own padding (meant for sitting directly
-   under the "Add..." link in Options 1/2) would just double it up here. */
-.plan-sidebar__detail .plan-detail-panel {
+   under the "Add..." link in Options 1/2) would just double it up here.
+   servicePlan()'s own wrapper (.plan-detail, one level deeper) carries its
+   own padding for the same reason and needs the same treatment: left
+   in place, its extra ~32px (space-4 top + bottom) inflates the detail
+   pane's real content height with nothing in the nav column to match, so
+   align-items: stretch had a taller box to stretch nav to than the visible
+   content actually needed -- confirmed live via DevTools (unchecking this
+   pane's own .plan-detail padding closed the gap). */
+.plan-sidebar__detail .plan-detail-panel,
+.plan-sidebar__detail .plan-detail {
   padding: 0;
 }
 
