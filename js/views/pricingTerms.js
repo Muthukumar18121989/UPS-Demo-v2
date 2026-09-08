@@ -710,9 +710,20 @@
         })
       );
 
+      // Expanded by default only if this group sits on the path to the
+      // tree's own default (first) leaf -- Domestic and Air, say, but not
+      // Ground/Export/Import beside them -- rather than every group
+      // starting open regardless. defaultLeaf is computed before this
+      // tree is built (see below) specifically so this can reference it.
+      var groupPath = ancestors.concat(node.label);
+      var onDefaultPath = Boolean(defaultLeaf) && groupPath.every(function (label, i) {
+        return defaultLeaf.path[i] === label;
+      });
+      childList.hidden = !onDefaultPath;
+
       var toggle = el('button', {
         className: 'dropdown__tree-toggle',
-        attrs: { type: 'button', 'aria-expanded': 'true' },
+        attrs: { type: 'button', 'aria-expanded': onDefaultPath ? 'true' : 'false' },
         style: { '--tree-depth': String(depth) },
         on: {
           click: function () {
@@ -740,6 +751,11 @@
       return el('li', { className: 'dropdown__tree-node', attrs: { role: 'treeitem' } }, [toggle, childList]);
     }
 
+    // Computed before the tree is built (not after, as it used to be) --
+    // buildGroup() above needs it already in scope to decide which groups
+    // start expanded.
+    var defaultLeaf = firstLeaf(tree);
+
     var treeList = el('ul', {
       className: 'dropdown__tree',
       attrs: { role: 'tree', 'aria-label': options.selectLabel }
@@ -747,7 +763,6 @@
       return node.children ? buildGroup(node, [], 0) : buildLeaf(node, [], 0);
     }));
 
-    var defaultLeaf = firstLeaf(tree);
     var defaultRow = defaultLeaf && leafRows.filter(function (entry) {
       return entry.leaf.value === defaultLeaf.value;
     })[0];
