@@ -777,20 +777,145 @@
   /**
    * Accessorial incentive plans under pricing terms, grouped by charge
    * family the same way the service incentive plans are grouped by region
-   * -- Fuel Surcharge and Other Charges have nothing to open onto further,
-   * so they're leaves themselves; Transportation Charges opens onto its
-   * charge groups the way Domestic opens onto its modes.
+   * -- rebuilt to match the client's own reference hierarchy screenshots
+   * (Fuel Surcharge / Transportation Charges / Pickup And Delivery /
+   * Returns / Other Charges / Customs Brokerage as the six top-level
+   * groups, each opening onto its own charge groups and leaves). Every
+   * leaf now carries its own `incentives` rows (accessorialPlan() below
+   * reads `node.incentives` from whichever leaf is open, instead of one
+   * shared table for every leaf) -- Fuel Surcharge's nine rows and Early
+   * Surcharge/Additional Handling Cubic Size/Length/Remote Area US48
+   * Commercial's rows come straight from that reference; every other leaf
+   * not shown expanded there reuses the same "ALL/ALL/ALL" single-row
+   * shape confirmed on the leaves that were shown (Additional Handling's
+   * own siblings, Remote Area's own Residential counterpart), with a
+   * plausible incentive amount consistent with its family -- placeholder
+   * figures, not sourced, the same convention packetAccounts already
+   * documents for rows the reference doesn't spell out.
    */
-  DA.data.pricingAccessorialTree = [
-    { label: 'Fuel Surcharge' },
-    {
-      label: 'Transportation Charges',
-      children: [
-        { label: 'Delivery Area', children: [{ label: 'Delivery Area Commercial' }] }
-      ]
-    },
-    { label: 'Other Charges' }
-  ];
+  DA.data.pricingAccessorialTree = (function () {
+    function leaf(label, incentives) {
+      return { label: label, incentives: incentives };
+    }
+    function row(movement, mode, serviceGroup, service, adu, nrpp, incentiveAmount) {
+      return {
+        movement: movement, mode: mode, serviceGroup: serviceGroup, service: service,
+        adu: adu, nrpp: nrpp, incentiveType: '% Off', incentiveAmount: incentiveAmount
+      };
+    }
+    // The single-row shape most leaves open onto -- flat across every
+    // lane rather than varying by service the way Fuel Surcharge does,
+    // matching Additional Handling Cubic Size/Length's own confirmed row.
+    function allLanesRow(incentiveAmount, movement) {
+      return row(movement || 'Domestic', 'ALL', 'ALL', 'ALL', '0.00', '$0.00', incentiveAmount);
+    }
+
+    return [
+      {
+        label: 'Fuel Surcharge',
+        incentives: [
+          row('Domestic', 'Air', 'Next Day', 'Next Day Air Early', '0.04', '$77.98', '20.00%'),
+          row('Domestic', 'Air', 'Next Day', 'Next Day Air', '1.56', '$33.34', '20.00%'),
+          row('Domestic', 'Air', 'Next Day', 'Next Day Air Saver', '0.44', '$47.43', '20.00%'),
+          row('Domestic', 'Air', '2nd Day', '2nd Day Air A.M.', '0.08', '$38.14', '20.00%'),
+          row('Domestic', 'Air', '2nd Day', '2nd Day Air', '1.44', '$16.12', '20.00%'),
+          row('Domestic', 'Air', '3rd Day', '3 Day Select', '0.04', '$123.33', '20.00%'),
+          row('Domestic', 'Ground', 'Ground', 'Ground', '3.00', '$11.79', '20.00%'),
+          row('Import', 'ALL', 'ALL', 'ALL', '6.64', '$21.98', '20.00%'),
+          row('Export', 'ALL', 'ALL', 'ALL', '6.64', '$21.98', '20.00%')
+        ]
+      },
+      {
+        label: 'Transportation Charges',
+        children: [
+          {
+            label: 'Additional Handling',
+            children: [
+              leaf('Additional Handling Cubic Size', [allLanesRow('55.00%')]),
+              leaf('Additional Handling Length', [allLanesRow('55.00%')]),
+              leaf('Additional Handling Length + Girth', [allLanesRow('55.00%')]),
+              leaf('Additional Handling Packaging', [allLanesRow('55.00%')]),
+              leaf('Additional Handling Weight', [allLanesRow('55.00%')]),
+              leaf('Additional Handling Width', [allLanesRow('55.00%')])
+            ]
+          },
+          { label: 'Delivery Area', children: [leaf('Delivery Area Commercial', [allLanesRow('20.00%')])] },
+          {
+            label: 'Extended/Remote Area',
+            children: [
+              leaf('Remote Area US48 Commercial', [row('Domestic', 'Ground', 'Ground', 'Ground', '0.00', '$0.00', '25.00%')]),
+              leaf('Remote Area US48 Residential', [row('Domestic', 'Ground', 'Ground', 'Ground', '0.00', '$0.00', '25.00%')])
+            ]
+          },
+          {
+            label: 'Large Package',
+            children: [
+              leaf('Large Package Commercial Length', [allLanesRow('25.00%')]),
+              leaf('Large Package Commercial Length + Girth', [allLanesRow('25.00%')]),
+              leaf('Large Package Residential Length', [allLanesRow('25.00%')]),
+              leaf('Large Package Residential Length + Girth', [allLanesRow('25.00%')]),
+              leaf('Large Package Surcharge Cubic Size Commercial', [allLanesRow('25.00%')]),
+              leaf('Large Package Surcharge Cubic Size Residential', [allLanesRow('25.00%')]),
+              leaf('Large Package Surcharge Weight Commercial', [allLanesRow('25.00%')]),
+              leaf('Large Package Surcharge Weight Residential', [allLanesRow('25.00%')])
+            ]
+          },
+          {
+            label: 'Other Transportation',
+            children: [
+              leaf('Early Surcharge', [row('Domestic', 'Air', 'Next Day', 'Next Day Air Early', '0.04', '$90.00', '25.00%')])
+            ]
+          },
+          {
+            label: 'Peak/Seasonal Surcharges',
+            children: [
+              leaf('Demand Surcharge - Additional Handling', [allLanesRow('15.00%')]),
+              leaf('Demand Surcharge - Large Package', [allLanesRow('15.00%')])
+            ]
+          },
+          {
+            label: 'Residential Surcharge',
+            children: [
+              leaf('Residential Surcharge', [allLanesRow('20.00%')]),
+              leaf('Residential Surcharge CWT', [allLanesRow('20.00%')])
+            ]
+          }
+        ]
+      },
+      {
+        label: 'Pickup And Delivery',
+        children: [
+          {
+            label: 'Other Pickup And Delivery',
+            children: [
+              leaf('Saturday Air Processing Fee (Saturday Pickup)', [row('Domestic', 'Air', 'ALL', 'ALL', '0.00', '$0.00', '15.00%')])
+            ]
+          },
+          leaf('Saturday Delivery', [allLanesRow('15.00%')]),
+          leaf('Saturday Service', [allLanesRow('15.00%')]),
+          leaf('Scheduled Pickup Options', [allLanesRow('15.00%')])
+        ]
+      },
+      {
+        label: 'Returns',
+        children: [leaf('Return Labels', [allLanesRow('10.00%')])]
+      },
+      {
+        label: 'Other Charges',
+        children: [
+          leaf('Dangerous Goods', [allLanesRow('10.00%')]),
+          leaf('Other Charges', [allLanesRow('10.00%')])
+        ]
+      },
+      {
+        label: 'Customs Brokerage',
+        children: [
+          leaf('Entry Preparation', [allLanesRow('10.00%', 'Import')]),
+          leaf('Other Brokerage Charges', [allLanesRow('10.00%', 'Import')])
+        ]
+      }
+    ];
+  })();
 
   /**
    * The full accessorial catalog "Add Accessorial Incentive Plan" opens

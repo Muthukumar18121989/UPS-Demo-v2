@@ -502,7 +502,7 @@
     for (var i = 0; i < nodes.length; i++) {
       var node = nodes[i];
       if (!node.children) {
-        return { label: node.label, value: node.label, path: ancestors.concat(node.label) };
+        return { label: node.label, value: node.label, path: ancestors.concat(node.label), node: node };
       }
       var found = firstLeaf(node.children, ancestors.concat(node.label));
       if (found) return found;
@@ -524,7 +524,7 @@
       DA.dom.clear(planSlot).appendChild(
         el('div', { className: 'plan-detail-panel' }, [
           el('p', { className: 'plan-detail-panel__title', text: leaf.path.join(' / ') }),
-          options.leafRender()
+          options.leafRender(leaf.node)
         ])
       );
     }
@@ -593,7 +593,7 @@
         ? function () {
             return node.children.map(function (child) { return planNode(child, leafRender); });
           }
-        : function () { return [leafRender()]; }
+        : function () { return [leafRender(node)]; }
     });
   }
 
@@ -620,12 +620,26 @@
    * to show which direction the crate's own arrow points. Anything not one
    * of these three (a future category, or Option 1/2's own unrelated
    * top-level groups like "Transportation Charges") falls back to the
-   * plain `box` every category used to share.
+   * plain `box` every category used to share. Accessorials' own six
+   * top-level groups get the same treatment, each picking an icon for
+   * what the group actually is rather than falling through to the same
+   * generic box every one of them used to share: Fuel Surcharge a gauge
+   * (the meter it's priced off), Transportation Charges a truck (the
+   * shipment itself), Pickup And Delivery an inbox (the tray either side
+   * of a delivery), Returns the refresh/reverse-cycle arrows (goods going
+   * back), Other Charges coins (a fee), Customs Brokerage a document (the
+   * paperwork brokerage is built from).
    */
   function categoryIcon(label) {
     if (label === 'Domestic') return DA.icons.home(16);
     if (label === 'Export') return DA.icons.exportBox(16);
     if (label === 'Import') return DA.icons.importBox(16);
+    if (label === 'Fuel Surcharge') return DA.icons.gauge(16);
+    if (label === 'Transportation Charges') return DA.icons.truck(16);
+    if (label === 'Pickup And Delivery') return DA.icons.inbox(16);
+    if (label === 'Returns') return DA.icons.refresh(16);
+    if (label === 'Other Charges') return DA.icons.coins(16);
+    if (label === 'Customs Brokerage') return DA.icons.file(16);
     return DA.icons.box(16);
   }
 
@@ -670,14 +684,14 @@
       DA.dom.clear(detailMount).appendChild(
         el('div', { className: 'plan-detail-panel' }, [
           el('p', { className: 'plan-detail-panel__title', text: leaf.path.join(' / ') }),
-          options.leafRender()
+          options.leafRender(leaf.node)
         ])
       );
     }
 
     function buildLeaf(node, ancestors, depth) {
       var value = node.value == null ? node.label : node.value;
-      var leaf = { label: node.label, value: value, path: ancestors.concat(node.label) };
+      var leaf = { label: node.label, value: value, path: ancestors.concat(node.label), node: node };
 
       var row = el('li', {
         className: 'dropdown__option dropdown__option--select dropdown__tree-leaf',
@@ -694,6 +708,12 @@
         }
       }, [
         DA.icons.check(16, 'dropdown__option-check'),
+        // A leaf that sits at the top level itself (Accessorials' own Fuel
+        // Surcharge, which opens straight onto its plan rather than a
+        // further group) still gets its category icon here -- buildGroup()
+        // below is the only place that used to award one, so a childless
+        // top-level node fell through with no icon at all otherwise.
+        depth === 0 ? categoryIcon(node.label) : depth === 1 ? subCategoryIcon(node.label) : null,
         el('span', { className: 'dropdown__option-label', text: node.label })
       ]);
 
@@ -781,12 +801,13 @@
     // Every top-level category this particular tree actually has, in
     // order -- Services' own tree gets Domestic/Export/Import,
     // Accessorials' own gets whatever its own top-level groups are
-    // (categoryIcon()'s box fallback for anything not Domestic/Export/
-    // Import). Built from `tree` itself rather than hardcoded, so the
-    // collapsed strip stays correct for either caller instead of only
-    // ever describing Services'.
+    // (categoryIcon()'s box fallback for anything not recognized). Built
+    // from `tree` itself rather than hardcoded, so the collapsed strip
+    // stays correct for either caller instead of only ever describing
+    // Services'. Not filtered to groups-with-children only -- Accessorials'
+    // own Fuel Surcharge is a top-level leaf (it opens straight onto its
+    // plan, nothing further to expand), and still belongs in this strip.
     var collapsedCategoryIcons = tree
-      .filter(function (node) { return node.children; })
       .map(function (node) { return categoryIcon(node.label); });
 
     var expandButton = el('button', {
@@ -911,11 +932,18 @@
   /* ---- Accessorials -------------------------------------------------------- */
 
   /**
-   * An accessorial's incentive plan: the same generic table for every leaf,
-   * mirroring servicePlan() -- what's edited is the incentive itself, not
-   * which leaf you opened it from.
+   * An accessorial's incentive plan: Movement / Mode / Service Group / Core
+   * Service as four separate label columns (restored from the earlier
+   * single combined "N-Next Day Air Early" column, per the client's own
+   * hierarchy reference screenshots showing all four side by side) plus
+   * ADU / NRPP / Incentive Type / Incentive Amount, matching that
+   * reference's own column order exactly. `node` is the tree leaf this
+   * plan opened from (see planPicker/planNode/planSidebar, all of which
+   * now pass their leaf's original node through) -- its own `incentives`
+   * rows render here, falling back to the old shared table only if a leaf
+   * somehow has none.
    */
-  function accessorialPlan() {
+  function accessorialPlan(node) {
     var C = DA.components;
 
     function editableColumn(key, label, width) {
@@ -929,42 +957,27 @@
       };
     }
 
+    // Movement/Mode/Service Group/Core Service are all leading identifier
+    // columns, none of them the row's editable figures -- is-rowhead on
+    // all four, the same treatment Analyzer > Charges' own Accessorial
+    // Type/Group/Detail triple uses (labelColumn() in analyzerPacketPage.js),
+    // so none of the four pick up the app-wide teal a plain data cell gets.
+    function labelColumn(key, label, width) {
+      return { key: key, label: label, width: width, className: 'is-rowhead' };
+    }
+
     return el('div', { className: 'card' }, [
       C.DataTable({
         caption: 'Accessorial incentive plan',
         embedded: true,
+        scrollable: true,
         headerTone: 'warm',
         tinted: true,
-        // Single Core Service column now, so nothing left to freeze as a
-        // group -- the row-header column freezes on its own regardless.
-        freezeColumns: 1,
-        // Row hover here should read on the incentive figures alone --
-        // the Core Service column stays at its normal resting color
-        // instead of also darkening.
-        noRowheadHover: true,
         columns: [
-          {
-            // Movement's own single-letter code (N/E/I, the same
-            // Domestic/Export/Import shorthand Services/Cost Details/Zones/
-            // Weight & Cube's own "N-Ground", "E-Worldwide Express" row
-            // labels already use) plus the leaf's own service name --
-            // Mode and Service Group dropped rather than joined in too, per
-            // explicit request ("Domestic-Air-Next Day-Next Day Air Early"
-            // reads as noise once the code + service name alone already
-            // identifies the row, matching this app's own convention
-            // everywhere else it names a row this way).
-            key: 'coreService',
-            label: 'Core Service',
-            width: '280px',
-            className: 'is-rowhead',
-            render: function (row) {
-              var prefix = row.movement === 'Domestic' ? 'N'
-                : row.movement === 'Export' ? 'E'
-                : row.movement === 'Import' ? 'I'
-                : row.movement;
-              return prefix + '-' + row.service;
-            }
-          },
+          labelColumn('movement', 'Movement', '130px'),
+          labelColumn('mode', 'Mode', '110px'),
+          labelColumn('serviceGroup', 'Service Group', '140px'),
+          labelColumn('service', 'Core Service', '200px'),
           {
             key: 'adu', label: 'ADU', width: '90px',
             className: 'is-numeric is-end', headerClassName: 'is-end'
@@ -976,7 +989,7 @@
           editableColumn('incentiveType', 'Incentive Type', '150px'),
           editableColumn('incentiveAmount', 'Incentive Amount', '165px')
         ],
-        rows: DA.data.pricingAccessorialIncentives
+        rows: (node && node.incentives) || DA.data.pricingAccessorialIncentives
       }),
       el('div', { className: 'grid-footer' }, [
         el('a', { className: 'link-with-icon', attrs: { href: '#save-changes' } }, [

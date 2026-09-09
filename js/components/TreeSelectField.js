@@ -42,7 +42,10 @@
 
     function buildLeaf(node, ancestors, depth) {
       var value = node.value == null ? node.label : node.value;
-      var leaf = { label: node.label, value: value, path: ancestors.concat(node.label) };
+      // `node` carried alongside the label/value/path -- lets a caller
+      // (Accessorials' own per-leaf incentive rows) read data off the
+      // original tree node the leaf came from, not just its label.
+      var leaf = { label: node.label, value: value, path: ancestors.concat(node.label), node: node };
       var selected = value === current;
 
       var row = el('li', {
