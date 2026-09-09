@@ -1713,7 +1713,17 @@
       return el('div', {}, [
         el('div', { className: 'view-stack' }, [
           scenarioBidFilters(),
-          el('div', { className: 'card' }, [
+          // .data-table itself is width: 100% unconditionally (every table
+          // in the app relies on filling its own container) -- with only
+          // one column here, there's nothing else for that column's own
+          // 330px to proportion against under table-layout: fixed, so it
+          // was being ignored and the table stretched to the full-width
+          // .card instead. Capped the *card* itself to a narrow width
+          // rather than touching the shared .data-table rule (which every
+          // other, genuinely wide table in the app still needs), so the
+          // single Dollar Amount column finally renders at its own
+          // intended size.
+          el('div', { className: 'card', style: { 'max-width': '350px' } }, [
             C.DataTable({
               caption: 'Adjustments',
               embedded: true,
