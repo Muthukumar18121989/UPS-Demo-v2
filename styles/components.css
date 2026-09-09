@@ -4644,10 +4644,24 @@
    two-row dark header (metric name, then Current/Scenario/Change) instead
    of a grid of borders doing that work.
    -------------------------------------------------------------------------- */
+/*
+ * max-height (not just overflow: auto) is what actually turns this into a
+ * scrolling viewport at all -- without a real height cap, the table just
+ * grows to fit every row and the page scrolls past it instead of this
+ * viewport ever scrolling itself, which in turn means thead's own
+ * position: sticky (already set below) never has a bounded scroll
+ * ancestor to stick within -- it scrolls away with the rest of the page
+ * rather than freezing in place. Same 520px cap Option 1's own
+ * DataTable(scrollable: true) already uses for this same table
+ * (.data-table__viewport--scrollable) and every other Analyzer sub-tab,
+ * so both options behave identically once there are enough rows to need
+ * it.
+ */
 .comparison-merged__viewport {
   border-top: 1px solid var(--color-border);
   border-radius: var(--radius-container);
   overflow: auto;
+  max-height: 520px;
 }
 
 .comparison-merged {
