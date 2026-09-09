@@ -973,6 +973,12 @@
         scrollable: true,
         headerTone: 'warm',
         tinted: true,
+        // Movement/Mode/Service Group/Core Service together identify the
+        // row -- frozen as a group during horizontal scroll, the same
+        // treatment every other multi-column row-header group in the app
+        // gets (Analyzer > Charges' Accessorial Type/Group/Detail,
+        // Accounts' Parent/Sub Parent/Account Number).
+        freezeColumns: 4,
         columns: [
           labelColumn('movement', 'Movement', '130px'),
           labelColumn('mode', 'Mode', '110px'),

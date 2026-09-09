@@ -1330,6 +1330,11 @@
             headerTone: 'warm',
             tinted: true,
             expandKey: 'detail',
+            // Accessorial Type, Group and Detail together identify the
+            // row -- frozen as a group during horizontal scroll, the same
+            // treatment Accounts' own Parent/Sub Parent/Account Number
+            // triple gets (freezeColumns: 3 below).
+            freezeColumns: 3,
             getChildren: function (row) { return row.children; },
             columns: [
               // Accessorial Type and Group repeat the same value down every
