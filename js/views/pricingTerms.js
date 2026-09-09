@@ -1105,16 +1105,12 @@
               updatePacketCta()
             ]);
           } },
-          // No filters row here, unlike every other Pricing Terms sub-tab --
-          // per explicit request, Modifiers shows nothing but its own
-          // empty state until there's a real Modifier feature behind it;
-          // a Choose Scenario/Choose Bid filter row over content that
-          // doesn't exist yet has nothing to filter.
+          // No filters, no empty-state table, no Update Analyzer Packet CTA
+          // -- unlike every other Pricing Terms sub-tab, per explicit
+          // request, Modifiers shows nothing at all until there's a real
+          // Modifier feature behind it.
           { id: 'modifiers', label: 'Modifiers', render: function () {
-            return el('div', {}, [
-              context.emptyView('Modifier')(),
-              updatePacketCta()
-            ]);
+            return el('div', {});
           } }
         ]
       })
