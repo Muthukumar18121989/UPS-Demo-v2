@@ -138,7 +138,7 @@
       })));
     })));
 
-    var grid = el('div', { className: 'data-table__viewport scroll-area data-table__viewport--auto' }, [
+    var grid = el('div', { className: 'data-table__viewport scroll-area data-table__viewport--auto data-table__viewport--tier' }, [
       el('table', { className: 'matrix matrix--tier' }, [
         el('caption', { className: 'u-visually-hidden', text: tier.tier + ' incentives' }),
         head,

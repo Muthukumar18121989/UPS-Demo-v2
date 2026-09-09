@@ -4579,22 +4579,19 @@
    .matrix table's real header text needs reads as an unexplained dark
    bar across the rest of the row here. Dropped back to the card's own
    background for every header cell but the Target one (already held
-   apart by its own pink via .is-target above, untouched by this). The
-   seams between columns need a divider of their own once that dark fill
-   (and the light-on-dark hairline it carried) is gone -- extended
-   through the body too, since a header-only divider with nothing to
-   continue it below would read as broken. --color-border-subtle reads
-   fine against this table's own white cells, the same call
-   comparison-cards__header-cell's own divider makes for a header
-   sitting on white.
+   apart by its own pink via .is-target above, untouched by this).
+   Column dividers only run through the body, where they sit against
+   real row content -- a first pass also drew them across this header
+   row, but a hairline over an otherwise blank, uncolored row read as a
+   loose fragment hanging above the table rather than a real seam, so
+   the header keeps none at all (back to a plain border, no color of its
+   own) while the body keeps its own at --color-border-subtle, the same
+   token comparison-cards__header-cell already uses for a divider
+   sitting on a white background.
 */
 .matrix--tier thead th:not(.is-target) {
   background-color: transparent;
   color: var(--color-text-primary);
-}
-
-.matrix--tier thead th {
-  border-right-color: var(--color-border-subtle);
 }
 
 .matrix--tier tbody th,
@@ -4604,6 +4601,32 @@
 
 .matrix--tier tbody tr > :last-child {
   border-right: 0;
+}
+
+/* The Target column's own outer corners -- top-right of the header,
+   bottom-right of the last body row -- share the table's general
+   corner-rounding rule (.matrix thead tr:first-child th:last-child etc.,
+   above) at --radius-container (4px), too subtle against a filled pink
+   background to read as rounded at all next to the fully round Target
+   pill inside it. Bumped up to --radius-lg here so the column's own
+   pink box reads as a clearly smooth curve, matching the pill it holds
+   rather than looking squared off beside it. */
+.matrix--tier thead tr:first-child th:last-child {
+  border-top-right-radius: var(--radius-lg);
+}
+
+.matrix--tier tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-lg);
+}
+
+/* The scrolling viewport this table sits in clips to its own radius
+   (overflow: auto establishes that clip) -- still --radius-container by
+   default, which would cut the pink cell's own newly-larger corner back
+   down to the smaller radius regardless of what the cell itself paints.
+   Loosened to match on the same two corners so the clip doesn't undercut it. */
+.data-table__viewport--tier {
+  border-top-right-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
 }
 
 /* --------------------------------------------------------------------------
