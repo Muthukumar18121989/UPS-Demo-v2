@@ -453,6 +453,44 @@
   ]);
 
   /**
+   * Analyzer > Charges' own Gross RPP / Net RPP / Profit / OR columns --
+   * missing entirely until the client's own reference screenshot called
+   * them out, added here the same way Services' own Total set was
+   * (withTotalMetrics() above): derived from each row's existing
+   * Gross Revenue/Net Revenue/Total Units/Discount rather than a second
+   * hand-typed set. Gross/Net RPP are the same rate-per-unit relationship
+   * Services' own baseRpp already uses (revenue / units); OR is a
+   * plausible per-row ratio scaled off how deeply that row is discounted
+   * (0% off reads as a lean 0.30 operating ratio, 100% off would read as
+   * a lossy 1.20 -- nothing in this row shape gives a real cost figure to
+   * derive OR from directly, the way it does exist for Services), and
+   * Profit follows from Net Revenue and that OR the same way Services'
+   * own profit/OR pairing already roughly holds (profit ~= netRevenue x
+   * (1 - OR)). Applied recursively (a charge's own children carry the
+   * same 4 fields too, not just its top-level rows).
+   */
+  function withAccessorialMetrics(row) {
+    var gross = parseFigureNumber(row.grossRevenue);
+    var net = parseFigureNumber(row.netRevenue);
+    var discPct = parseFigureNumber(row.discount);
+    var units = parseFloat(String(row.totalUnits).replace(/,/g, '')) || 0;
+
+    var grossRppNum = units > 0 ? gross.number / units : 0;
+    var netRppNum = units > 0 ? net.number / units : 0;
+    var orNum = 0.30 + (discPct ? discPct.number / 100 : 0) * 0.9;
+    var profitNum = net.number * (1 - orNum);
+
+    var mapped = Object.assign({}, row, {
+      grossRpp: '$ ' + grossRppNum.toFixed(2),
+      netRpp: '$ ' + netRppNum.toFixed(2),
+      profit: formatFigureNumber(profitNum, net),
+      or: orNum.toFixed(2)
+    });
+    if (row.children) mapped.children = row.children.map(withAccessorialMetrics);
+    return mapped;
+  }
+
+  /**
    * Accessorial charges: a parent total over the services that incurred it.
    * Row headers/hierarchy taken from the client's reference screenshot
    * (Analyzer > Charges update). Two rows -- Additional Handling Packaging
@@ -463,6 +501,8 @@
    * Discount column was cut off and unreadable), formatted to match this
    * table's existing convention (no thousands separators on Units/ADU,
    * "$ #,###.00" on revenue, one-decimal "%") rather than the screenshot's.
+   * Each row (and its own children, if any) runs through
+   * withAccessorialMetrics() below for Gross RPP/Net RPP/Profit/OR.
    */
   DA.data.shippingProfileAccessorial = [
     {
@@ -539,7 +579,7 @@
       totalUnits: '520.0', pctTotalVolume: '2.8%', adu: '52.0',
       grossRevenue: '$ 427.00', netRevenue: '$ 171.00', discount: '60.0%'
     }
-  ];
+  ].map(withAccessorialMetrics);
 
   /* ---- Pricing terms tab -------------------------------------------------- */
 

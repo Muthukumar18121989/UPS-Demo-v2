@@ -1334,7 +1334,11 @@
               numeric('adu', 'ADU', { link: true, width: '110px' }),
               numeric('grossRevenue', 'Gross Revenue', { link: true, width: '150px' }),
               numeric('netRevenue', 'Net Revenue', { link: true, width: '145px' }),
-              numeric('discount', 'Discount', { link: true, width: '110px' })
+              numeric('discount', 'Discount', { link: true, width: '110px' }),
+              numeric('grossRpp', 'Gross RPP', { link: true, width: '115px' }),
+              numeric('netRpp', 'Net RPP', { link: true, width: '110px' }),
+              numeric('profit', 'Profit', { link: true, width: '110px' }),
+              numeric('or', 'OR', { width: '90px' })
             ],
             rows: DA.data.shippingProfileAccessorial
           })
