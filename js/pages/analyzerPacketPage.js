@@ -1443,7 +1443,21 @@
               labelColumn('accountNumber', 'Account Number', '170px'),
               numeric('volume', 'Volume', { link: true, width: '110px' }),
               numeric('adv', 'ADV', { link: true, width: '100px' }),
-              numeric('zone', 'Zone', { link: true, width: '90px' })
+              numeric('zone', 'Zone', { link: true, width: '90px' }),
+              numeric('billableWt', 'Billable Wt', { link: true, width: '100px' }),
+              numeric('pps', 'PPS', { link: true, width: '80px' }),
+              numeric('baseGrossRev', 'Base Gross Rev', { link: true, width: '135px' }),
+              numeric('baseNetRev', 'Base Net Rev', { link: true, width: '125px' }),
+              numeric('baseDisc', 'Base Disc', { width: '95px' }),
+              numeric('baseRpp', 'Base RPP', { link: true, width: '105px' }),
+              numeric('baseProfit', 'Base Profit', { link: true, width: '110px' }),
+              numeric('baseOr', 'Base OR', { width: '95px' }),
+              numeric('totalGrossRev', 'Total Gross Revenue', { link: true, width: '150px' }),
+              numeric('totalNetRev', 'Total Net Revenue', { link: true, width: '140px' }),
+              numeric('totalDisc', 'Total Discount %', { width: '120px' }),
+              numeric('totalRpp', 'Total RPP', { link: true, width: '105px' }),
+              numeric('totalProfit', 'Total Profit', { link: true, width: '115px' }),
+              numeric('totalOr', 'Total OR', { width: '95px' })
             ],
             rows: DA.data.packetAccounts
           })

@@ -844,6 +844,12 @@
    * figures, so they're written down directly rather than summed from
    * children the way an additive breakdown would -- there's no shared
    * "share of the whole" to derive per account here, each is its own record.
+   * Billable Wt/PPS/Base Gross Rev/Base Net Rev/Base Disc/Base RPP/Base
+   * Profit/Base OR (missing entirely until the client's own reference
+   * screenshot) follow the same convention -- plausible figures per row,
+   * not summed either. Total Gross Revenue/Net Revenue/Discount %/RPP/
+   * Profit/OR (same screenshot) reuse withTotalMetrics() (defined above,
+   * by Services' own Total columns), applied via .map() below.
    */
   DA.data.packetAccounts = [
     {
@@ -852,13 +858,31 @@
       accountNumber: '-',
       expanded: true,
       volume: '172658.0', adv: '2656.3', zone: '19.4',
+      billableWt: '9.2', pps: '1.0',
+      baseGrossRev: '$3,842,650', baseNetRev: '$1,306,501', baseDisc: '66.0%',
+      baseRpp: '$7.57', baseProfit: '$285,420', baseOr: '0.78',
       children: [
-        { parent: '', subParent: '', accountNumber: '0000AW0689', volume: '19307.0', adv: '297.0', zone: '65.8' },
-        { parent: '', subParent: '', accountNumber: '000082W208', volume: '153317.0', adv: '2358.7', zone: '13.6' },
-        { parent: '', subParent: '', accountNumber: '000083E306', volume: '34.0', adv: '0.5', zone: '3.6' }
+        {
+          parent: '', subParent: '', accountNumber: '0000AW0689', volume: '19307.0', adv: '297.0', zone: '65.8',
+          billableWt: '11.4', pps: '1.0',
+          baseGrossRev: '$612,480', baseNetRev: '$198,420', baseDisc: '67.6%',
+          baseRpp: '$10.28', baseProfit: '$38,240', baseOr: '0.81'
+        },
+        {
+          parent: '', subParent: '', accountNumber: '000082W208', volume: '153317.0', adv: '2358.7', zone: '13.6',
+          billableWt: '8.6', pps: '1.0',
+          baseGrossRev: '$3,102,640', baseNetRev: '$1,061,280', baseDisc: '65.8%',
+          baseRpp: '$6.92', baseProfit: '$241,050', baseOr: '0.77'
+        },
+        {
+          parent: '', subParent: '', accountNumber: '000083E306', volume: '34.0', adv: '0.5', zone: '3.6',
+          billableWt: '4.2', pps: '1.0',
+          baseGrossRev: '$1,240', baseNetRev: '$418', baseDisc: '66.3%',
+          baseRpp: '$12.29', baseProfit: '$62', baseOr: '0.85'
+        }
       ]
     }
-  ];
+  ].map(withTotalMetrics);
 
   /**
    * Rows behind Analyzer > Weight & Cube: the same core services Services
@@ -996,8 +1020,12 @@
    * scaled from their own Base figures.
    */
   function withTotalMetrics(row) {
+    // Services' own rows key their discount column `disc`; Accounts' (and
+    // Weight & Cube's) own key it `baseDisc` -- both pre-date this
+    // function, so it reads whichever this row actually has rather than
+    // forcing one convention onto the other.
     var gross = parseFigureNumber(row.baseGrossRev);
-    var discPct = parseFigureNumber(row.disc);
+    var discPct = parseFigureNumber(row.disc != null ? row.disc : row.baseDisc);
     var rpp = parseFigureNumber(row.baseRpp);
     var profit = parseFigureNumber(row.baseProfit);
     var or_ = parseFigureNumber(row.baseOr);
@@ -1008,7 +1036,7 @@
     var totalNetNum = totalGrossNum * (1 - totalDiscNum / 100);
     var totalRppNum = volume > 0 ? totalNetNum / volume : totalNetNum;
 
-    return Object.assign({}, row, {
+    var mapped = Object.assign({}, row, {
       totalGrossRev: formatFigureNumber(totalGrossNum, gross),
       totalNetRev: formatFigureNumber(totalNetNum, gross),
       totalDisc: formatFigureNumber(totalDiscNum, discPct),
@@ -1016,6 +1044,12 @@
       totalProfit: formatFigureNumber(profit.number * 1.18, profit),
       totalOr: formatFigureNumber(Math.max(0.05, or_.number - 0.05), or_)
     });
+    // packetServices' own rows never carry a `children` array (Services'
+    // own children come from packageBreakdown() at render time instead) --
+    // packetAccounts' do, so this recurses for its sake. A no-op for every
+    // row that doesn't have one.
+    if (row.children) mapped.children = row.children.map(withTotalMetrics);
+    return mapped;
   }
 
   /**
