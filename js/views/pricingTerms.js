@@ -139,7 +139,7 @@
     })));
 
     var grid = el('div', { className: 'data-table__viewport scroll-area data-table__viewport--auto' }, [
-      el('table', { className: 'matrix' }, [
+      el('table', { className: 'matrix matrix--tier' }, [
         el('caption', { className: 'u-visually-hidden', text: tier.tier + ' incentives' }),
         head,
         body

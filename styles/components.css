@@ -4574,6 +4574,38 @@
   text-transform: uppercase;
 }
 
+/* Tier Incentives' own header row has no real column labels of its own --
+   just the per-band Target flag -- so the plain warm fill every other
+   .matrix table's real header text needs reads as an unexplained dark
+   bar across the rest of the row here. Dropped back to the card's own
+   background for every header cell but the Target one (already held
+   apart by its own pink via .is-target above, untouched by this). The
+   seams between columns need a divider of their own once that dark fill
+   (and the light-on-dark hairline it carried) is gone -- extended
+   through the body too, since a header-only divider with nothing to
+   continue it below would read as broken. --color-border-subtle reads
+   fine against this table's own white cells, the same call
+   comparison-cards__header-cell's own divider makes for a header
+   sitting on white.
+*/
+.matrix--tier thead th:not(.is-target) {
+  background-color: transparent;
+  color: var(--color-text-primary);
+}
+
+.matrix--tier thead th {
+  border-right-color: var(--color-border-subtle);
+}
+
+.matrix--tier tbody th,
+.matrix--tier tbody td {
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.matrix--tier tbody tr > :last-child {
+  border-right: 0;
+}
+
 /* --------------------------------------------------------------------------
    Expandable table rows
    -------------------------------------------------------------------------- */
