@@ -918,6 +918,66 @@
     }
   ];
 
+  /** Parses one of this file's own formatted figures ("$407,142", "79.7%",
+      "0.52", "$ -341") into a plain number plus the prefix/suffix/decimal
+      precision needed to format a derived figure back in the same style --
+      see withTotalMetrics() below. */
+  function parseFigureNumber(raw) {
+    var match = /^(\$\s*)?(-?[\d,]+(?:\.\d+)?)\s*(%)?$/.exec(String(raw).trim());
+    if (!match) return null;
+    return {
+      number: parseFloat(match[2].replace(/,/g, '')),
+      prefix: match[1] || '',
+      suffix: match[3] || '',
+      decimals: (match[2].split('.')[1] || '').length
+    };
+  }
+
+  /** The inverse of parseFigureNumber() -- `like` supplies the prefix/
+      suffix/decimals to format `number` back into. */
+  function formatFigureNumber(number, like) {
+    var fixed = Math.abs(number).toFixed(like.decimals);
+    var grouped = fixed.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (like.prefix || '') + (number < 0 ? '-' : '') + grouped + (like.suffix || '');
+  }
+
+  /**
+   * Analyzer > Services' "Total" columns (Total Gross Rev / Net Rev / Disc
+   * / RPP / Profit / OR) -- the fully-loaded figures (accessorials and
+   * other charges folded in), alongside the "Base" set every row already
+   * carries (the pre-incentive freight-only figures). Derived from each
+   * row's own Base figures at load time rather than a second hand-typed
+   * set of numbers across 20 rows: Total Gross Rev runs 12% above Base
+   * (the accessorial layer), Total Disc a few points sharper against that
+   * larger base, Total Net Rev computed from those two rather than scaled
+   * independently (so it stays internally consistent, matching how
+   * baseRpp = baseNetRev / volume already holds for this same data), Total
+   * RPP the same net-rev-over-volume relationship, and Total Profit/OR
+   * scaled from their own Base figures.
+   */
+  function withTotalMetrics(row) {
+    var gross = parseFigureNumber(row.baseGrossRev);
+    var discPct = parseFigureNumber(row.disc);
+    var rpp = parseFigureNumber(row.baseRpp);
+    var profit = parseFigureNumber(row.baseProfit);
+    var or_ = parseFigureNumber(row.baseOr);
+    var volume = parseFloat(String(row.volume).replace(/,/g, '')) || 0;
+
+    var totalGrossNum = gross.number * 1.12;
+    var totalDiscNum = Math.max(0, discPct.number - 3);
+    var totalNetNum = totalGrossNum * (1 - totalDiscNum / 100);
+    var totalRppNum = volume > 0 ? totalNetNum / volume : totalNetNum;
+
+    return Object.assign({}, row, {
+      totalGrossRev: formatFigureNumber(totalGrossNum, gross),
+      totalNetRev: formatFigureNumber(totalNetNum, gross),
+      totalDisc: formatFigureNumber(totalDiscNum, discPct),
+      totalRpp: formatFigureNumber(totalRppNum, rpp),
+      totalProfit: formatFigureNumber(profit.number * 1.18, profit),
+      totalOr: formatFigureNumber(Math.max(0.05, or_.number - 0.05), or_)
+    });
+  }
+
   /**
    * Rows behind Analyzer > Services. Reference screen order: 2nd Day Air,
    * 3 Day Select, Next Day Air, Next Day Air Saver, Ground (its own
@@ -928,7 +988,9 @@
    * their revenue figures are carried over unchanged rather than
    * re-invented. N-Ground is expanded by default, matching the
    * reference. The remaining domestic and international services round
-   * the list out past 20 rows.
+   * the list out past 20 rows. Each row runs through withTotalMetrics()
+   * (see above) for its own Total Gross Rev/Net Rev/Disc/RPP/Profit/OR,
+   * alongside the Base set already given here directly.
    */
   DA.data.packetServices = [
     { service: 'N-2nd Day Air', volume: '4203', adv: '64.7', avgZone: '206.3', billableWt: '8.5', pps: '1.0', baseGrossRev: '$407,142', baseNetRev: '$82,709', disc: '79.7%', baseRpp: '$19.68', baseProfit: '$ -341', baseOr: '0.52' },
@@ -953,7 +1015,7 @@
     { service: 'E-Import Express Saver', volume: '7', adv: '0.1', avgZone: '481.0', billableWt: '7.5', pps: '1.0', baseGrossRev: '$2,690', baseNetRev: '$1,412', disc: '47.5%', baseRpp: '$201.71', baseProfit: '$780', baseOr: '0.45' },
     { service: 'E-Worldwide Express Freight', volume: '3', adv: '0.0', avgZone: '512.0', billableWt: '412.0', pps: '1.0', baseGrossRev: '$8,940', baseNetRev: '$5,203', disc: '41.8%', baseRpp: '$1,734.33', baseProfit: '$2,014', baseOr: '0.61' },
     { service: 'E-Worldwide Express Freight Midday', volume: '2', adv: '0.0', avgZone: '512.0', billableWt: '398.0', pps: '1.0', baseGrossRev: '$6,214', baseNetRev: '$3,618', disc: '41.8%', baseRpp: '$1,809.00', baseProfit: '$1,402', baseOr: '0.61' }
-  ];
+  ].map(withTotalMetrics);
 
   /**
    * Rate Charts' Net-basis grid: a $ rate per zone/weight-tier cell, the same

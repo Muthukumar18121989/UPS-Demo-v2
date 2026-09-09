@@ -1387,7 +1387,13 @@
               numeric('disc', 'Disc', { width: '85px' }),
               numeric('baseRpp', 'Base RPP', { link: true, width: '105px' }),
               numeric('baseProfit', 'Base Profit', { link: true, width: '110px' }),
-              numeric('baseOr', 'Base OR', { width: '95px' })
+              numeric('baseOr', 'Base OR', { width: '95px' }),
+              numeric('totalGrossRev', 'Total Gross Rev', { link: true, width: '140px' }),
+              numeric('totalNetRev', 'Total Net Rev', { link: true, width: '130px' }),
+              numeric('totalDisc', 'Total Disc', { width: '95px' }),
+              numeric('totalRpp', 'Total RPP', { link: true, width: '110px' }),
+              numeric('totalProfit', 'Total Profit', { link: true, width: '115px' }),
+              numeric('totalOr', 'Total OR', { width: '95px' })
             ],
             rows: DA.data.packetServices
           })
