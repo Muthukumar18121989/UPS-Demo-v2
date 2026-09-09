@@ -149,6 +149,18 @@
               }
             }
           }, [expanded ? DA.icons.chevronDown(14) : DA.icons.chevronRight(14, '')]));
+        } else {
+          // A leaf row (no children of its own) skipped the toggle button
+          // entirely, so its label started flush against the cell's own
+          // padding -- lining up with a *sibling* leaf at the same depth,
+          // but not with a toggle-bearing row at that same depth (its own
+          // parent, say, or a sibling that does have children), whose
+          // label sits row-toggle's own width + the expand-cell gap
+          // further right. A same-size, invisible spacer keeps every
+          // row's label at one consistent position for its depth,
+          // regardless of whether that particular row happens to have
+          // children.
+          inner.push(el('span', { className: 'row-toggle-spacer', attrs: { 'aria-hidden': 'true' } }));
         }
         inner.push(label);
 

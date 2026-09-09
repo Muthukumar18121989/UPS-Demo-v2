@@ -899,6 +899,16 @@
         var expanded = open.indexOf(row) !== -1;
         var children = childrenOf(row);
 
+        // A leaf row (no children) has no toggle button, and skipping it
+        // outright (rather than reserving its own space) left its label
+        // flush against the cell's own padding -- lining up with the
+        // *depth*-based padding step alone, not with a toggle-bearing
+        // row's own label at that same depth (its parent, or a sibling
+        // that does have children), whose label sits row-toggle's own
+        // width + the expand-cell gap further right. Same fix as
+        // DataTable.js's own cell(): a same-size, invisible spacer when
+        // there's no toggle, so every row's label lands at one consistent
+        // position for its depth.
         var toggle = children
           ? el('button', {
               className: 'row-toggle u-tap-target',
@@ -915,7 +925,7 @@
                 }
               }
             }, [expanded ? DA.icons.chevronDown(14) : DA.icons.chevronRight(14, '')])
-          : null;
+          : el('span', { className: 'row-toggle-spacer', attrs: { 'aria-hidden': 'true' } });
 
         var labelCell = el('td', {
           className: 'is-rowhead is-frozen-col is-frozen-edge comparison-merged__rowhead has-expander' + (depth ? ' is-child-cell' : ''),

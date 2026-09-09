@@ -4608,6 +4608,16 @@
   color: var(--color-text-link);
 }
 
+/* A leaf row's own stand-in for the toggle button it doesn't have --
+   same box, nothing drawn in it -- so its label lands at the same
+   position a toggle-bearing row's own label would, at the same depth. */
+.row-toggle-spacer {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
 .data-table tbody tr.is-child-row td {
   color: var(--color-text-secondary);
 }

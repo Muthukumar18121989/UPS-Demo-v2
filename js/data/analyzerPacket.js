@@ -194,6 +194,15 @@
    * identity -- but Scenario 1's own figures are SCENARIO_1_SCALE's scaled
    * version of Current's (see packetSummaryTrees below), not identical
    * copies, so Comparisons' own Change column has real deltas to show.
+   *
+   * Unincented PLD keeps only its own Sub-total plus 3 lanes (N-3 Day
+   * Select, E-/I-Standard to Canada); the other 11 lanes that used to sit
+   * under it move down into Hormel 2024's own children instead, after its
+   * existing Sub-total -- per explicit request, so Unincented PLD's own
+   * group doesn't dominate the table with every lane while Hormel 2024
+   * shows just one. This is the only tree shape either Comparisons option
+   * or either scenario panel renders -- moving the rows here moves them
+   * everywhere at once.
    */
   function comparisonSummaryTree() {
     return [
@@ -206,7 +215,15 @@
           { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 2,914.29', annRev: '$ 147,754,284', or: '0.98', profit: '$ 2,955,086' },
           { label: 'N-3 Day Select', adv: '85.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,389.67', annRev: '$ 74,911,779', or: '0.91', profit: '$ 6,742,060' },
           { label: 'E-Standard to Canada', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2.64', annRev: '$ 6,864', or: '1.15', profit: '$ -1,030' },
-          { label: 'I-Standard from Canada', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 6.60', annRev: '$ 3,432', or: '1.20', profit: '$ -686' },
+          { label: 'I-Standard from Canada', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 6.60', annRev: '$ 3,432', or: '1.20', profit: '$ -686' }
+        ]
+      },
+      {
+        label: 'Hormel 2024',
+        expanded: true,
+        adv: '3.8', baseFrt: '70.3%', totalDisc: '64.6%', rpp: '$ 26.51', annRev: '$ 26,191', or: '0.64', profit: '$ 9,429',
+        children: [
+          { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 26.51', annRev: '$ 26,191', or: '0.64', profit: '$ 9,429' },
           { label: 'N-Ground', adv: '4.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2,982.32', annRev: '$ 3,101,612', or: '0.88', profit: '$ 372,193' },
           { label: 'E-Worldwide Express Saver', adv: '42.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,800.87', annRev: '$ 41,505,464', or: '0.93', profit: '$ 2,905,382' },
           { label: 'I-Worldwide Express Saver', adv: '4.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 3,596.00', annRev: '$ 3,739,840', or: '0.82', profit: '$ 673,171' },
@@ -218,14 +235,6 @@
           { label: 'I-Worldwide Expedited', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 13,721.90', annRev: '$ 7,135,388', or: '0.83', profit: '$ 1,213,016' },
           { label: 'E-Standard to Mexico', adv: '10.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 2.64', annRev: '$ 6,864', or: '1.15', profit: '$ -1,030' },
           { label: 'I-Standard from Mexico', adv: '2.0', baseFrt: '0.0%', totalDisc: '0.0%', rpp: '$ 1,071.60', annRev: '$ 557,232', or: '0.97', profit: '$ 16,717' }
-        ]
-      },
-      {
-        label: 'Hormel 2024',
-        expanded: true,
-        adv: '3.8', baseFrt: '70.3%', totalDisc: '64.6%', rpp: '$ 26.51', annRev: '$ 26,191', or: '0.64', profit: '$ 9,429',
-        children: [
-          { label: 'Sub-total', adv: '-', baseFrt: '-', totalDisc: '-', rpp: '$ 26.51', annRev: '$ 26,191', or: '0.64', profit: '$ 9,429' }
         ]
       }
     ];
