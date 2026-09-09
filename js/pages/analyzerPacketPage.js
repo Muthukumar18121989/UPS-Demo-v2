@@ -1280,6 +1280,15 @@
       });
     }
 
+    // Renamed/reordered from "Freight Gross Spent / Freight Discount (%) /
+    // Freight RPP / Freight Net Spent / Freight Profit ($) / Freight OR"
+    // to match the "Base Gross Rev / Base Net Rev / Base Disc / Base RPP /
+    // Base Profit / Base OR" naming and order every other Analyzer sub-tab
+    // (Services, Accounts, Weight & Cube) already uses for this same
+    // metric set, per the client's own reference screenshot -- label and
+    // position only, the underlying data keys (freightGrossSpent, etc.,
+    // still DA.data.additive.zone's own additive list in breakdowns.js)
+    // are unchanged.
     function zoneView() {
       return profileTable({
         caption: 'Shipping profile zones',
@@ -1290,12 +1299,12 @@
           numeric('adv', 'ADV', { link: true, width: '100px' }),
           numeric('pps', 'PPS', { link: true, width: '80px' }),
           numeric('weightPiece', 'Weight/Piece', { link: true, width: '125px' }),
-          numeric('freightGrossSpent', 'Freight Gross Spent', { link: true, width: '175px' }),
-          numeric('freightDiscount', 'Freight Discount (%)', { link: true, width: '175px' }),
-          numeric('freightRpp', 'Freight RPP', { link: true, width: '125px' }),
-          numeric('freightNetSpent', 'Freight Net Spent', { link: true, width: '165px' }),
-          numeric('freightProfit', 'Freight Profit ($)', { link: true, width: '160px' }),
-          numeric('freightOr', 'Freight OR', { link: true, width: '120px' })
+          numeric('freightGrossSpent', 'Base Gross Rev', { link: true, width: '135px' }),
+          numeric('freightNetSpent', 'Base Net Rev', { link: true, width: '125px' }),
+          numeric('freightDiscount', 'Base Disc', { link: true, width: '95px' }),
+          numeric('freightRpp', 'Base RPP', { link: true, width: '105px' }),
+          numeric('freightProfit', 'Base Profit', { link: true, width: '110px' }),
+          numeric('freightOr', 'Base OR', { link: true, width: '95px' })
         ]
       });
     }
