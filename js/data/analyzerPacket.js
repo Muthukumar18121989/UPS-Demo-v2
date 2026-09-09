@@ -1128,11 +1128,11 @@
    * every row already, before and after).
    */
   DA.data.packetDimDivisor = [
-    { coreServiceLabel: 'N-1 Day Air', serviceGroup: 'N-1 Day Air', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { coreServiceLabel: 'N-1 Day Saver', serviceGroup: 'N-1 Day Saver', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { coreServiceLabel: 'N-2 Day AM', serviceGroup: 'N-2 Day AM', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { coreServiceLabel: 'N-2 Day Air', serviceGroup: 'N-2 Day Air', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
-    { coreServiceLabel: 'N-3 Day Select', serviceGroup: 'N-3 Day Select', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-Next Day Air', serviceGroup: 'N-Next Day Air', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-Next Day Saver', serviceGroup: 'N-Next Day Saver', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-2nd Day AM', serviceGroup: 'N-2nd Day AM', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-2nd Day Air', serviceGroup: 'N-2nd Day Air', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
+    { coreServiceLabel: 'N-3rd Day Select', serviceGroup: 'N-3rd Day Select', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' },
     { coreServiceLabel: 'N-Ground', serviceGroup: 'N-Ground', incentiveType: 'DIM Divisor', divisorCode: '01 - Dim Weight Divisor', cubicVolumeFrom: '0.0', divisor: '194.0' }
   ];
 })(window.DA);
