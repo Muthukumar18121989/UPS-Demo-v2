@@ -944,17 +944,25 @@
         noRowheadHover: true,
         columns: [
           {
-            // Movement, Mode, Service Group and the leaf's own name joined
-            // into one label -- the same "Core Service" pattern Analyzer's
-            // Cost Details/Zones tables use (profileKeyColumns()), rather
-            // than four separate frozen columns for what reads as a single
-            // line identifying the row.
+            // Movement's own single-letter code (N/E/I, the same
+            // Domestic/Export/Import shorthand Services/Cost Details/Zones/
+            // Weight & Cube's own "N-Ground", "E-Worldwide Express" row
+            // labels already use) plus the leaf's own service name --
+            // Mode and Service Group dropped rather than joined in too, per
+            // explicit request ("Domestic-Air-Next Day-Next Day Air Early"
+            // reads as noise once the code + service name alone already
+            // identifies the row, matching this app's own convention
+            // everywhere else it names a row this way).
             key: 'coreService',
             label: 'Core Service',
             width: '280px',
             className: 'is-rowhead',
             render: function (row) {
-              return [row.movement, row.mode, row.serviceGroup, row.service].join('-');
+              var prefix = row.movement === 'Domestic' ? 'N'
+                : row.movement === 'Export' ? 'E'
+                : row.movement === 'Import' ? 'I'
+                : row.movement;
+              return prefix + '-' + row.service;
             }
           },
           {
