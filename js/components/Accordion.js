@@ -57,8 +57,18 @@
       el('span', { text: options.title })
     ]);
 
+    // `headerExtra` sits beside the trigger, not inside it -- a real
+    // control (a toggle, say) nested inside the trigger <button> would
+    // both be invalid HTML and fire the accordion's own click handler
+    // whenever it's used. Reclaims the header's own trailing space for
+    // a related control instead of that control needing a row of its
+    // own above the accordion.
+    var header = options.headerExtra
+      ? el('div', { className: 'accordion__header' }, [trigger, options.headerExtra])
+      : trigger;
+
     return el('div', {
       className: 'accordion' + (options.className ? ' ' + options.className : '')
-    }, [trigger, panel]);
+    }, [header, panel]);
   };
 })(window.DA);

@@ -46,10 +46,28 @@
     return format(right - left, shapeOf(a));
   }
 
+  /**
+   * A currency figure at or above $1,000,000 condensed to "$1.07M" --
+   * for a wide dollar figure (Total Net Revenue) that needs to sit in a
+   * narrow card without wrapping or crowding its neighbor. Percent,
+   * decimal, and sub-million figures (RPP, OR, a typical scenario
+   * delta) pass through unchanged; this is about taming one wide
+   * number, not reformatting every value.
+   */
+  function compact(text) {
+    var shape = shapeOf(text);
+    if (!shape.currency) return text;
+    var value = toNumber(text);
+    if (value == null || Math.abs(value) < 1000000) return text;
+    var sign = value < 0 ? '-' : '';
+    return sign + '$' + (Math.abs(value) / 1000000).toFixed(2) + 'M';
+  }
+
   DA.figures = {
     toNumber: toNumber,
     shapeOf: shapeOf,
     format: format,
-    difference: difference
+    difference: difference,
+    compact: compact
   };
 })(window.DA);

@@ -70,9 +70,13 @@
             });
           }
         },
-        { key: 'bidNumber', label: 'Bid Number', width: '125px' },
+        // Bid Number, Bid Name and Construct are plain attributes of the
+        // bid, not values to inspect or follow -- only Shipping Profile
+        // (opens a dialog) and Account Association stay on the table's
+        // link-blue.
+        { key: 'bidNumber', label: 'Bid Number', width: '125px', className: 'is-plain' },
         // Bid Name is left unsized so it absorbs the remaining width.
-        { key: 'bidName', label: 'Bid Name' },
+        { key: 'bidName', label: 'Bid Name', className: 'is-plain' },
         {
           key: 'shippingProfile',
           label: 'Shipping Profile',
@@ -94,11 +98,11 @@
               }
             : null
         },
-        { key: 'construct', label: 'Construct', width: '110px' }
-      ];
-
-      if (scenario.editable) {
-        columns.push({
+        { key: 'construct', label: 'Construct', width: '110px', className: 'is-plain' },
+        // Shown for every scenario, baseline included -- the baseline's
+        // own bids associate accounts the same way an editable
+        // scenario's do, so the column isn't gated on scenario.editable.
+        {
           key: 'accountAssociation',
           label: 'Account Association',
           width: '190px',
@@ -118,10 +122,72 @@
               }
             }, [el('span', { text: 'Accounts' }), DA.icons.settings(14)]);
           }
-        });
-      }
+        }
+      ];
 
       return columns;
+    }
+
+    /** Drawer: simulate a new bid into this scenario's table. */
+    function openSimulateBid(trigger) {
+      function updateContinueState() {
+        var ready = Boolean(bidNumberField.input.value.trim()) && Boolean(bidNameField.input.value.trim());
+        continueButton.disabled = !ready;
+      }
+
+      var bidNumberField = C.Field({ label: 'Enter Bid Number *', onInput: updateContinueState });
+      var bidNameField = C.Field({ label: 'Bid Name *', onInput: updateContinueState });
+
+      var continueButton = C.Button({
+        label: 'Continue',
+        variant: 'primary',
+        shape: 'pill',
+        icon: DA.icons.chevronRight(14, ''),
+        iconPosition: 'end',
+        disabled: true,
+        onClick: function () {
+          // Every bid's Structure Details reads from the same shared source
+          // set (see scenarioBids.js) -- a simulated one is no different.
+          var sharedSource = DA.data.scenarioBids[0] && DA.data.scenarioBids[0].serviceSource;
+          var newBid = {
+            bidNumber: bidNumberField.input.value,
+            bidName: bidNameField.input.value,
+            shippingProfile: 'S' + scenario.number + '-UPS-PLD-' + (scenario.bids.length + 1),
+            construct: 'Daily',
+            selectable: true,
+            selected: true,
+            serviceSource: sharedSource
+          };
+          // The non-incented revenue row (the one bid with no checkbox)
+          // always stays last in the table -- a simulated bid slots in
+          // just above it rather than after it.
+          var tailIndex = scenario.bids.findIndex(function (bid) { return !bid.selectable; });
+          if (tailIndex === -1) {
+            scenario.bids.push(newBid);
+          } else {
+            scenario.bids.splice(tailIndex, 0, newBid);
+          }
+          drawer.close();
+          renderCard();
+        }
+      });
+
+      var drawer = C.Modal({
+        variant: 'drawer',
+        title: 'Copy a Bid to Scenario',
+        returnFocusTo: trigger,
+        body: el('div', { className: 'drawer-form' }, [
+          el('p', { className: 'drawer-form__legend', text: '* Indicates required field.' }),
+          bidNumberField,
+          bidNameField,
+          el('div', { className: 'drawer-form__actions' }, [
+            continueButton,
+            C.Button({ label: 'Cancel', variant: 'link', onClick: function () { drawer.close(); } })
+          ])
+        ])
+      });
+
+      drawer.open();
     }
 
     /* ---- Card ------------------------------------------------------------ */
@@ -216,10 +282,17 @@
           }),
           scenario.editable
             ? el('div', { className: 'simulate-row' }, [
-                el('a', {
-                  className: 'link-with-icon',
-                  attrs: { href: '#simulate-' + scenario.title }
-                }, [DA.icons.plusCircle(18), el('span', { text: 'Simulate New Bid' })])
+                (function () {
+                  var link = el('a', {
+                    className: 'link-with-icon',
+                    attrs: { href: '#simulate-' + scenario.title }
+                  }, [DA.icons.plusCircle(18), el('span', { text: 'Simulate New Bid' })]);
+                  link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    openSimulateBid(link);
+                  });
+                  return link;
+                })()
               ])
             : null
         ])

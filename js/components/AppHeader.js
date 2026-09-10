@@ -41,6 +41,16 @@
         ])
       ]),
       el('div', { className: 'app-header__actions' }, [
+        el('a', {
+          className: 'app-header__style-guide',
+          attrs: { href: '#style-guide' },
+          on: {
+            click: function (event) {
+              event.preventDefault();
+              DA.app.navigate('style-guide');
+            }
+          }
+        }, [el('span', { text: 'Style Guide' })]),
         DA.components.IconButton({ icon: icons.bell(), ariaLabel: 'Notifications' }),
         DA.components.Avatar({ name: user.name, initials: user.initials })
       ])

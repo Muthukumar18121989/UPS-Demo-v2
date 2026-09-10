@@ -17,43 +17,53 @@
     var bid = options.bid || {};
     var scenario = options.scenario || {};
     var tree = DA.data.accountTree;
-    var accounts = DA.data.accountsIn(tree);
-
-    function countWhere(predicate) {
-      return accounts.filter(predicate).length;
-    }
 
     /* ---- Counts ----------------------------------------------------------- */
 
-    var stats = C.StatRow({
-      ariaLabel: 'Account counts',
-      items: [
-        {
-          icon: DA.icons.box(26),
-          value: accounts.length,
-          label: 'Total Accounts',
-          help: 'Every account under this bid.'
-        },
-        {
-          icon: DA.icons.box(26),
-          value: countWhere(function (a) { return a.type === 'ups'; }),
-          label: 'UPS Accounts',
-          help: 'Accounts held in the UPS account system.'
-        },
-        {
-          icon: DA.icons.box(26),
-          value: countWhere(function (a) { return a.type === 'temporary'; }),
-          label: 'Temporary Accounts',
-          help: 'Accounts created for this analysis only.'
-        },
-        {
-          icon: DA.icons.boxOff(26),
-          value: countWhere(function (a) { return !a.associated; }),
-          label: 'Unassociated Accounts',
-          help: 'Accounts not yet attached to a bid.'
-        }
-      ]
-    });
+    var statsMount = el('div', {});
+
+    function renderStats() {
+      // Recomputed each call rather than cached -- Attach Account mutates
+      // `tree` directly, so the counts need to read it fresh, the same way
+      // the tree table below already does via render().
+      var accounts = DA.data.accountsIn(tree);
+      function countWhere(predicate) {
+        return accounts.filter(predicate).length;
+      }
+      DA.dom.clear(statsMount).appendChild(
+        C.StatRow({
+          ariaLabel: 'Account counts',
+          items: [
+            {
+              icon: DA.icons.box(26),
+              value: accounts.length,
+              label: 'Total Accounts',
+              help: 'Every account under this bid.'
+            },
+            {
+              icon: DA.icons.box(26),
+              value: countWhere(function (a) { return a.type === 'ups'; }),
+              label: 'UPS Accounts',
+              help: 'Accounts held in the UPS account system.'
+            },
+            {
+              icon: DA.icons.box(26),
+              value: countWhere(function (a) { return a.type === 'temporary'; }),
+              label: 'Temporary Accounts',
+              help: 'Accounts created for this analysis only.'
+            },
+            {
+              icon: DA.icons.boxOff(26),
+              value: countWhere(function (a) { return !a.associated; }),
+              label: 'Unassociated Accounts',
+              help: 'Accounts not yet attached to a bid.'
+            }
+          ]
+        })
+      );
+    }
+
+    renderStats();
 
     /* ---- Account tree ------------------------------------------------------ */
 
@@ -174,6 +184,169 @@
 
     render();
 
+    /* ---- Attach Account drawer ---------------------------------------------- */
+
+    /** One collapsible parent/group level inside the drawer's own picker tree. */
+    function attachTreeNode(config) {
+      var open = true;
+      var body = el('div', { className: 'tree__body' }, config.children);
+      var toggle = el('button', {
+        className: 'tree__toggle u-tap-target',
+        attrs: { type: 'button', 'aria-expanded': 'true', 'aria-label': 'Collapse ' + config.label },
+        on: {
+          click: function () {
+            open = !open;
+            body.hidden = !open;
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', (open ? 'Collapse ' : 'Expand ') + config.label);
+            DA.dom.clear(toggle).appendChild(
+              open ? DA.icons.chevronUp(16) : DA.icons.chevronDown(16)
+            );
+          }
+        }
+      }, [DA.icons.chevronUp(16)]);
+
+      return el('div', { className: 'tree__node' + (config.nested ? ' tree__node--nested' : '') }, [
+        el('div', { className: 'tree__row' }, [
+          toggle,
+          C.Checkbox({
+            ariaLabel: 'Select all accounts under ' + config.label,
+            onChange: function (checked) {
+              config.accounts.forEach(function (account) { account.selected = checked; });
+              renderAttachList();
+            }
+          }),
+          el('span', { className: 'tree__label tree__label--' + config.level, text: config.label })
+        ]),
+        body
+      ]);
+    }
+
+    var attachListMount = el('div', {});
+
+    function renderAttachList() {
+      DA.dom.clear(attachListMount);
+      DA.data.attachableAccounts.forEach(function (parent) {
+        attachListMount.appendChild(attachTreeNode({
+          label: parent.label,
+          level: 'parent',
+          accounts: DA.data.accountsIn([parent]),
+          children: (parent.groups || []).map(function (group) {
+            return attachTreeNode({
+              label: group.label,
+              level: 'group',
+              nested: true,
+              accounts: group.accounts,
+              children: [
+                el('div', { className: 'tree__table' }, [
+                  C.DataTable({
+                    caption: 'Accounts under ' + group.label,
+                    embedded: true,
+                    headerTone: 'warm',
+                    columns: [{
+                      key: 'account',
+                      label: 'Account',
+                      render: function (account) {
+                        return el('div', { className: 'checkbox-row' }, [
+                          C.Checkbox({
+                            checked: Boolean(account.selected),
+                            ariaLabel: 'Select ' + account.account,
+                            onChange: function (checked) {
+                              account.selected = checked;
+                              // Re-rendering the whole list would collapse
+                              // the tree the reader has open; a single
+                              // checkbox's own state doesn't need that.
+                            }
+                          }),
+                          el('a', { text: account.account, attrs: { href: '#account' } })
+                        ]);
+                      }
+                    }],
+                    rows: group.accounts
+                  })
+                ])
+              ]
+            });
+          })
+        }));
+      });
+    }
+
+    /**
+     * Moves every checked candidate into the real account tree -- creating
+     * its parent/subparent there if this is the first account attached
+     * under them -- then clears the picker's own selection.
+     */
+    function applyAttachAccounts() {
+      DA.data.attachableAccounts.forEach(function (parent) {
+        (parent.groups || []).forEach(function (group) {
+          var picked = group.accounts.filter(function (a) { return a.selected; });
+          if (!picked.length) return;
+
+          var targetParent = tree.filter(function (p) { return p.label === parent.label; })[0];
+          if (!targetParent) {
+            targetParent = { label: parent.label, groups: [] };
+            tree.push(targetParent);
+          }
+          var targetGroup = targetParent.groups.filter(function (g) { return g.label === group.label; })[0];
+          if (!targetGroup) {
+            targetGroup = { label: group.label, accounts: [] };
+            targetParent.groups.push(targetGroup);
+          }
+
+          picked.forEach(function (account) {
+            targetGroup.accounts.push({
+              account: account.account,
+              adv: '',
+              commodityTier: '-',
+              associatedBids: 0,
+              type: 'ups',
+              associated: true
+            });
+            account.selected = false;
+          });
+        });
+      });
+    }
+
+    function clearAttachSelection() {
+      DA.data.attachableAccounts.forEach(function (parent) {
+        DA.data.accountsIn([parent]).forEach(function (account) { account.selected = false; });
+      });
+      renderAttachList();
+    }
+
+    function openAttachAccount(trigger) {
+      renderAttachList();
+
+      var drawer = C.Modal({
+        variant: 'drawer',
+        title: 'Attach Account',
+        returnFocusTo: trigger,
+        body: el('div', { className: 'drawer-form' }, [
+          attachListMount,
+          el('div', { className: 'drawer-form__actions' }, [
+            C.Button({
+              label: 'Apply',
+              variant: 'primary',
+              shape: 'pill',
+              icon: DA.icons.chevronRight(14, ''),
+              iconPosition: 'end',
+              onClick: function () {
+                applyAttachAccounts();
+                drawer.close();
+                render();
+                renderStats();
+              }
+            }),
+            C.Button({ label: 'Clear All', variant: 'link', onClick: clearAttachSelection })
+          ])
+        ])
+      });
+
+      drawer.open();
+    }
+
     /* ---- Composition ------------------------------------------------------- */
 
     var search = C.SearchField({
@@ -210,7 +383,7 @@
         }),
         el('p', {}, [el('span', { className: 'page-heading__chip', text: scenario.title })])
       ]),
-      stats,
+      statsMount,
       el('h3', {
         className: 'section-title',
         text: bid.bidNumber + ' - ' + bid.bidName + ' - Account Association'
@@ -224,10 +397,17 @@
           iconPosition: 'end'
         }),
         el('div', { className: 'search-bar__actions' }, [
-          el('a', {
-            className: 'link-with-icon',
-            attrs: { href: '#attach-account' }
-          }, [DA.icons.plusCircle(18), el('span', { text: 'Attach Account' })])
+          (function () {
+            var link = el('a', {
+              className: 'link-with-icon',
+              attrs: { href: '#attach-account' }
+            }, [DA.icons.plusCircle(18), el('span', { text: 'Attach Account' })]);
+            link.addEventListener('click', function (event) {
+              event.preventDefault();
+              openAttachAccount(link);
+            });
+            return link;
+          })()
         ])
       ]),
       treeRoot,

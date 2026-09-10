@@ -44,6 +44,17 @@
     return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
   }
 
+  /**
+   * YYYY-MM-DD -> MM/DD/YYYY, the reverse of toIsoDate -- a native
+   * <input type="date"> always reports its value in ISO, but the rest of
+   * the workflow (weeksBetween, the built packet record) expects the
+   * form's own MM/DD/YYYY. Empty or malformed input yields ''.
+   */
+  function fromIsoDate(text) {
+    var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(text || '').trim());
+    return match ? match[2] + '/' + match[3] + '/' + match[1] : '';
+  }
+
   function formatTimestamp(date) {
     return formatDate(date) + ' ' +
       pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
@@ -54,6 +65,7 @@
     weeksBetween: weeksBetween,
     toDashDate: toDashDate,
     toIsoDate: toIsoDate,
+    fromIsoDate: fromIsoDate,
     formatDate: formatDate,
     formatTimestamp: formatTimestamp
   };
