@@ -72,8 +72,8 @@
         },
         // Bid Number, Bid Name and Construct are plain attributes of the
         // bid, not values to inspect or follow -- only Shipping Profile
-        // (opens a dialog) and, for editable scenarios, Account
-        // Association stay on the table's link-blue.
+        // (opens a dialog) and Account Association stay on the table's
+        // link-blue.
         { key: 'bidNumber', label: 'Bid Number', width: '125px', className: 'is-plain' },
         // Bid Name is left unsized so it absorbs the remaining width.
         { key: 'bidName', label: 'Bid Name', className: 'is-plain' },
@@ -98,11 +98,11 @@
               }
             : null
         },
-        { key: 'construct', label: 'Construct', width: '110px', className: 'is-plain' }
-      ];
-
-      if (scenario.editable) {
-        columns.push({
+        { key: 'construct', label: 'Construct', width: '110px', className: 'is-plain' },
+        // Shown for every scenario, baseline included -- the baseline's
+        // own bids associate accounts the same way an editable
+        // scenario's do, so the column isn't gated on scenario.editable.
+        {
           key: 'accountAssociation',
           label: 'Account Association',
           width: '190px',
@@ -122,8 +122,8 @@
               }
             }, [el('span', { text: 'Accounts' }), DA.icons.settings(14)]);
           }
-        });
-      }
+        }
+      ];
 
       return columns;
     }
@@ -149,7 +149,7 @@
           // Every bid's Structure Details reads from the same shared source
           // set (see scenarioBids.js) -- a simulated one is no different.
           var sharedSource = DA.data.scenarioBids[0] && DA.data.scenarioBids[0].serviceSource;
-          scenario.bids.push({
+          var newBid = {
             bidNumber: bidNumberField.input.value,
             bidName: bidNameField.input.value,
             shippingProfile: 'S' + scenario.number + '-UPS-PLD-' + (scenario.bids.length + 1),
@@ -157,7 +157,16 @@
             selectable: true,
             selected: true,
             serviceSource: sharedSource
-          });
+          };
+          // The non-incented revenue row (the one bid with no checkbox)
+          // always stays last in the table -- a simulated bid slots in
+          // just above it rather than after it.
+          var tailIndex = scenario.bids.findIndex(function (bid) { return !bid.selectable; });
+          if (tailIndex === -1) {
+            scenario.bids.push(newBid);
+          } else {
+            scenario.bids.splice(tailIndex, 0, newBid);
+          }
           drawer.close();
           renderCard();
         }

@@ -84,7 +84,9 @@
   }
 
   .app-header__title {
-    font-size: var(--font-size-lg);
+    /* 2px up from --font-size-lg (16px), matching the same bump the
+       base rule in components.css takes. */
+    font-size: var(--font-size-xl);
   }
 
   .panel__toolbar {

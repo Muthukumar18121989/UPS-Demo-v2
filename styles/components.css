@@ -36,7 +36,10 @@
 }
 
 .app-header__title {
-  font-size: var(--font-size-xl);
+  /* 2px over the --font-size-xl (18px) it used to sit at -- no token for
+     20px on the scale (xl 18 / 2xl 22), so set outright. The 720px
+     breakpoint override in layout.css steps up by the same 2px. */
+  font-size: 1.25rem;
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-tight);
